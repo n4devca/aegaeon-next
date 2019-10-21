@@ -1,0 +1,36 @@
+spring:
+    datasource:
+        jndi-name: jdbc/aegaeon
+    thymeleaf:
+        cache: false
+        mode: HTML
+    mvc:
+        static-path-pattern: /resources/**
+        throw-exception-if-no-handler-found: true
+    messages:
+        encoding: UTF-8
+    jackson:
+        default-property-inclusion: non_null
+aegaeon:
+    config:
+        redis:
+            host: localhost
+            port: 6379
+            password:
+    modules:
+        oauth: true
+        login: true
+        createaccount: true
+        home: true
+        account: true
+        discovery: false
+        admin: true
+        introspect: true
+        information: true
+    info:
+        issuer: https://aegaeon.ca
+        serverName: aegaeon-next
+
+
+
+
