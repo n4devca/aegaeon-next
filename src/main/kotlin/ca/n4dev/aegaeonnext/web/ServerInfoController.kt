@@ -41,18 +41,20 @@ import org.springframework.web.bind.annotation.RestController
  * @since 2.0.0 - Oct 02 - 2019
  *
  */
+
 @RestController
 @RequestMapping("/.well-known/openid-configuration")
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["information"], havingValue = "true", matchIfMissing = true)
 class ServerInfoController {
 
-    val LOGGER = loggerFor(javaClass)
+    private val LOGGER = loggerFor(javaClass)
 
     @Autowired
-    lateinit var aegaeonServerInfo : AegaeonServerInfo;
+    private lateinit var aegaeonServerInfo : AegaeonServerInfo;
 
     @GetMapping("")
     fun info() : ServerInformation {
+        LOGGER.info("Info()")
         return ServerInformation(aegaeonServerInfo.issuer, "", "")
     }
 }

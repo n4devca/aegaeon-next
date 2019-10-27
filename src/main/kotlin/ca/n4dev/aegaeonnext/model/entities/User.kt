@@ -33,7 +33,7 @@ package ca.n4dev.aegaeonnext.model.entities
  */
 data class User (
 
-    val id: Long,
+    val id: Long?,
 
     val userName: String,
 
@@ -45,7 +45,7 @@ data class User (
 
     val enabled: Boolean = false,
 
-    val authorities: Set<UserAuthorityRef>? = emptySet(),
+    val authorities: Set<Authority>? = emptySet(),
 
     val userInfos: Set<UserInfo>? = emptySet()
 )

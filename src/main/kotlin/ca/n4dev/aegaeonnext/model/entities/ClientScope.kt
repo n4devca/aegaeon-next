@@ -22,6 +22,8 @@
 
 package ca.n4dev.aegaeonnext.model.entities
 
+import java.time.LocalDateTime
+
 /**
  *
  * ClientScope.java
@@ -31,6 +33,17 @@ package ca.n4dev.aegaeonnext.model.entities
  * @since 2.0.0 - Sep 26 - 2019
  *
  */
-data class ClientScopeRef (
-    val scopeId: Long 
+data class ClientScope (
+
+    val id: Long?,
+
+    val clientId: Long,
+
+    val scopeId: Long,
+
+    val scopeCode: String,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
 )

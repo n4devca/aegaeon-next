@@ -22,6 +22,8 @@
 
 package ca.n4dev.aegaeonnext.model.entities
 
+import java.time.LocalDateTime
+
 /**
  *
  * ClientContact.java
@@ -32,5 +34,14 @@ package ca.n4dev.aegaeonnext.model.entities
  *
  */
 data class ClientContact (
-    val email: String
+
+    val id: Long?,
+
+    val clientId: Long,
+
+    val email: String,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
 )

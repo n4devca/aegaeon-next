@@ -22,6 +22,8 @@
 
 package ca.n4dev.aegaeonnext.model.entities
 
+import java.time.LocalDateTime
+
 /**
  *
  * ClientFlow.java
@@ -32,5 +34,14 @@ package ca.n4dev.aegaeonnext.model.entities
  *
  */
 data class ClientFlow (
-    val flow: Flow
+
+    val id: Long?,
+
+    val clientId: Long,
+
+    val flow: Flow,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
 )

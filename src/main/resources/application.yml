@@ -30,6 +30,10 @@ aegaeon:
     info:
         issuer: https://aegaeon.ca
         serverName: aegaeon-next
+        logoUrl: default
+        legalEntity: default
+        privacyPolicy: default
+        customStyleSheet: default
 
 
 

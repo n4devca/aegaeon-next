@@ -24,6 +24,8 @@
 
 package ca.n4dev.aegaeonnext.model.entities
 
+import java.time.LocalDateTime
+
 /**
  *
  * Client.java
@@ -34,26 +36,33 @@ package ca.n4dev.aegaeonnext.model.entities
  */
 data class Client(
 
-    val id: Long?,
+        val id: Long?,
 
-    val publicId: String,
+        val publicId: String,
 
-    val secret: String,
+        val secret: String,
 
-    val name: String,
+        val name: String,
 
-    val description: String?,
+        val description: String?,
 
-    val logoUrl: String?,
+        val logoUrl: String?,
 
-    val providerName: String?,
+        val providerName: String?,
 
-    val idTokenSeconds: Long,
+        val idTokenSeconds: Long = 60*10, // 10 minutes
 
-    val accessTokenSeconds: Long,
+        val accessTokenSeconds: Long = 60*60, // 1 hour
 
-    val refreshTokenSeconds: Long,
+        val refreshTokenSeconds: Long = 60*60*24, // 24 hours
 
-    val allowIntrospect: Boolean = false
+        val allowIntrospect: Boolean = false,
 
+        val createdAt: LocalDateTime = LocalDateTime.now(),
+
+        val updatedAt: LocalDateTime = LocalDateTime.now(),
+
+        val version: Int = 0,
+
+        val createdBy: String
 )

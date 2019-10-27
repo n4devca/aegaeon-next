@@ -51,5 +51,9 @@ data class AuthorizationCode(
 
     val responseType: String,
 
-    val noonce: String
+    val noonce: String,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
 )

@@ -22,10 +22,12 @@
 
 package ca.n4dev.aegaeonnext.config
 
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Configuration
+import org.springframework.stereotype.Component
 
 /**
  *
@@ -36,7 +38,6 @@ import org.springframework.context.annotation.Configuration
  * @since 2.0.0 - Oct 04 - 2019
  *
  */
-@Configuration
 @ConstructorBinding
 @ConfigurationProperties("aegaeon.info")
 data class AegaeonServerInfo (

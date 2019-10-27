@@ -22,6 +22,8 @@
 
 package ca.n4dev.aegaeonnext.model.entities
 
+import java.time.LocalDateTime
+
 
 /**
  *
@@ -37,5 +39,9 @@ data class Authority(
     val id: Long,
 
     // ROLE_USER, ROLE_ADMIN
-    val code: String
+    val code: String,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
 )

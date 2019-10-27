@@ -45,5 +45,9 @@ data class IdToken(
 
     val scopes: String,
 
-    val validUntil: LocalDateTime
+    val validUntil: LocalDateTime,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
 )
