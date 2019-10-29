@@ -49,6 +49,9 @@ private const val GET_ALL_USERS =
 private const val GET_USER_INFO_BY_USERID =
     "select id, user_id, scope_id, claimName, claimValue from user_info where user_id = :user_id"
 
+private const val GET_USER_BY_USERNAME =
+    "select id, userName, passwd, unique_identifier, name, enabled from users where userName = :userName"
+
 private const val GET_USER_INFO_BY_USERIDS =
     "select id, user_id, scope_id, claimName, claimValue from user_info where user_id in :user_id order by user_id"
 
@@ -90,6 +93,9 @@ class UserRepository : BaseRepository() {
 
     fun getUserInfoByUserId(userId: Long) : List<UserInfo> =
         jdbcTemplate.query(GET_USER_INFO_BY_USERID, params("user_id", userId), resultSetToUserInfo)
+
+    fun getUserInfoByUserName(userName: String) : User? =
+        jdbcTemplate.queryForObject(GET_USER_BY_USERNAME, params("userName", userName), resultSetToUser)
 
     fun getUserInfoByUserId(userId: Set<Long>) : List<UserInfo> =
         jdbcTemplate.query(GET_USER_INFO_BY_USERIDS, params("user_id", userId), resultSetToUserInfo)
