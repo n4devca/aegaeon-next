@@ -20,33 +20,45 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.config
+package ca.n4dev.aegaeonnext.model.dto
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import ca.n4dev.aegaeonnext.model.entities.Flow
 
 /**
  *
- * AegaeonServerInfo.java
+ * ClientDto.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 04 - 2019
+ * @since 2.0.0 - Oct 22 - 2019
  *
  */
-@ConstructorBinding
-@ConfigurationProperties("aegaeon.info")
-data class AegaeonServerInfo(
 
-    val issuer: String,
+data class ClientDto(
+    val id: Long?,
+    val publicId: String,
+    val secret: String,
+    val name: String,
+    val logoUrl: String?,
+    val scopes: Map<String, Long?> = emptyMap(),
+    val flows: Map<Flow, Long?> = emptyMap()
+) {
+    override fun toString(): String {
+        return "ClientDto(id=$id, publicId='$publicId', name='$name')"
+    }
+}
 
-    val serverName: String,
+//    var publicId: String
+//    var secret: String
+//    var name: String
+//    var description: String?
+//    var logoUrl: String?
+//    var providerName: String?
+//    var idTokenSeconds: Long
+//    var accessTokenSeconds: Long
+//    var refreshTokenSeconds: Long
+//    var allowIntrospect: Boolean = false
+//    var createdAt: LocalDateTime = LocalDateTime.now()
+//    var updatedAt: LocalDateTime = LocalDateTime.now()
+//    var version: Int = 0
 
-    val logoUrl: String,
-
-    val legalEntity: String,
-
-    val privacyPolicy: String,
-
-    val customStyleSheet: String
-)

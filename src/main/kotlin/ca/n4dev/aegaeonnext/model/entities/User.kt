@@ -43,9 +43,11 @@ data class User (
 
     val name: String,
 
-    val enabled: Boolean = false,
+    val enabled: Boolean = false
 
-    val authorities: Set<Authority>? = emptySet(),
+) {
 
-    val userInfos: Set<UserInfo>? = emptySet()
-)
+    var authorities: Set<Authority> = emptySet()
+
+    var userInfos: Set<UserInfo> = emptySet()
+}

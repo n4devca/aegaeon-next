@@ -22,8 +22,6 @@
 
 package ca.n4dev.aegaeonnext.model.entities
 
-import java.time.LocalDateTime
-
 /**
  *
  * Scope.java
@@ -40,11 +38,5 @@ data class Scope (
 
     val code: String,
 
-    val isSystem: Boolean,
-
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    val updatedAt: LocalDateTime = LocalDateTime.now(),
-
-    val version: Int = 0
+    val isSystem: Boolean
 )

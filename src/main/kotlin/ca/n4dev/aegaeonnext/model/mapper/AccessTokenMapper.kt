@@ -17,36 +17,30 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.config
+package ca.n4dev.aegaeonnext.model.mapper
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import ca.n4dev.aegaeonnext.model.dto.TokenDto
+import ca.n4dev.aegaeonnext.model.entities.AccessToken
 
 /**
  *
- * AegaeonServerInfo.java
+ * TokenMapper.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 04 - 2019
+ * @since 2.0.0 - Oct 30 - 2019
  *
  */
-@ConstructorBinding
-@ConfigurationProperties("aegaeon.info")
-data class AegaeonServerInfo(
+class AccessTokenMapper : Mapper<AccessToken, TokenDto> {
 
-    val issuer: String,
+    override fun toEntity(dto: TokenDto): AccessToken {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
-    val serverName: String,
+    override fun toDto(entity: AccessToken): TokenDto {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
 
-    val logoUrl: String,
-
-    val legalEntity: String,
-
-    val privacyPolicy: String,
-
-    val customStyleSheet: String
-)
+}

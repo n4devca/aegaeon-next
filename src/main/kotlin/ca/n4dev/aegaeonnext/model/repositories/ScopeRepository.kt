@@ -17,36 +17,48 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.config
+package ca.n4dev.aegaeonnext.model.repositories
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import ca.n4dev.aegaeonnext.model.entities.Scope
+import org.springframework.jdbc.core.RowMapper
+import org.springframework.stereotype.Repository
 
 /**
  *
- * AegaeonServerInfo.java
+ * ScopeRepository.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 04 - 2019
+ * @since 2.0.0 - Oct 30 - 2019
  *
  */
-@ConstructorBinding
-@ConfigurationProperties("aegaeon.info")
-data class AegaeonServerInfo(
 
-    val issuer: String,
+private const val GET_ALL = """
+    select id, name, is_system
+    from scope 
+"""
 
-    val serverName: String,
 
-    val logoUrl: String,
+private const val GET_BY_NAME = """
+    select id, name, is_system
+    from scope 
+    where name = :name
+"""
 
-    val legalEntity: String,
+private val resultSetToScope = RowMapper { rs, _ ->
+    Scope(
+        rs.getLong(1),
+        rs.getString(2),
+        rs.getBoolean(3)
+    )
+}
 
-    val privacyPolicy: String,
+@Repository
+class ScopeRepository : BaseRepository() {
 
-    val customStyleSheet: String
-)
+    fun getAll() = jdbcTemplate.query(GET_ALL, resultSetToScope)
+
+    fun getByName(name: String) = jdbcTemplate.queryForObject(GET_BY_NAME, params("name", name), resultSetToScope)
+}

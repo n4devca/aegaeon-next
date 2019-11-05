@@ -19,34 +19,25 @@
  * under the License.
  *
  */
+package ca.n4dev.aegaeonnext.service
 
-package ca.n4dev.aegaeonnext.config
+import ca.n4dev.aegaeonnext.model.dto.ScopeDto
+import ca.n4dev.aegaeonnext.model.entities.Scope
+import ca.n4dev.aegaeonnext.model.repositories.ScopeRepository
+import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+private val scopeToDto = { scope: Scope ->
+    ScopeDto(
+        scope.id!!,
+        scope.code
+    )
+}
 
-/**
- *
- * AegaeonServerInfo.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Oct 04 - 2019
- *
- */
-@ConstructorBinding
-@ConfigurationProperties("aegaeon.info")
-data class AegaeonServerInfo(
+@Service
+class ScopeService(private val scopeRepository: ScopeRepository) {
 
-    val issuer: String,
+    @Transactional(readOnly = true)
+    fun getAll() = scopeRepository.getAll().map { scopeToDto(it) }.toSet()
 
-    val serverName: String,
-
-    val logoUrl: String,
-
-    val legalEntity: String,
-
-    val privacyPolicy: String,
-
-    val customStyleSheet: String
-)
+}

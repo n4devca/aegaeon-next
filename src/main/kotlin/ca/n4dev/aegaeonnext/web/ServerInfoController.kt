@@ -27,7 +27,6 @@ import ca.n4dev.aegaeonnext.loggerFor
 import ca.n4dev.aegaeonnext.web.view.ServerInformation
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -50,10 +49,10 @@ class ServerInfoController {
     private val LOGGER = loggerFor(javaClass)
 
     @Autowired
-    private lateinit var aegaeonServerInfo : AegaeonServerInfo;
+    private lateinit var aegaeonServerInfo: AegaeonServerInfo;
 
     @GetMapping("")
-    fun info() : ServerInformation {
+    fun info(): ServerInformation {
         LOGGER.info("Info()")
         return ServerInformation(aegaeonServerInfo.issuer, "", "")
     }

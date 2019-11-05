@@ -17,36 +17,38 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.config
+package ca.n4dev.aegaeonnext.model.repositories
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import ca.n4dev.aegaeonnext.model.entities.Authority
+import org.springframework.jdbc.core.RowMapper
+import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
+import java.time.ZoneId
 
 /**
  *
- * AegaeonServerInfo.java
- * TODO(rguillemette) Add description.
+ * AuthorityRepository.java
+ *
+ * Repository to access Authority.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 04 - 2019
+ * @since 2.0.0 - Nov 04 - 2019
  *
  */
-@ConstructorBinding
-@ConfigurationProperties("aegaeon.info")
-data class AegaeonServerInfo(
 
-    val issuer: String,
+private const val GET_ALL = "select id, code, created_at, updated_at, version from authority"
 
-    val serverName: String,
+private val resultSetToAuthority = RowMapper { rs, _ ->
+    Authority(rs.getLong(1),
+        rs.getString(2),
+        LocalDateTime.ofInstant(rs.getDate(3).toInstant(), ZoneId.systemDefault()),
+        rs.getInt(5))
+}
 
-    val logoUrl: String,
+@Repository
+class AuthorityRepository : BaseRepository() {
 
-    val legalEntity: String,
-
-    val privacyPolicy: String,
-
-    val customStyleSheet: String
-)
+    fun getAll() = jdbcTemplate.query(GET_ALL, resultSetToAuthority)
+}

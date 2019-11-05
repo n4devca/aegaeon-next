@@ -25,12 +25,9 @@ package ca.n4dev.aegaeonnext.model.repositories
 import ca.n4dev.aegaeonnext.model.entities.Authority
 import ca.n4dev.aegaeonnext.model.entities.User
 import ca.n4dev.aegaeonnext.model.entities.UserInfo
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
-import java.sql.ResultSet
 import java.time.LocalDateTime
 import java.time.ZoneId
 
@@ -61,7 +58,7 @@ private const val GET_AUTHORITY_BY_USERID = """
     where ua.user_id = :user_id
 """
 
-private val resultSetToUser = RowMapper {rs, _ ->
+private val resultSetToUser = RowMapper { rs, _ ->
     User(
         rs.getLong(1),
         rs.getString(2),
@@ -72,7 +69,7 @@ private val resultSetToUser = RowMapper {rs, _ ->
     )
 }
 
-private val resultSetToUserInfo = RowMapper {rs, _ ->
+private val resultSetToUserInfo = RowMapper { rs, _ ->
     UserInfo(rs.getLong(1), rs.getLong(2), rs.getLong(3), rs.getString(3), rs.getString(4))
 }
 
@@ -88,19 +85,19 @@ private val resultSetToAuthority = RowMapper { rs, _ ->
 @Repository
 class UserRepository : BaseRepository() {
 
-    fun getAllUsers(pageable: Pageable) : List<User> =
+    fun getAllUsers(pageable: Pageable): List<User> =
         jdbcTemplate.query(GET_ALL_USERS, params("offset", pageable.offset, "limit", pageable.pageSize), resultSetToUser)
 
-    fun getUserInfoByUserId(userId: Long) : List<UserInfo> =
+    fun getUserInfoByUserId(userId: Long): List<UserInfo> =
         jdbcTemplate.query(GET_USER_INFO_BY_USERID, params("user_id", userId), resultSetToUserInfo)
 
-    fun getUserInfoByUserName(userName: String) : User? =
+    fun getUserInfoByUserName(userName: String): User? =
         jdbcTemplate.queryForObject(GET_USER_BY_USERNAME, params("userName", userName), resultSetToUser)
 
-    fun getUserInfoByUserId(userId: Set<Long>) : List<UserInfo> =
+    fun getUserInfoByUserId(userId: Set<Long>): List<UserInfo> =
         jdbcTemplate.query(GET_USER_INFO_BY_USERIDS, params("user_id", userId), resultSetToUserInfo)
 
-    fun getUserAuthorities(userId: Long) : List<Authority> =
+    fun getUserAuthorities(userId: Long): List<Authority> =
         jdbcTemplate.query(GET_AUTHORITY_BY_USERID, params("user_id", userId), resultSetToAuthority)
 
 }

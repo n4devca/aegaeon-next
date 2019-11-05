@@ -17,36 +17,22 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.config
-
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+package ca.n4dev.aegaeonnext.model.dto
 
 /**
  *
- * AegaeonServerInfo.java
+ * ScopeDto.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 04 - 2019
+ * @since 2.0.0 - Oct 30 - 2019
  *
  */
-@ConstructorBinding
-@ConfigurationProperties("aegaeon.info")
-data class AegaeonServerInfo(
+class ScopeDto(val id: Long, val name: String) {
 
-    val issuer: String,
-
-    val serverName: String,
-
-    val logoUrl: String,
-
-    val legalEntity: String,
-
-    val privacyPolicy: String,
-
-    val customStyleSheet: String
-)
+    override fun toString(): String {
+        return "ScopeDto(id=$id, name='$name')"
+    }
+}

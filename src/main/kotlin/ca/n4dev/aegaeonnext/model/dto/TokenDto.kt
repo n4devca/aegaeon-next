@@ -17,36 +17,25 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.config
+package ca.n4dev.aegaeonnext.model.dto
 
-import org.springframework.boot.context.properties.ConfigurationProperties
-import org.springframework.boot.context.properties.ConstructorBinding
+import java.time.ZonedDateTime
 
 /**
  *
- * AegaeonServerInfo.java
+ * TokenDto.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 04 - 2019
+ * @since 2.0.0 - Oct 30 - 2019
  *
  */
-@ConstructorBinding
-@ConfigurationProperties("aegaeon.info")
-data class AegaeonServerInfo(
-
-    val issuer: String,
-
-    val serverName: String,
-
-    val logoUrl: String,
-
-    val legalEntity: String,
-
-    val privacyPolicy: String,
-
-    val customStyleSheet: String
+data class TokenDto(
+    val id: Long,
+    val token: String,
+    val tokenType: String,
+    val scopes: String,
+    val validUntil: ZonedDateTime
 )
