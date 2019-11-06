@@ -22,10 +22,9 @@
 package ca.n4dev.aegaeonnext.model.repositories
 
 import ca.n4dev.aegaeonnext.model.entities.Authority
+import ca.n4dev.aegaeonnext.utils.toLocalDateTime
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 /**
  *
@@ -43,7 +42,7 @@ private const val GET_ALL = "select id, code, created_at, updated_at, version fr
 private val resultSetToAuthority = RowMapper { rs, _ ->
     Authority(rs.getLong(1),
         rs.getString(2),
-        LocalDateTime.ofInstant(rs.getDate(3).toInstant(), ZoneId.systemDefault()),
+        toLocalDateTime(rs.getDate(3)),
         rs.getInt(5))
 }
 

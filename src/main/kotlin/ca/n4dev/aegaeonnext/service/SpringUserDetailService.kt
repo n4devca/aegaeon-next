@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service
  *
  */
 @Service("userDetailsService")
-class SpringAuthUserDetailsService(val userRepository: UserRepository) : UserDetailsService {
+class SpringAuthUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
 
     /* (non-Javadoc)
      * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)

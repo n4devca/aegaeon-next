@@ -23,11 +23,10 @@
 package ca.n4dev.aegaeonnext.model.repositories
 
 import ca.n4dev.aegaeonnext.model.entities.AccessToken
+import ca.n4dev.aegaeonnext.utils.toLocalDateTime
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 /**
  *
@@ -52,8 +51,8 @@ private val resultSetToAccessToken = RowMapper { rs: ResultSet, _: Int ->
         rs.getLong(3),
         rs.getLong(4),
         rs.getString(5),
-        LocalDateTime.ofInstant(rs.getDate(5).toInstant(), ZoneId.systemDefault()),
-        LocalDateTime.ofInstant(rs.getDate(6).toInstant(), ZoneId.systemDefault()),
+        toLocalDateTime(rs.getDate(5)),
+        toLocalDateTime(rs.getDate(6)),
         rs.getInt(7))
 }
 
@@ -64,5 +63,5 @@ class AccessTokenRepository : BaseRepository() {
         jdbcTemplate.queryForObject(GET_BY_TOKEN, mapOf(Pair("token", token)), resultSetToAccessToken)
 
     fun getByUserId(userId: Long): List<AccessToken> =
-        jdbcTemplate.query(GET_BY_USER_ID, mapOf(Pair("user_id", userId)), resultSetToAccessToken);
+        jdbcTemplate.query(GET_BY_USER_ID, mapOf(Pair("user_id", userId)), resultSetToAccessToken)
 }

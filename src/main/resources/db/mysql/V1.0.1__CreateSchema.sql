@@ -121,7 +121,7 @@ CREATE TABLE `user_info` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ;
 
-CREATE TABLE `users_authorization` (
+CREATE TABLE `user_authorization` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,

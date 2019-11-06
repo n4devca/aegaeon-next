@@ -17,48 +17,34 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.utils
+package ca.n4dev.aegaeonnext.model.entities
 
 import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.*
 
 /**
  *
- * Utils.java
+ * UserAuthorization.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 23 - 2019
+ * @since 2.0.0 - Nov 05 - 2019
  *
  */
+data class UserAuthorization(
 
-const val DASH: String = "-"
+    val id: Long?,
 
-fun <T> requireNonNull(value: T?, pExceptionCreator : () -> Exception) : T {
-    if (value != null) {
-        return value
-    }
-    throw pExceptionCreator.invoke()
-}
+    val userId: Long,
 
+    val clientId: Long,
 
-fun asString(pObject: Any?): String {
+    val scopes: String,
 
-    return if (pObject != null) {
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 
-        if (pObject is String) {
-            pObject
-        } else {
-            pObject.toString()
-        }
-    } else DASH
-}
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
 
-
-fun join(vararg pStrings: String) = pStrings.joinToString(" ")
-
-fun toLocalDateTime(date: Date) = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+    val version: Int = 0
+)

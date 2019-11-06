@@ -167,7 +167,7 @@ CREATE INDEX usr_if_userid_idx on user_info (user_id);
 CREATE INDEX usr_if_userinftypeid_idx on user_info (user_info_type_id);
 CREATE TRIGGER usr_if_updatedat_trg BEFORE UPDATE ON user_info_type FOR EACH ROW EXECUTE PROCEDURE model_updatedat();
 
-CREATE TABLE users_authorization (
+CREATE TABLE user_authorization (
   id SERIAL,
   user_id int NOT NULL,
   client_id int NOT NULL,
@@ -181,9 +181,9 @@ CREATE TABLE users_authorization (
 )  
 ;
 
-CREATE UNIQUE INDEX uath_uid_cid_uq on users_authorization (user_id, client_id);
-CREATE INDEX uath_clientid_idx on users_authorization (client_id);
-CREATE INDEX uath_userid_idx on users_authorization (user_id);
+CREATE UNIQUE INDEX uath_uid_cid_uq on user_authorization (user_id, client_id);
+CREATE INDEX uath_clientid_idx on user_authorization (client_id);
+CREATE INDEX uath_userid_idx on user_authorization (user_id);
 CREATE TRIGGER uath_updatedat_trg BEFORE UPDATE ON user_info_type FOR EACH ROW EXECUTE PROCEDURE model_updatedat();
 
 CREATE TABLE user_authority (

@@ -22,10 +22,12 @@
 
 package ca.n4dev.aegaeonnext.config
 
+import ca.n4dev.aegaeonnext.security.AccessTokenAuthenticationFilter
+import ca.n4dev.aegaeonnext.security.AccessTokenAuthenticationProvider
 import ca.n4dev.aegaeonnext.service.AuthenticationService
 import ca.n4dev.aegaeonnext.web.IntrospectControllerURL
 import ca.n4dev.aegaeonnext.web.TokensControllerURL
-import ca.n4dev.aegaeonnext.web.UserInfoController
+import ca.n4dev.aegaeonnext.web.UserInfoControllerURL
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -141,7 +143,7 @@ class UserInfoWebSecurityConfigurerAdapter(val serverInfo: AegaeonServerInfo,
 
 
     fun accessTokenAuthenticationProvider(): AccessTokenAuthenticationProvider {
-        return AccessTokenAuthenticationProvider(authenticationService, serverInfo)
+        return AccessTokenAuthenticationProvider(authenticationService)
     }
 
     @Bean
@@ -151,7 +153,7 @@ class UserInfoWebSecurityConfigurerAdapter(val serverInfo: AegaeonServerInfo,
 
     override fun configure(pHttp: HttpSecurity) {
         pHttp
-            .antMatcher(UserInfoController.URL)
+            .antMatcher(UserInfoControllerURL)
             .authorizeRequests()
             .anyRequest().hasAnyAuthority(ROLE_USER)
             .and()

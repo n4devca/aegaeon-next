@@ -46,11 +46,11 @@ fun clientToClientDto(client: Client, clientScopes: List<ClientScope>, clientFlo
     val scopeMap = clientScopes.associate { Pair(it.scopeCode, it.id) }
     val flowMap = clientFlows.associate { Pair(it.flow, it.id) }
 
-    return ClientDto(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap);
+    return ClientDto(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap)
 }
 
 @Service
-class ClientService(val clientRepository: ClientRepository) {
+class ClientService(private val clientRepository: ClientRepository) {
 
     @Transactional(readOnly = true)
     fun getById(id: Long) : ClientDto? {
@@ -74,8 +74,8 @@ class ClientService(val clientRepository: ClientRepository) {
 
     private fun loadClientInfo(client: Client) : ClientDto? {
 
-        var clientScopes = emptyList<ClientScope>();
-        var clientFlows = emptyList<ClientFlow>();
+        var clientScopes = emptyList<ClientScope>()
+        var clientFlows = emptyList<ClientFlow>()
 
         client.id?.let {
             clientScopes = clientRepository.getClientScopesByClientId(it)

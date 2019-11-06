@@ -22,9 +22,7 @@
 package ca.n4dev.aegaeonnext.service
 
 import ca.n4dev.aegaeonnext.loggerFor
-import ca.n4dev.aegaeonnext.model.entities.AccessToken
 import ca.n4dev.aegaeonnext.model.mapper.UserMapper
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -49,57 +47,62 @@ class AuthenticationService(private val accessTokenService: AccessTokenService,
 
     @Transactional(readOnly = true)
     fun authenticate(pAccessToken: String?): Authentication {
-
-        var accessToken: AccessToken? = null
-        val tokenStr = pAccessToken ?: "-"
-
-        try {
-            if (!pAccessToken.isNullOrBlank()) {
-
-                // Should be parseable
-                SignedJWT.parse(pAccessToken)
-
-                // Now Get it
-                accessToken = this.accessTokenService.findByToken(pAccessToken)
-            }
-
-            // Exists ?
-            if (accessToken == null) {
-                throw AuthenticationCredentialsNotFoundException("$tokenStr is invalid or has been revoked.")
-            }
-
-            // Still Valid ?
-            if (!Utils.isAfterNow(accessToken!!.getValidUntil())) {
-                throw AuthenticationCredentialsNotFoundException("$tokenStr is expired.")
-            }
-
-            // Validate
-            if (!this.tokenFactory.validate(accessToken!!.getClient(), pAccessToken)) {
-                throw AccessTokenAuthenticationException("The JWT is not valid")
-            }
-
-            val u = accessToken!!.getUser()
-            val roles = MutableList<String>()
-
-            if (u.getAuthorities() != null) {
-                u.getAuthorities().forEach { a -> roles.add(a.getCode()) }
-            }
-            val uv = this.userMapper.toDto(u)
-
-            return AccessTokenAuthentication(
-                uv,
-                pAccessToken,
-                scopeService.getValidScopes(accessToken!!.getScopes()),
-                roles)
-
-        } catch (pe: ParseException) {
-            LOGGER.info("AccessTokenAuthenticationProvider#authenticate: unable to parse as JWT")
-            throw AccessTokenAuthenticationException("AccessTokenAuthenticationProvider#authenticate: unable to parse as JWT")
-        } catch (e: Exception) {
-            LOGGER.info("AccessTokenAuthenticationProvider#authenticate: Error checking JWT token")
-            throw AccessTokenAuthenticationException("Error checking JWT token")
-        }
-
+        TODO("not implemented yet")
     }
+
+//    @Transactional(readOnly = true)
+//    fun authenticate(pAccessToken: String?): Authentication {
+//
+//        var accessToken: AccessToken? = null
+//        val tokenStr = pAccessToken ?: "-"
+//
+//        try {
+//            if (!pAccessToken.isNullOrBlank()) {
+//
+//                // Should be parseable
+//                SignedJWT.parse(pAccessToken)
+//
+//                // Now Get it
+//                accessToken = this.accessTokenService.findByToken(pAccessToken)
+//            }
+//
+//            // Exists ?
+//            if (accessToken == null) {
+//                throw AuthenticationCredentialsNotFoundException("$tokenStr is invalid or has been revoked.")
+//            }
+//
+//            // Still Valid ?
+//            if (!Utils.isAfterNow(accessToken!!.getValidUntil())) {
+//                throw AuthenticationCredentialsNotFoundException("$tokenStr is expired.")
+//            }
+//
+//            // Validate
+//            if (!this.tokenFactory.validate(accessToken!!.getClient(), pAccessToken)) {
+//                throw AccessTokenAuthenticationException("The JWT is not valid")
+//            }
+//
+//            val u = accessToken!!.getUser()
+//            val roles = MutableList<String>()
+//
+//            if (u.getAuthorities() != null) {
+//                u.getAuthorities().forEach { a -> roles.add(a.getCode()) }
+//            }
+//            val uv = this.userMapper.toDto(u)
+//
+//            return AccessTokenAuthentication(
+//                uv,
+//                pAccessToken,
+//                scopeService.getValidScopes(accessToken!!.getScopes()),
+//                roles)
+//
+//        } catch (pe: ParseException) {
+//            LOGGER.info("AccessTokenAuthenticationProvider#authenticate: unable to parse as JWT")
+//            throw AccessTokenAuthenticationException("AccessTokenAuthenticationProvider#authenticate: unable to parse as JWT")
+//        } catch (e: Exception) {
+//            LOGGER.info("AccessTokenAuthenticationProvider#authenticate: Error checking JWT token")
+//            throw AccessTokenAuthenticationException("Error checking JWT token")
+//        }
+//
+//    }
 
 }

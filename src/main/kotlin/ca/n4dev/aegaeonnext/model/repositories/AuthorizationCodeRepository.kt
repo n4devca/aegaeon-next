@@ -22,11 +22,10 @@
 package ca.n4dev.aegaeonnext.model.repositories
 
 import ca.n4dev.aegaeonnext.model.entities.AuthorizationCode
+import ca.n4dev.aegaeonnext.utils.toLocalDateTime
 import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
-import java.time.ZoneId
 
 /**
  *
@@ -67,12 +66,12 @@ private val resultSetToAuthCode = RowMapper { rs, _ ->
         rs.getString(2),
         rs.getLong(3),
         rs.getLong(4),
-        LocalDateTime.ofInstant(rs.getDate(5).toInstant(), ZoneId.systemDefault()),
+        toLocalDateTime(rs.getDate(5)),
         rs.getString(6),
         rs.getString(7),
         rs.getString(8),
         rs.getString(9),
-        LocalDateTime.ofInstant(rs.getDate(10).toInstant(), ZoneId.systemDefault()),
+        toLocalDateTime(rs.getDate(10)),
         rs.getInt(12)
     )
 }

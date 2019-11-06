@@ -27,6 +27,7 @@ import ca.n4dev.aegaeonnext.model.entities.ClientFlow
 import ca.n4dev.aegaeonnext.model.entities.ClientScope
 import ca.n4dev.aegaeonnext.model.entities.Flow
 import ca.n4dev.aegaeonnext.utils.requireNonNull
+import ca.n4dev.aegaeonnext.utils.toLocalDateTime
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
@@ -102,8 +103,8 @@ private val resultSetToClient = RowMapper { rs, _ ->
         rs.getLong(9),
         rs.getLong(10),
         rs.getBoolean(11),
-        LocalDateTime.ofInstant(rs.getDate(12).toInstant(), ZoneId.systemDefault()),
-        LocalDateTime.ofInstant(rs.getDate(13).toInstant(), ZoneId.systemDefault()),
+        toLocalDateTime(rs.getDate(12)),
+        toLocalDateTime(rs.getDate(13)),
         rs.getInt(14),
         rs.getString(15)
     )
@@ -164,13 +165,13 @@ class ClientRepository : BaseRepository() {
                 Pair("created_at", LocalDateTime.now()),
                 Pair("updated_at", LocalDateTime.now()),
                 Pair("version", 0),
-                Pair("created_by", "n/a"));
+                Pair("created_by", "n/a"))
 
         val key = insertTemplate.executeAndReturnKey(clientParams)
         return key as Long
     }
 
-    fun update(id: Long, updatedClient: Client): Unit {
+    fun update(id: Long, updatedClient: Client) {
 
         val client = requireNonNull(getClientById(id)) {
             Exception("Client $id cannot be found.")
