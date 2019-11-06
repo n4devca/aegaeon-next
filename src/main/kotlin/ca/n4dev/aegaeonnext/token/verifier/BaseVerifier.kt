@@ -51,8 +51,7 @@ abstract class BaseJwtVerifier(protected var serverInfo: AegaeonServerInfo) : Ve
 
         try {
             val signedJWT = SignedJWT.parse(pToken)
-            return signedJWT.verify(getJwsVerifier()) && signedJWT.getJWTClaimsSet().getIssuer().equals(
-                this.serverInfo.issuer)
+            return signedJWT.verify(getJwsVerifier()) && signedJWT.jwtClaimsSet.issuer == this.serverInfo.issuer
         } catch (e: Exception) {
             // ignore
         }
@@ -83,8 +82,7 @@ abstract class BaseJwtVerifier(protected var serverInfo: AegaeonServerInfo) : Ve
         try {
             val signedJWT = SignedJWT.parse(pToken)
 
-            if (signedJWT.verify(getJwsVerifier()) && signedJWT.getJWTClaimsSet().getIssuer().equals(
-                    this.serverInfo.issuer)) {
+            if (signedJWT.verify(getJwsVerifier()) && signedJWT.jwtClaimsSet.issuer == this.serverInfo.issuer) {
 
                 return extract(signedJWT)
             }
@@ -101,7 +99,7 @@ abstract class BaseJwtVerifier(protected var serverInfo: AegaeonServerInfo) : Ve
 
             val jwtClaimsSet = pSignedJWT.jwtClaimsSet
 
-            val sub = jwtClaimsSet.getSubject()
+            val sub = jwtClaimsSet.subject
             val name = jwtClaimsSet.getStringClaim(Claims.NAME.value)
 
             val claims = jwtClaimsSet.claims

@@ -37,5 +37,5 @@ fun asString(pObject: Any?): String {
 
 
 fun join(vararg pStrings: String): String {
-    return pStrings?.joinToString(" ") ?: ""
+    return pStrings.joinToString(" ")
 }
