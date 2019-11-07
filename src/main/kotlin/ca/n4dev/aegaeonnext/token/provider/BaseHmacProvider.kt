@@ -25,7 +25,6 @@ package ca.n4dev.aegaeonnext.token.provider
 import ca.n4dev.aegaeonnext.config.AegaeonServerInfo
 import ca.n4dev.aegaeonnext.token.*
 import ca.n4dev.aegaeonnext.token.key.KeysProvider
-import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
 import com.nimbusds.jose.JWSSigner
 import com.nimbusds.jose.crypto.MACSigner
@@ -52,8 +51,6 @@ abstract class BaseHmacProvider(protected val pKeysProvider: KeysProvider, prote
     protected var signer: JWSSigner? = null
     protected var keyId: String? = null
     protected var enabled = false
-
-    protected abstract fun getJWSAlgorithm(): JWSAlgorithm
 
     init {
         val keySet = pKeysProvider.jwkSet
@@ -88,9 +85,6 @@ abstract class BaseHmacProvider(protected val pKeysProvider: KeysProvider, prote
         return this.enabled
     }
 
-    override fun getAlgorithmName(): String {
-        return getJWSAlgorithm().toString()
-    }
 
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#createToken(ca.n4dev.aegaeon.api.token.OAuthUser, ca.n4dev.aegaeon.api.token.OAuthClient, java.lang.Long, java.time.temporal.TemporalUnit, java.util.List)

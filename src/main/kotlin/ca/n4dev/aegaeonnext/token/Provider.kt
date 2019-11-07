@@ -22,6 +22,7 @@
 
 package ca.n4dev.aegaeonnext.token
 
+import com.nimbusds.jose.JWSAlgorithm
 import java.time.temporal.TemporalUnit
 
 
@@ -36,10 +37,7 @@ import java.time.temporal.TemporalUnit
  */
 interface Provider {
 
-    /**
-     * @return The name of this provider. Must be unique.
-     */
-    fun getAlgorithmName(): String
+    fun getJWSAlgorithm(): JWSAlgorithm
 
     /**
      * @return The type of token created by this provider.
@@ -77,4 +75,8 @@ interface Provider {
                     pTemporalUnit: TemporalUnit,
                     pPayloads: Map<String, Any>,
                     tokenType: TokenType): Token
+
+    fun getAlgorithmName(): String {
+        return getJWSAlgorithm().toString()
+    }
 }
