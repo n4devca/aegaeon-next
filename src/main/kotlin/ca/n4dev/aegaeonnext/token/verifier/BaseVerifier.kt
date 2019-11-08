@@ -38,11 +38,7 @@ import com.nimbusds.jwt.SignedJWT
  *
  */
 
-abstract class BaseJwtVerifier(protected var serverInfo: AegaeonServerInfo) : Verifier {
-
-    protected abstract fun getTokenProviderType(): TokenProviderType
-
-    protected abstract fun getJwsVerifier(): JWSVerifier
+abstract class BaseVerifier(protected var serverInfo: AegaeonServerInfo) : Verifier {
 
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.verifier.TokenVerifier#validate(java.lang.String)

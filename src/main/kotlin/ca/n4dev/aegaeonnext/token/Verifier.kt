@@ -22,6 +22,8 @@
 
 package ca.n4dev.aegaeonnext.token
 
+import com.nimbusds.jose.JWSVerifier
+
 /**
  *
  * Verifier.java
@@ -36,7 +38,9 @@ interface Verifier {
     /**
      * @return The name of this verifier. Must be unique.
      */
-    fun getVerifierName(): String
+    fun getAlgorithmName(): String {
+        return getType().toString()
+    }
 
     /**
      * @return The type of token managed by this verifier.
@@ -71,4 +75,6 @@ interface Verifier {
      * @return An OAuthUser created from the jwt token or null.
      */
     fun extractAndValidate(pToken: String): OAuthUserAndClaim?
+
+    fun getJwsVerifier(): JWSVerifier?
 }

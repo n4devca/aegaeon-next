@@ -23,10 +23,21 @@
 package ca.n4dev.aegaeonnext.token.provider
 
 import ca.n4dev.aegaeonnext.config.AegaeonServerInfo
-import ca.n4dev.aegaeonnext.token.TokenProviderType
+import ca.n4dev.aegaeonnext.token.*
 import ca.n4dev.aegaeonnext.token.key.KeysProvider
 import com.nimbusds.jose.JWSAlgorithm
+import com.nimbusds.jose.JWSHeader
+import com.nimbusds.jose.JWSSigner
+import com.nimbusds.jose.crypto.MACSigner
+import com.nimbusds.jose.jwk.OctetSequenceKey
+import com.nimbusds.jwt.JWTClaimsSet
+import com.nimbusds.jwt.SignedJWT
 import org.springframework.stereotype.Component
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
+import java.time.temporal.TemporalUnit
+import java.util.*
+
 
 @Component
 class HMAC256JwtTokenProvider(pKeysProvider: KeysProvider, pServerInfo: AegaeonServerInfo) : BaseHmacProvider(pKeysProvider, pServerInfo) {
@@ -38,4 +49,77 @@ class HMAC256JwtTokenProvider(pKeysProvider: KeysProvider, pServerInfo: AegaeonS
 class HMAC512JwtTokenProvider(pKeysProvider: KeysProvider, pServerInfo: AegaeonServerInfo) : BaseHmacProvider(pKeysProvider, pServerInfo) {
     override fun getJWSAlgorithm(): JWSAlgorithm = JWSAlgorithm.HS512
     override fun getType() = TokenProviderType.HMAC_HS512
+}
+
+sealed class BaseHmacProvider(private val pKeysProvider: KeysProvider, private val serverInfo: AegaeonServerInfo) : Provider {
+
+    private var signer: JWSSigner? = null
+    private var keyId: String? = null
+    private var enabled = false
+
+    init {
+        val keySet = pKeysProvider.jwkSet
+
+        for (jwk in keySet.keys) {
+            if (jwk.isPrivate) {
+                if (jwk is OctetSequenceKey) {
+                    keyId = jwk.getKeyID()
+                    signer = MACSigner(jwk)
+                    break
+                }
+            }
+        }
+
+        if (signer != null) {
+            enabled = true
+        }
+    }
+
+    /* (non-Javadoc)
+     * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#createToken(ca.n4dev.aegaeon.api.token.OAuthUser, ca.n4dev.aegaeon.api.token.OAuthClient, java.lang.Long, java.time.temporal.TemporalUnit)
+     */
+    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long?, pTemporalUnit: TemporalUnit,
+                             tokenType: TokenType): Token {
+        return createToken(pOAuthUser, pOAuthClient, pTimeValue, pTemporalUnit, emptyMap(), tokenType)
+    }
+
+    /* (non-Javadoc)
+     * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#isEnabled()
+     */
+    override fun isEnabled(): Boolean {
+        return this.enabled
+    }
+
+
+    /* (non-Javadoc)
+     * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#createToken(ca.n4dev.aegaeon.api.token.OAuthUser, ca.n4dev.aegaeon.api.token.OAuthClient, java.lang.Long, java.time.temporal.TemporalUnit, java.util.List)
+     */
+    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long?, pTemporalUnit: TemporalUnit,
+                             pPayloads: Map<String, Any>,
+                             tokenType: TokenType): Token {
+
+        val expiredIn = ZonedDateTime.now(ZoneOffset.UTC).plus(pTimeValue!!, pTemporalUnit)
+        val instant = expiredIn.toInstant()
+        val date = Date.from(instant)
+
+        val builder = JWTClaimsSet.Builder()
+
+        builder.expirationTime(date)
+        builder.issuer(this.serverInfo.issuer)
+        builder.subject(pOAuthUser.uniqueIdentifier)
+        builder.audience(pOAuthClient.clientId)
+        builder.issueTime(Date())
+
+        if (!pPayloads.isEmpty()) {
+            pPayloads.forEach { key, value -> builder.claim(key, value) }
+        }
+
+        val claimsSet = builder.build()
+        val signedJWT = SignedJWT(JWSHeader(getJWSAlgorithm()), claimsSet)
+        signedJWT.sign(this.signer!!)
+
+        return Token(signedJWT.serialize(), expiredIn, tokenType)
+    }
+
+
 }
