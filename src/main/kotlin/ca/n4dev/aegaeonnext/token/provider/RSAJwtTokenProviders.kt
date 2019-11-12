@@ -48,26 +48,25 @@ import java.util.*
  *
  */
 @Component
-class RSA256JwtTokenProvider(pKeysProvider: KeysProvider, pServerInfo: AegaeonServerInfo) : BaseRSAProvider(pKeysProvider, pServerInfo) {
+class RSA256JwtTokenProvider(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo) : BaseRSAProvider(keysProvider, serverInfo) {
     override fun getJWSAlgorithm(): JWSAlgorithm = JWSAlgorithm.RS256
     override fun getType() = TokenProviderType.RSA_RS256
 }
 
 @Component
-class RSA512JwtTokenProvider(pKeysProvider: KeysProvider, pServerInfo: AegaeonServerInfo) : BaseRSAProvider(pKeysProvider, pServerInfo) {
+class RSA512JwtTokenProvider(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo) : BaseRSAProvider(keysProvider, serverInfo) {
     override fun getJWSAlgorithm(): JWSAlgorithm = JWSAlgorithm.RS512
     override fun getType() = TokenProviderType.RSA_RS512
 }
 
-sealed class BaseRSAProvider(private val pKeysProvider: KeysProvider, private val serverInfo: AegaeonServerInfo) : Provider {
+sealed class BaseRSAProvider(keysProvider: KeysProvider, private val serverInfo: AegaeonServerInfo) : Provider {
 
     private var signer: JWSSigner? = null
     private var keyId: String? = null
-    private var enabled = false
 
 
     init {
-        val keySet = pKeysProvider.jwkSet
+        val keySet = keysProvider.jwkSet
 
         for (jwk in keySet.keys) {
 
@@ -76,8 +75,7 @@ sealed class BaseRSAProvider(private val pKeysProvider: KeysProvider, private va
                 if (jwk is RSAKey) {
                     keyId = jwk.getKeyID()
                     // Create Signers
-                    this.signer = RSASSASigner(jwk as RSAKey)
-                    enabled = true
+                    signer = RSASSASigner(jwk)
                     break
                 }
             }
@@ -87,14 +85,12 @@ sealed class BaseRSAProvider(private val pKeysProvider: KeysProvider, private va
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#isEnabled()
      */
-    override fun isEnabled(): Boolean {
-        return enabled
-    }
+    override fun isEnabled() = signer != null
 
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#createToken(ca.n4dev.aegaeon.api.token.OAuthUser, ca.n4dev.aegaeon.api.token.OAuthClient, java.lang.Long, java.time.temporal.TemporalUnit)
      */
-    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long?, pTemporalUnit: TemporalUnit,
+    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long, pTemporalUnit: TemporalUnit,
                              tokenType: TokenType): Token {
         return createToken(pOAuthUser, pOAuthClient, pTimeValue, pTemporalUnit, emptyMap(), tokenType)
     }
@@ -128,26 +124,24 @@ sealed class BaseRSAProvider(private val pKeysProvider: KeysProvider, private va
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#createToken(ca.n4dev.aegaeon.api.token.OAuthUser, ca.n4dev.aegaeon.api.token.OAuthClient, java.lang.Long, java.time.temporal.TemporalUnit, java.util.List)
      */
-    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long?, pTemporalUnit: TemporalUnit,
+    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long, pTemporalUnit: TemporalUnit,
                              pPayloads: Map<String, Any>,
                              tokenType: TokenType): Token {
 
-        val expiredIn = ZonedDateTime.now(ZoneOffset.UTC).plus(pTimeValue!!, pTemporalUnit)
+        val expiredIn = ZonedDateTime.now(ZoneOffset.UTC).plus(pTimeValue, pTemporalUnit)
         val instant = expiredIn.toInstant()
         val date = Date.from(instant)
 
         val builder = JWTClaimsSet.Builder()
 
         builder.expirationTime(date)
-        builder.issuer(this.serverInfo.issuer)
+        builder.issuer(serverInfo.issuer)
         builder.subject(pOAuthUser.uniqueIdentifier)
         builder.audience(pOAuthClient.clientId)
         builder.issueTime(Date())
 
-        if (pPayloads != null && !pPayloads.isEmpty()) {
-            for ((key, value) in pPayloads) {
-                builder.claim(key, value)
-            }
+        if (pPayloads.isNotEmpty()) {
+            pPayloads.forEach { (key, value) -> builder.claim(key, value) }
         }
 
         val claimsSet = builder.build()

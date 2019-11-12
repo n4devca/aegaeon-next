@@ -58,7 +58,7 @@ interface Provider {
      */
     fun createToken(pOAuthUser: OAuthUser,
                     pOAuthClient: OAuthClient,
-                    pTimeValue: Long?,
+                    pTimeValue: Long,
                     pTemporalUnit: TemporalUnit,
                     tokenType: TokenType): Token
 
@@ -71,7 +71,7 @@ interface Provider {
      */
     fun createToken(pOAuthUser: OAuthUser,
                     pOAuthClient: OAuthClient,
-                    pTimeValue: Long?,
+                    pTimeValue: Long,
                     pTemporalUnit: TemporalUnit,
                     pPayloads: Map<String, Any>,
                     tokenType: TokenType): Token

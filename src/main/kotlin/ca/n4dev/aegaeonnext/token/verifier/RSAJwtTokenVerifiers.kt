@@ -26,21 +26,21 @@ import ca.n4dev.aegaeonnext.config.AegaeonServerInfo
 import ca.n4dev.aegaeonnext.token.TokenProviderType
 import ca.n4dev.aegaeonnext.token.key.KeysProvider
 import com.nimbusds.jose.JWSVerifier
-import com.nimbusds.jose.crypto.MACVerifier
-import com.nimbusds.jose.jwk.OctetSequenceKey
+import com.nimbusds.jose.crypto.RSASSAVerifier
+import com.nimbusds.jose.jwk.RSAKey
 import org.springframework.stereotype.Component
 
 
 /**
  *
- * HMACJwtTokenVerifier.java
+ * RSAJwtTokenVerifiers.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 08 - 2019
+ * @since 2.0.0 - Nov 12 - 2019
  *
  */
-sealed class BaseHMACJwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
+sealed class BaseRSAJwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
     : BaseVerifier(serverInfo) {
 
     private var verifier: JWSVerifier? = null
@@ -50,9 +50,8 @@ sealed class BaseHMACJwtTokenVerifier(keysProvider: KeysProvider, serverInfo: Ae
         val keySet = keysProvider.jwkSet
 
         for (jwk in keySet.keys) {
-
-            if (jwk is OctetSequenceKey) {
-                this.verifier = MACVerifier(jwk.toByteArray())
+            if (jwk is RSAKey) {
+                verifier = RSASSAVerifier(jwk)
                 break
             }
         }
@@ -63,6 +62,7 @@ sealed class BaseHMACJwtTokenVerifier(keysProvider: KeysProvider, serverInfo: Ae
      */
     override fun isEnable() = verifier != null
 
+
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.server.token.verifier.BaseJwtVerifier#getJWSVerifier()
      */
@@ -70,13 +70,14 @@ sealed class BaseHMACJwtTokenVerifier(keysProvider: KeysProvider, serverInfo: Ae
 }
 
 @Component
-class HMAC256JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
-    : BaseHMACJwtTokenVerifier(keysProvider, serverInfo) {
-    override fun getType(): TokenProviderType = TokenProviderType.HMAC_HS256
+class RSA256JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
+    : BaseRSAJwtTokenVerifier(keysProvider, serverInfo) {
+    override fun getType(): TokenProviderType = TokenProviderType.RSA_RS256
 }
 
+
 @Component
-class HMAC512JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
-    : BaseHMACJwtTokenVerifier(keysProvider, serverInfo) {
-    override fun getType(): TokenProviderType = TokenProviderType.HMAC_HS512
+class RSA512JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
+    : BaseRSAJwtTokenVerifier(keysProvider, serverInfo) {
+    override fun getType(): TokenProviderType = TokenProviderType.RSA_RS512
 }

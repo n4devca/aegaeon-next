@@ -23,8 +23,10 @@
 package ca.n4dev.aegaeonnext.token.verifier
 
 import ca.n4dev.aegaeonnext.config.AegaeonServerInfo
-import ca.n4dev.aegaeonnext.token.*
-import com.nimbusds.jose.JWSVerifier
+import ca.n4dev.aegaeonnext.token.Claims
+import ca.n4dev.aegaeonnext.token.OAuthUser
+import ca.n4dev.aegaeonnext.token.OAuthUserAndClaim
+import ca.n4dev.aegaeonnext.token.Verifier
 import com.nimbusds.jwt.SignedJWT
 
 
@@ -38,7 +40,7 @@ import com.nimbusds.jwt.SignedJWT
  *
  */
 
-abstract class BaseVerifier(protected var serverInfo: AegaeonServerInfo) : Verifier {
+abstract class BaseVerifier(private val serverInfo: AegaeonServerInfo) : Verifier {
 
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.verifier.TokenVerifier#validate(java.lang.String)
@@ -47,7 +49,7 @@ abstract class BaseVerifier(protected var serverInfo: AegaeonServerInfo) : Verif
 
         try {
             val signedJWT = SignedJWT.parse(pToken)
-            return signedJWT.verify(getJwsVerifier()) && signedJWT.jwtClaimsSet.issuer == this.serverInfo.issuer
+            return signedJWT.verify(getJwsVerifier()) && signedJWT.jwtClaimsSet.issuer == serverInfo.issuer
         } catch (e: Exception) {
             // ignore
         }
@@ -78,7 +80,7 @@ abstract class BaseVerifier(protected var serverInfo: AegaeonServerInfo) : Verif
         try {
             val signedJWT = SignedJWT.parse(pToken)
 
-            if (signedJWT.verify(getJwsVerifier()) && signedJWT.jwtClaimsSet.issuer == this.serverInfo.issuer) {
+            if (signedJWT.verify(getJwsVerifier()) && signedJWT.jwtClaimsSet.issuer == serverInfo.issuer) {
 
                 return extract(signedJWT)
             }
@@ -100,7 +102,7 @@ abstract class BaseVerifier(protected var serverInfo: AegaeonServerInfo) : Verif
 
             val claims = jwtClaimsSet.claims
                 .filter { it.key != Claims.NAME.value && it.key != Claims.SUB.value }
-                .map { Pair(it.key, it.value.toString()) }.toMap();
+                .map { Pair(it.key, it.value.toString()) }.toMap()
 
             return OAuthUserAndClaim(OAuthUser(uniqueIdentifier = sub, name = name), claims)
 

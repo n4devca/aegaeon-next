@@ -40,25 +40,25 @@ import java.util.*
 
 
 @Component
-class HMAC256JwtTokenProvider(pKeysProvider: KeysProvider, pServerInfo: AegaeonServerInfo) : BaseHmacProvider(pKeysProvider, pServerInfo) {
+class HMAC256JwtTokenProvider(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo) : BaseHmacProvider(keysProvider, serverInfo) {
     override fun getJWSAlgorithm(): JWSAlgorithm = JWSAlgorithm.HS256
     override fun getType() = TokenProviderType.HMAC_HS256
 }
 
 @Component
-class HMAC512JwtTokenProvider(pKeysProvider: KeysProvider, pServerInfo: AegaeonServerInfo) : BaseHmacProvider(pKeysProvider, pServerInfo) {
+class HMAC512JwtTokenProvider(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo) : BaseHmacProvider(keysProvider, serverInfo) {
     override fun getJWSAlgorithm(): JWSAlgorithm = JWSAlgorithm.HS512
     override fun getType() = TokenProviderType.HMAC_HS512
 }
 
-sealed class BaseHmacProvider(private val pKeysProvider: KeysProvider, private val serverInfo: AegaeonServerInfo) : Provider {
+sealed class BaseHmacProvider(keysProvider: KeysProvider, private val serverInfo: AegaeonServerInfo) : Provider {
 
     private var signer: JWSSigner? = null
     private var keyId: String? = null
     private var enabled = false
 
     init {
-        val keySet = pKeysProvider.jwkSet
+        val keySet = keysProvider.jwkSet
 
         for (jwk in keySet.keys) {
             if (jwk.isPrivate) {
@@ -78,7 +78,7 @@ sealed class BaseHmacProvider(private val pKeysProvider: KeysProvider, private v
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#createToken(ca.n4dev.aegaeon.api.token.OAuthUser, ca.n4dev.aegaeon.api.token.OAuthClient, java.lang.Long, java.time.temporal.TemporalUnit)
      */
-    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long?, pTemporalUnit: TemporalUnit,
+    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long, pTemporalUnit: TemporalUnit,
                              tokenType: TokenType): Token {
         return createToken(pOAuthUser, pOAuthClient, pTimeValue, pTemporalUnit, emptyMap(), tokenType)
     }
@@ -94,24 +94,23 @@ sealed class BaseHmacProvider(private val pKeysProvider: KeysProvider, private v
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.provider.TokenProvider#createToken(ca.n4dev.aegaeon.api.token.OAuthUser, ca.n4dev.aegaeon.api.token.OAuthClient, java.lang.Long, java.time.temporal.TemporalUnit, java.util.List)
      */
-    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long?, pTemporalUnit: TemporalUnit,
+    override fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, pTimeValue: Long, pTemporalUnit: TemporalUnit,
                              pPayloads: Map<String, Any>,
                              tokenType: TokenType): Token {
 
-        val expiredIn = ZonedDateTime.now(ZoneOffset.UTC).plus(pTimeValue!!, pTemporalUnit)
-        val instant = expiredIn.toInstant()
-        val date = Date.from(instant)
+        val expiredIn = ZonedDateTime.now(ZoneOffset.UTC).plus(pTimeValue, pTemporalUnit)
+        val date = Date.from(expiredIn.toInstant())
 
         val builder = JWTClaimsSet.Builder()
 
         builder.expirationTime(date)
-        builder.issuer(this.serverInfo.issuer)
+        builder.issuer(serverInfo.issuer)
         builder.subject(pOAuthUser.uniqueIdentifier)
         builder.audience(pOAuthClient.clientId)
         builder.issueTime(Date())
 
-        if (!pPayloads.isEmpty()) {
-            pPayloads.forEach { key, value -> builder.claim(key, value) }
+        if (pPayloads.isNotEmpty()) {
+            pPayloads.forEach { (key, value) -> builder.claim(key, value) }
         }
 
         val claimsSet = builder.build()
