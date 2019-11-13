@@ -20,30 +20,37 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.token.key
+package ca.n4dev.aegaeonnext.web
 
-import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.jwk.JWKSet
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
-import java.io.File
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.stereotype.Controller
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.servlet.ModelAndView
+import org.springframework.web.bind.annotation.GetMapping
 
-@Component
-class KeysProvider(@Value("\${aegaeon.jwks}") pKeyUri: String) {
 
-    val jwkSet: JWKSet = JWKSet.load(File(pKeyUri))
 
-    fun getKeyById(pId: String): JWK? {
-        for (j in this.jwkSet.keys) {
-            if (j?.keyID == pId) {
-                return j
-            }
-        }
-        return null
-    }
+/**
+ *
+ * LoginController.java
+ * TODO(rguillemette) Add description.
+ *
+ * @author rguillemette
+ * @since 2.0.0 - Nov 13 - 2019
+ *
+ */
 
-    fun toPublicJson(): String {
-        val jsonObj = this.jwkSet.toJSONObject(true)
-        return jsonObj.toJSONString()
+public const val LoginControllerURL = "/login"
+
+@Controller
+@RequestMapping(LoginControllerURL)
+// @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["login"], havingValue = "true", matchIfMissing = true)
+class LoginController {
+
+
+    @GetMapping("")
+    fun login(): ModelAndView {
+        println("/login")
+        return ModelAndView("signin")
     }
 }

@@ -20,30 +20,14 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.token.key
+package ca.n4dev.aegaeonnext.web
 
-import com.nimbusds.jose.jwk.JWK
-import com.nimbusds.jose.jwk.JWKSet
-import org.springframework.beans.factory.annotation.Value
-import org.springframework.stereotype.Component
-import java.io.File
-
-@Component
-class KeysProvider(@Value("\${aegaeon.jwks}") pKeyUri: String) {
-
-    val jwkSet: JWKSet = JWKSet.load(File(pKeyUri))
-
-    fun getKeyById(pId: String): JWK? {
-        for (j in this.jwkSet.keys) {
-            if (j?.keyID == pId) {
-                return j
-            }
-        }
-        return null
-    }
-
-    fun toPublicJson(): String {
-        val jsonObj = this.jwkSet.toJSONObject(true)
-        return jsonObj.toJSONString()
-    }
-}
+/**
+ *
+ * AuthorizationController.java
+ * TODO(rguillemette) Add description.
+ *
+ * @author rguillemette
+ * @since 2.0.0 - Nov 13 - 2019
+ *
+ */
