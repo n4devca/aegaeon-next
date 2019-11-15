@@ -53,11 +53,6 @@ class ServerInfoController(aegaeonServerInfo : AegaeonServerInfo /*,scopeServive
 
     private val LOGGER = loggerFor(javaClass)
 
-    @Autowired
-    private lateinit var aegaeonServerInfo : AegaeonServerInfo;
-
-
-
     @GetMapping("")
     fun info(httpServletRequest: HttpServletRequest) : ServerInformation? {
 

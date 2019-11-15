@@ -23,8 +23,12 @@
 package ca.n4dev.aegaeonnext.token
 
 import ca.n4dev.aegaeonnext.token.key.KeysProvider
-import ca.n4dev.aegaeonnext.token.provider.HMAC256JwtTokenProvider
+import ca.n4dev.aegaeonnext.utils.requireNonNull
 import org.springframework.stereotype.Component
+import java.time.temporal.TemporalUnit
+import java.util.UUID
+
+
 
 /**
  *
@@ -36,7 +40,116 @@ import org.springframework.stereotype.Component
  *
  */
 @Component
-class TokenFactory(keysProvider: KeysProvider, tokenProviders: List<Provider>, verifiers: List<Verifier>) {
+class TokenFactory(private val keysProvider: KeysProvider, providers: List<Provider>, verifiers: List<Verifier>) {
 
+    private val tokenProviderHolder: Map<TokenProviderType, Provider> = providers.map { it.getType() to it }.toMap()
+    private val tokenVerifierHolder: Map<TokenProviderType, Verifier> = verifiers.map { it.getType() to it }.toMap()
+
+    /**
+     * @return A uuid.
+     */
+    fun uniqueCode(): String {
+        return UUID.randomUUID().toString()
+    }
+
+    /**
+     * Validate and extract a token.
+     * @param pToken The token.
+     * @return A OAuthUser or null.
+     */
+    fun validate(pOAuthClient: OAuthClient, pTokenValue: String): Boolean {
+
+        val type = fromTokenProviderTypeString(pOAuthClient.providerName)
+        val verifier = this.tokenVerifierHolder[type]
+
+        return verifier?.validate(pTokenValue) ?: false
+
+    }
+
+    /**
+     * Create a Token.
+     * @param pOAuthUser The authenticated user.
+     * @param pOAuthClient The client requesting a token.
+     * @param pTokenProvider A tokenProvider to create the token.
+     * @return A Token or null.
+     */
+    fun createToken(pOAuthUser: OAuthUser,
+                    pOAuthClient: OAuthClient,
+                    tokenType: TokenType,
+                    pTokenProvider: Provider,
+                    pTimeValue: Long,
+                    pTemporalUnit: TemporalUnit,
+                    pPayloads: Map<String, Any>): Token {
+
+
+        return pTokenProvider.createToken(pOAuthUser,
+                                          pOAuthClient,
+                                          pTimeValue,
+                                          pTemporalUnit,
+                                          pPayloads,
+                                          tokenType)
+    }
+
+
+    /**
+     * Create a Token.
+     * @param pOAuthUser The authenticated user.
+     * @param pOAuthClient The client requesting a token.
+     * @param pTokenProviderName The name of the token provider to use. Must be a spring bean.
+     * @return A Token or null.
+     */
+    fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient,
+                    tokenType: TokenType, pTokenProviderType: TokenProviderType,
+                    pTimeValue: Long, pTemporalUnit: TemporalUnit, pPayloads: Map<String, Any>): Token {
+
+        val tp = requireNonNull(tokenProviderHolder[pTokenProviderType]) {
+            Exception("$pTokenProviderType cannot be found.")
+        }
+
+        return createToken(pOAuthUser, pOAuthClient, tokenType, tp, pTimeValue, pTemporalUnit, pPayloads);
+    }
+
+    /**
+     * Create a Token.
+     * @param pOAuthUser The authenticated user.
+     * @param pOAuthClient The client requesting a token.
+     * @param pTokenProviderName The name of the token provider to use. Must be a spring bean.
+     * @return A Token or null.
+     */
+    fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, tokenType: TokenType, pTokenProviderName: String,
+                    pTimeValue: Long, pTemporalUnit: TemporalUnit, pPayloads: Map<String, Any>): Token {
+
+        val tokenProviderType = requireNonNull(fromTokenProviderTypeString(pTokenProviderName)) {
+            Exception("$pTokenProviderName cannot be found.")
+        }
+
+        return createToken(pOAuthUser, pOAuthClient, tokenType, tokenProviderType, pTimeValue, pTemporalUnit, pPayloads);
+    }
+
+    /**
+     * Create a Token.
+     * @param pOAuthUser The authenticated user.
+     * @param pOAuthClient The client requesting a token.
+     * @param pTokenProviderName The name of the token provider to use. Must be a spring bean.
+     * @return A Token or null.
+     */
+    fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, tokenType: TokenType,
+                    pTimeValue: Long, pTemporalUnit: TemporalUnit, pPayloads: Map<String, Any>): Token {
+
+        val tokenProviderType = requireNonNull(fromTokenProviderTypeString(pOAuthClient.providerName)) {
+            Exception("${pOAuthClient.providerName} cannot be found.")
+        }
+
+        return createToken(pOAuthUser, pOAuthClient, tokenType, tokenProviderType, pTimeValue, pTemporalUnit, pPayloads);
+    }
+
+    fun getSupportedAlgorithm(): List<String> {
+        return tokenProviderHolder.entries.map{ it.value.getAlgorithmName() }
+    }
+
+    @Throws(Exception::class)
+    fun publicJwks(): String {
+        return keysProvider.toPublicJson()
+    }
 
 }

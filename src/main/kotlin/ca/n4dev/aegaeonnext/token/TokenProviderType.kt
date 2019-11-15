@@ -40,7 +40,7 @@ enum class TokenProviderType {
     UUID;
 }
 
-fun TokenProviderType.from(name: String): TokenProviderType? {
+fun fromTokenProviderTypeString(name: String): TokenProviderType? {
     for (t in TokenProviderType.values()) {
         if (t.toString() == name) {
             return t
