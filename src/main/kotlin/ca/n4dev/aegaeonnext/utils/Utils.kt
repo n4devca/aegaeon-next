@@ -24,6 +24,8 @@ package ca.n4dev.aegaeonnext.utils
 
 import java.time.LocalDateTime
 import java.time.ZoneId
+import java.time.ZoneOffset
+import java.time.ZonedDateTime
 import java.util.*
 
 /**
@@ -58,6 +60,55 @@ fun asString(pObject: Any?): String {
     } else DASH
 }
 
+
+fun areOneEmpty(vararg pValues: Any?): Boolean {
+
+    if (pValues != null) {
+
+        for (v in pValues) {
+            if (v == null) {
+                return true
+            } else if (v is String && v.isBlank()) {
+                return true
+            }
+        }
+
+        return false
+    }
+
+    return true
+}
+
+fun <E> isOneTrue(entities: Collection<E>, pTest: (E) -> Boolean): Boolean {
+
+    for (e in entities) {
+        if (pTest(e)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+fun splitStringOn(str: String, separator: String = " "): List<String> {
+    return str.split(separator)
+}
+
+fun isAfterNow(pValidUntil: LocalDateTime?): Boolean {
+    if (pValidUntil != null) {
+        return pValidUntil.isAfter(LocalDateTime.now())
+    }
+
+    return true
+}
+
+fun isAfterNow(pValidUntil: ZonedDateTime?): Boolean {
+    if (pValidUntil != null) {
+        return pValidUntil.isAfter(ZonedDateTime.now(ZoneOffset.UTC))
+    }
+
+    return true
+}
 
 fun join(vararg pStrings: String) = pStrings.joinToString(" ")
 

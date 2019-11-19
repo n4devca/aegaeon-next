@@ -41,7 +41,8 @@ data class ClientDto(
     val name: String,
     val logoUrl: String?,
     val scopes: Map<String, Long?> = emptyMap(),
-    val flows: Map<Flow, Long?> = emptyMap()
+    val flows: Map<Flow, Long?> = emptyMap(),
+    val redirections: Map<String, Long?> = emptyMap()
 ) {
     override fun toString(): String {
         return "ClientDto(id=$id, publicId='$publicId', name='$name')"

@@ -24,6 +24,7 @@ package ca.n4dev.aegaeonnext.service
 import ca.n4dev.aegaeonnext.model.dto.ScopeDto
 import ca.n4dev.aegaeonnext.model.entities.Scope
 import ca.n4dev.aegaeonnext.model.repositories.ScopeRepository
+import ca.n4dev.aegaeonnext.utils.splitStringOn
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -38,6 +39,71 @@ private val scopeToDto = { scope: Scope ->
 class ScopeService(private val scopeRepository: ScopeRepository) {
 
     @Transactional(readOnly = true)
-    fun getAll() = scopeRepository.getAll().map { scopeToDto(it) }.toSet()
+    fun getAll() = scopeRepository.getAll().map { scopeToDto }.toSet()
+
+    fun getByName(name: String) = scopeRepository.getByName(name)?.let(scopeToDto)
+
+    @Transactional(readOnly = true)
+    fun isPartOf(pAuthorizedScopes: String, pRequestedScopes: String): Boolean {
+
+        val authorizedScopeSet = validate(pAuthorizedScopes)
+        val requestedScopeSet = validate(pRequestedScopes)
+
+        // Simple equals (same)
+        if (authorizedScopeSet.validScopes.size == requestedScopeSet.validScopes.size
+            && authorizedScopeSet.validScopes == requestedScopeSet.validScopes) {
+            return true
+        }
+
+        // Check if the requested scope is a subset of the authorized
+        var allOk = true
+        for (scopeView in requestedScopeSet.validScopes) {
+            if (!authorizedScopeSet.validScopes.contains(scopeView)) {
+                allOk = false
+                break
+            }
+        }
+
+        return allOk
+    }
+
+    @Transactional(readOnly = true)
+    fun validate(scopeParam: String, exclusions: Set<String> = emptySet()): ScopeSet {
+
+        if (!scopeParam.isBlank()) {
+
+            val scopeList = splitStringOn(scopeParam)
+            val scopeViews = mutableSetOf<ScopeDto>()
+            val invalidScopeViews = mutableSetOf<String>()
+            for (s in scopeList) {
+
+                if (!s.isBlank()) {
+
+                    val scopeValue = s.trim()
+                    val scopeByName = scopeRepository.getByName(scopeValue)
+
+                    if (scopeByName != null && !exclusions.contains(scopeValue)) {
+                        scopeViews.add(ScopeDto(scopeByName.id!!, scopeByName.code))
+                    } else {
+                        invalidScopeViews.add(s)
+                    }
+                }
+            }
+
+            return ScopeSet(scopeViews, invalidScopeViews)
+        }
+
+        return emptyScopeSet()
+    }
 
 }
+
+data class ScopeSet(
+
+    val validScopes: Set<ScopeDto>,
+
+    val invalidScopes: Set<String>
+)
+
+private fun emptyScopeSet() = ScopeSet(emptySet(), emptySet());
+

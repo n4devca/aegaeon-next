@@ -25,8 +25,10 @@ package ca.n4dev.aegaeonnext.service
 import ca.n4dev.aegaeonnext.model.dto.ClientDto
 import ca.n4dev.aegaeonnext.model.entities.Client
 import ca.n4dev.aegaeonnext.model.entities.ClientFlow
+import ca.n4dev.aegaeonnext.model.entities.ClientRedirection
 import ca.n4dev.aegaeonnext.model.entities.ClientScope
 import ca.n4dev.aegaeonnext.model.repositories.ClientRepository
+import ca.n4dev.aegaeonnext.utils.isOneTrue
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -41,12 +43,16 @@ import org.springframework.transaction.annotation.Transactional
  */
 
 
-fun clientToClientDto(client: Client, clientScopes: List<ClientScope>, clientFlows: List<ClientFlow>) : ClientDto {
+fun clientToClientDto(client: Client,
+                      clientScopes: List<ClientScope>,
+                      clientFlows: List<ClientFlow>,
+                      clientRedirections: List<ClientRedirection>): ClientDto {
 
-    val scopeMap = clientScopes.associate { Pair(it.scopeCode, it.id) }
-    val flowMap = clientFlows.associate { Pair(it.flow, it.id) }
+    val scopeMap = clientScopes.associate { it.scopeCode to it.id }
+    val flowMap = clientFlows.associate { it.flow to it.id }
+    val redirectionMap = clientRedirections.associate { it.url to it.id }
 
-    return ClientDto(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap)
+    return ClientDto(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap, redirectionMap)
 }
 
 @Service
@@ -72,16 +78,27 @@ class ClientService(private val clientRepository: ClientRepository) {
         throw UnsupportedOperationException("Not implemented yet")
     }
 
+    @Transactional(readOnly = true)
+    fun hasRedirectionUri(pClientId: Long, pRedirectionUri: String): Boolean {
+
+        if (pRedirectionUri.isNotBlank()) {
+            val clientRedirections = clientRepository.getClientRedirectionByClientId(pClientId)
+            return isOneTrue(clientRedirections, { r -> r.url.equals(pRedirectionUri) })
+        }
+        return false
+    }
+
     private fun loadClientInfo(client: Client) : ClientDto? {
 
         var clientScopes = emptyList<ClientScope>()
         var clientFlows = emptyList<ClientFlow>()
-
+        var clientRedirections = emptyList<ClientRedirection>()
         client.id?.let {
             clientScopes = clientRepository.getClientScopesByClientId(it)
             clientFlows = clientRepository.getClientFlowByClientId(it)
+            clientRedirections = clientRepository.getClientRedirectionByClientId(it)
         }
 
-        return clientToClientDto(client, clientScopes, clientFlows)
+        return clientToClientDto(client, clientScopes, clientFlows, clientRedirections)
     }
 }

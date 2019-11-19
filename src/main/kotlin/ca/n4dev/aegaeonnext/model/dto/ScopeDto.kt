@@ -30,7 +30,7 @@ package ca.n4dev.aegaeonnext.model.dto
  * @since 2.0.0 - Oct 30 - 2019
  *
  */
-class ScopeDto(val id: Long, val name: String) {
+class ScopeDto(val id: Long, val name: String, val claims: List<String> = emptyList()) {
 
     override fun toString(): String {
         return "ScopeDto(id=$id, name='$name')"

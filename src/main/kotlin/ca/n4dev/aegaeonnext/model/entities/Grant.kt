@@ -17,26 +17,21 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
 package ca.n4dev.aegaeonnext.model.entities
 
 /**
  *
- * Flow.java
+ * Grant.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
+ * @since 2.0.0 - Nov 10 - 2019
  *
  */
-enum class Flow {
-    IMPLICIT,
-    AUTHORIZATION_CODE,
-    CLIENT_CREDENTIALS,
-    REFRESH_TOKEN,
-    PASSWORD, // Not implemented
-    HYBRID // Not implemented
-
+enum class Grant {
+    code,
+    token,
+    id_token
 }

@@ -22,10 +22,7 @@
 
 package ca.n4dev.aegaeonnext.model.repositories
 
-import ca.n4dev.aegaeonnext.model.entities.Client
-import ca.n4dev.aegaeonnext.model.entities.ClientFlow
-import ca.n4dev.aegaeonnext.model.entities.ClientScope
-import ca.n4dev.aegaeonnext.model.entities.Flow
+import ca.n4dev.aegaeonnext.model.entities.*
 import ca.n4dev.aegaeonnext.utils.requireNonNull
 import ca.n4dev.aegaeonnext.utils.toLocalDateTime
 import org.springframework.dao.OptimisticLockingFailureException
@@ -33,7 +30,6 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
-import java.time.ZoneId
 
 /**
  *
@@ -70,6 +66,13 @@ private const val GET_CLIENT_FLOW_BY_CLIENTID = """
     select id, client_id, flow, created_at, version
     from client_flow
     where client_id = :client_id
+"""
+
+private const val GET_CLIENT_REDIRECTION_BY_ID = """
+    select id, client_id, url, created_at, version
+    from client_redirection
+    where client_id = :client_id
+    order by url
 """
 
 private const val UPDATE_CLIENT = """
@@ -116,7 +119,7 @@ private val resultSetToClientScope = RowMapper { rs, _ ->
         rs.getLong(2),
         rs.getLong(3),
         rs.getString(4),
-        LocalDateTime.ofInstant(rs.getDate(5).toInstant(), ZoneId.systemDefault()),
+        toLocalDateTime(rs.getDate(5)),
         rs.getInt(6)
     )
 }
@@ -126,10 +129,21 @@ private val resultSetToClientFlow = RowMapper { rs, _ ->
         rs.getLong(1),
         rs.getLong(2),
         Flow.valueOf(rs.getString(3)),
-        LocalDateTime.ofInstant(rs.getDate(4).toInstant(), ZoneId.systemDefault()),
+        toLocalDateTime(rs.getDate(4)),
         rs.getInt(5)
     )
 }
+
+private val resultSetToClientRedirection = RowMapper { rs, _ ->
+    ClientRedirection(
+        rs.getLong(1),
+        rs.getLong(2),
+        rs.getString(3),
+        toLocalDateTime(rs.getDate(4)),
+        rs.getInt(5)
+    )
+}
+
 
 @Repository
 class ClientRepository : BaseRepository() {
@@ -145,6 +159,9 @@ class ClientRepository : BaseRepository() {
 
     fun getClientFlowByClientId(clientId: Long): List<ClientFlow> =
         jdbcTemplate.query(GET_CLIENT_FLOW_BY_CLIENTID, mapOf(Pair("client_id", clientId)), resultSetToClientFlow)
+
+    fun getClientRedirectionByClientId(clientId: Long): List<ClientRedirection> =
+        jdbcTemplate.query(GET_CLIENT_REDIRECTION_BY_ID, mapOf(Pair("client_id", clientId)), resultSetToClientRedirection)
 
     fun create(client: Client): Long {
 

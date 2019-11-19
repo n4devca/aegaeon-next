@@ -17,26 +17,43 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.model.entities
+package ca.n4dev.aegaeonnext.web.view
+
+import ca.n4dev.aegaeonnext.web.ResponseType
+import org.springframework.web.bind.annotation.RequestMethod
 
 /**
  *
- * Flow.java
+ * AuthRequest.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
+ * @since 2.0.0 - Nov 06 - 2019
  *
  */
-enum class Flow {
-    IMPLICIT,
-    AUTHORIZATION_CODE,
-    CLIENT_CREDENTIALS,
-    REFRESH_TOKEN,
-    PASSWORD, // Not implemented
-    HYBRID // Not implemented
+class AuthRequest(
+    clientId: String? = null,
 
-}
+    redirectUri: String? = null,
+
+    state: String? = null,
+
+    var responseType: String? = null,
+
+    var responseTypes: List<ResponseType>? = null,
+
+    var nonce: String? = null,
+
+    var scope: String? = null,
+
+    var display: String? = null,
+
+    var prompt: String? = null,
+
+    var idTokenHint: String? = null,
+
+    var requestMethod: RequestMethod? = null
+
+) : ClientRequest(clientId, redirectUri, state)

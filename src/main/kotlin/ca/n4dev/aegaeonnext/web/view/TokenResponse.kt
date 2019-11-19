@@ -17,26 +17,38 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
+package ca.n4dev.aegaeonnext.web.view
 
-package ca.n4dev.aegaeonnext.model.entities
+import com.fasterxml.jackson.annotation.JsonProperty
 
 /**
+ * TokenResponse.java
  *
- * Flow.java
- * TODO(rguillemette) Add description.
+ * A token response following a call to /token endpoint.
  *
- * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
- *
+ * @author by rguillemette
+ * @since May 9, 2017
  */
-enum class Flow {
-    IMPLICIT,
-    AUTHORIZATION_CODE,
-    CLIENT_CREDENTIALS,
-    REFRESH_TOKEN,
-    PASSWORD, // Not implemented
-    HYBRID // Not implemented
 
-}
+private const val BEARER = "Bearer"
+
+data class TokenResponse(
+
+    @JsonProperty("id_token")
+    val idToken: String? = null,
+
+    @JsonProperty("access_token")
+    val accessToken: String? = null,
+
+    @JsonProperty("token_type")
+    val tokenType: String? = null,
+
+    @JsonProperty("expires_in")
+    val expiresIn: Long? = null,
+
+    val scope: String? = null,
+
+    @JsonProperty("refresh_token")
+    val refreshToken: String? = null
+)

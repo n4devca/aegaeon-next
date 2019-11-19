@@ -17,45 +17,30 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
 package ca.n4dev.aegaeonnext.web
 
-import ca.n4dev.aegaeonnext.config.AegaeonServerInfo
-import ca.n4dev.aegaeonnext.loggerFor
-import ca.n4dev.aegaeonnext.web.view.ServerInformation
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 /**
  *
- * ServerInfoController.java
+ * AuthorizationController.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 02 - 2019
+ * @since 2.0.0 - Nov 06 - 2019
  *
  */
-
-const val ServerInfoControllerURL = "/.well-known/openid-configuration"
+const val AuthorizationControllerURL = "/authorize"
 
 @RestController
-@RequestMapping(ServerInfoControllerURL)
-@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["information"], havingValue = "true", matchIfMissing = true)
-class ServerInfoController {
+@RequestMapping(AuthorizationControllerURL)
+@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["oauth"], havingValue = "true", matchIfMissing = true)
+class AuthorizationController {
 
-    private val LOGGER = loggerFor(javaClass)
+    val consentView = "consent"
 
-    @Autowired
-    private lateinit var aegaeonServerInfo: AegaeonServerInfo;
-
-    @GetMapping("")
-    fun info(): ServerInformation {
-        LOGGER.info("Info()")
-        return ServerInformation(aegaeonServerInfo.issuer, "", "")
-    }
 }

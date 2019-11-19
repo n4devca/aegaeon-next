@@ -24,10 +24,10 @@ package ca.n4dev.aegaeonnext.config
 
 import ca.n4dev.aegaeonnext.security.AccessTokenAuthenticationFilter
 import ca.n4dev.aegaeonnext.security.AccessTokenAuthenticationProvider
+import ca.n4dev.aegaeonnext.security.PromptAwareAuthenticationFilter
 import ca.n4dev.aegaeonnext.service.AuthenticationService
-import ca.n4dev.aegaeonnext.web.IntrospectControllerURL
-import ca.n4dev.aegaeonnext.web.TokensControllerURL
-import ca.n4dev.aegaeonnext.web.UserInfoControllerURL
+import ca.n4dev.aegaeonnext.service.UserAuthorizationService
+import ca.n4dev.aegaeonnext.web.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -164,49 +164,40 @@ class UserInfoWebSecurityConfigurerAdapter(val serverInfo: AegaeonServerInfo,
     }
 }
 
-//
-//@Configuration
-//// @Order(3)
-//class FormLoginWebSecurityConfigurerAdapter : WebSecurityConfigurerAdapter() {
-//
-//    @Autowired
-//    private val userDetailsService: UserDetailsService? = null
-//
-//    @Autowired
-//    private val controllerErrorInterceptor: ControllerErrorInterceptor? = null
-//
-//    @Autowired
-//    private val userAuthorizationService: UserAuthorizationService? = null
-//
-//    @Autowired
-//    private val passwordEncoder: PasswordEncoder? = null
-//
-//
-//    fun promptAwareAuthenticationFilter(): PromptAwareAuthenticationFilter {
-//        return PromptAwareAuthenticationFilter(this.userAuthorizationService, this.controllerErrorInterceptor)
-//    }
-//
-//    override fun configure(pHttp: HttpSecurity) {
-//        pHttp
-//            .authorizeRequests()
-//            .antMatchers("/resources/**",
-//                ServerInfoController.URL,
-//                PublicJwkController.URL,
-//                SimpleHomeController.URL,
-//                SimpleCreateAccountController.URL,
-//                SimpleCreateAccountController.URL_ACCEPT).permitAll()
-//            .anyRequest()
-//            .hasAnyAuthority(ROLE_USER)
-//            .and()
-//            .addFilterBefore(promptAwareAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
-//            .formLogin()
-//            .loginPage("/login").permitAll()
-//            .defaultSuccessUrl(SimpleUserAccountController.URL)
-//            .and()
-//            .csrf().disable()
-//            .userDetailsService(userDetailsService)
-//            .logout()
-//            .logoutSuccessUrl("/")
-//    }
-//
-//}
+@Configuration
+// @Order(3)
+class FormLoginWebSecurityConfigurerAdapter(private val userDetailsService: UserDetailsService,
+                                            private val controllerErrorInterceptor: ControllerErrorInterceptor,
+                                            private val userAuthorizationService: UserAuthorizationService) : WebSecurityConfigurerAdapter() {
+
+
+    fun promptAwareAuthenticationFilter(): PromptAwareAuthenticationFilter {
+        return PromptAwareAuthenticationFilter(controllerErrorInterceptor, userAuthorizationService)
+    }
+
+    override fun configure(pHttp: HttpSecurity) {
+        pHttp
+            .authorizeRequests()
+            .antMatchers("/resources/**",
+                ServerInfoControllerURL /*,
+                PublicJwkController.URL,
+                SimpleHomeController.URL,
+                SimpleCreateAccountController.URL,
+                SimpleCreateAccountController.URL_ACCEPT
+                */).permitAll()
+
+            .anyRequest()
+            .hasAnyAuthority(ROLE_USER)
+            .and()
+            .addFilterBefore(promptAwareAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+            .formLogin()
+            .loginPage("/login").permitAll()
+            .defaultSuccessUrl("/") //SimpleUserAccountController.URL
+            .and()
+            .csrf().disable()
+            .userDetailsService(userDetailsService)
+            .logout()
+            .logoutSuccessUrl("/")
+    }
+
+}

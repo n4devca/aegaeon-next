@@ -17,26 +17,30 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.model.entities
+package ca.n4dev.aegaeonnext.web
 
 /**
  *
- * Flow.java
+ * Prompt.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
+ * @since 2.0.0 - Nov 06 - 2019
  *
  */
-enum class Flow {
-    IMPLICIT,
-    AUTHORIZATION_CODE,
-    CLIENT_CREDENTIALS,
-    REFRESH_TOKEN,
-    PASSWORD, // Not implemented
-    HYBRID // Not implemented
+enum class Prompt {
+    none, login, consent, select_account
+}
 
+fun promptFromString(name: String?): Prompt? {
+
+    for (p in Prompt.values()) {
+        if (p.toString().equals(name, ignoreCase = true)) {
+            return p
+        }
+    }
+
+    return null
 }
