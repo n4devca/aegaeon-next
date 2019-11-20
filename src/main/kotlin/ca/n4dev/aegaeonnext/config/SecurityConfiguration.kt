@@ -55,7 +55,6 @@ class SecurityConfiguration {
         return delegatingPasswordEncoder
     }
 
-
     @Bean
     fun authenticationEntryPoint(): AuthenticationEntryPoint {
         return AuthenticationEntryPoint { _, pResponse, _ -> pResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED) }
@@ -181,3 +180,29 @@ class ClientAuthWebSecurityConfigurerAdapter : WebSecurityConfigurerAdapter() {
 //    }
 //
 //}
+
+@Configuration
+class FormLoginWebSecurityConfigurerAdapter : WebSecurityConfigurerAdapter() {
+
+    @Autowired
+    private val userDetailsService: UserDetailsService? = null
+
+
+    override fun configure(pHttp: HttpSecurity) {
+        pHttp
+            .authorizeRequests()
+            .antMatchers("/resources/**").permitAll()
+            .anyRequest()
+            .hasAnyAuthority(ROLE_USER)
+            .and()
+            .formLogin()
+            .loginPage("/login").permitAll()
+            .defaultSuccessUrl("/")
+            .and()
+            .csrf().disable()
+            .userDetailsService(userDetailsService)
+            .logout()
+            .logoutSuccessUrl("/")
+    }
+
+}
