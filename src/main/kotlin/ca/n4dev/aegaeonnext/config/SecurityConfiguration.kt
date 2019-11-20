@@ -84,7 +84,6 @@ class SecurityConfiguration {
         return delegatingPasswordEncoder
     }
 
-
     @Bean
     fun authenticationEntryPoint(): AuthenticationEntryPoint {
         return AuthenticationEntryPoint { _, pResponse, _ -> pResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED) }
@@ -119,7 +118,6 @@ class ClientAuthWebSecurityConfigurerAdapter : WebSecurityConfigurerAdapter() {
             .userDetailsService(clientDetailsService)
     }
 }
-
 
 @Configuration
 @Order(2)
@@ -201,3 +199,94 @@ class FormLoginWebSecurityConfigurerAdapter(private val userDetailsService: User
     }
 
 }
+
+//
+//@Configuration
+//@Order(2)
+//class UserInfoWebSecurityConfigurerAdapter(val serverInfo: AegaeonServerInfo,
+//                                           val authenticationEntryPoint: AuthenticationEntryPoint) : WebSecurityConfigurerAdapter() {
+//
+//    @Autowired
+//    lateinit var authenticationService: AuthenticationService? = null
+//
+//    /**
+//     * Remember me config
+//     */
+//    override fun configure(auth: AuthenticationManagerBuilder) {
+//        auth.authenticationProvider(accessTokenAuthenticationProvider())
+//    }
+//
+//
+//    fun accessTokenAuthenticationFilter(): AccessTokenAuthenticationFilter {
+//        return AccessTokenAuthenticationFilter(authenticationManagerBean(), authenticationEntryPoint)
+//    }
+//
+//
+//    fun accessTokenAuthenticationProvider(): AccessTokenAuthenticationProvider {
+//        return AccessTokenAuthenticationProvider(authenticationService, serverInfo)
+//    }
+//
+//    @Bean
+//    override fun authenticationManagerBean(): AuthenticationManager {
+//        return super.authenticationManagerBean()
+//    }
+//
+//    override fun configure(pHttp: HttpSecurity) {
+//        pHttp
+//            .antMatcher(UserInfoController.URL)
+//            .authorizeRequests()
+//            .anyRequest().hasAnyAuthority(ROLE_USER)
+//            .and()
+//            .csrf().disable()
+//            .addFilterBefore(accessTokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+//            .sessionManagement()
+//            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+//    }
+//}
+//
+//
+//@Configuration
+//// @Order(3)
+//class FormLoginWebSecurityConfigurerAdapter : WebSecurityConfigurerAdapter() {
+//
+//    @Autowired
+//    private val userDetailsService: UserDetailsService? = null
+//
+//    @Autowired
+//    private val controllerErrorInterceptor: ControllerErrorInterceptor? = null
+//
+//    @Autowired
+//    private val userAuthorizationService: UserAuthorizationService? = null
+//
+//    @Autowired
+//    private val passwordEncoder: PasswordEncoder? = null
+//
+//
+//    fun promptAwareAuthenticationFilter(): PromptAwareAuthenticationFilter {
+//        return PromptAwareAuthenticationFilter(this.userAuthorizationService, this.controllerErrorInterceptor)
+//    }
+//
+//    override fun configure(pHttp: HttpSecurity) {
+//        pHttp
+//            .authorizeRequests()
+//            .antMatchers("/resources/**",
+//                ServerInfoController.URL,
+//                PublicJwkController.URL,
+//                SimpleHomeController.URL,
+//                SimpleCreateAccountController.URL,
+//                SimpleCreateAccountController.URL_ACCEPT).permitAll()
+//            .anyRequest()
+//            .hasAnyAuthority(ROLE_USER)
+//            .and()
+//            .addFilterBefore(promptAwareAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
+//            .formLogin()
+//            .loginPage("/login").permitAll()
+//            .defaultSuccessUrl(SimpleUserAccountController.URL)
+//            .and()
+//            .csrf().disable()
+//            .userDetailsService(userDetailsService)
+//            .logout()
+//            .logoutSuccessUrl("/")
+//    }
+//
+//}

@@ -17,34 +17,33 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
-<<<<<<< HEAD
-=======
  *
->>>>>>> master
  */
 
-package ca.n4dev.aegaeonnext.web
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+package ca.n4dev.aegaeonnext.token
 
 /**
  *
- * AuthorizationController.java
+ * Claims.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 06 - 2019
+ * @since 2.0.0 - Nov 05 - 2019
  *
  */
-const val AuthorizationControllerURL = "/authorize"
-
-@RestController
-@RequestMapping(AuthorizationControllerURL)
-@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["oauth"], havingValue = "true", matchIfMissing = true)
-class AuthorizationController {
-
-    val consentView = "consent"
-
+enum class Claims(val value: String) {
+    SUB("sub"),
+    NAME("name"),
+    USERNAME("preferred_username"),
+    PICTURE("picture"),
+    WEBSITE("website"),
+    ADDRESS("address"),
+    EMAIL("email"),
+    EMAIL_VERIFIED("email_verified"),
+    PHONE_NUMBER("phone_number"),
+    PHONE_NUMBER_VERIFIED("phone_number_verified"),
+    UPDATED_AT("updated_at"),
+    LOCALE("locale"),
+    ZONEINFO("zoneinfo"),
+    NONCE("nonce")
 }

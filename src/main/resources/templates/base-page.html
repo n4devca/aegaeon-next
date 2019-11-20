@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <title>Aegaeon - Server</title>
+    <meta charset="utf-8"/>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="../static/css/aegaeon.css" th:href="@{/resources/css/aegaeon.css}" rel="stylesheet"/>
+    <th:block th:if="${serverInfo}">
+        <meta name="privacy policy" th:attr="content=${serverInfo.legalEntity}"/>
+        <link th:if="${serverInfo.customStyleSheet}" th:href="@{${serverInfo.customStyleSheet}}" rel="stylesheet"/>
+    </th:block>
+</head>
+<body>
+
+<header layout:fragment="header" id="ag-header">
+    <section class="l-header-brand">
+        <a href="/" th:href="@{/}" class="link link-brand">
+
+        </a>
+    </section>
+    <nav id="ag-user-menu" class="l-header-nav">
+        <ul class="l-header-nav-grid">
+            <li sec:authorize="!hasRole('ROLE_USER')" class="l-header-nav-grid-item">
+                <form th:action="@{/create-account}" method="post">
+                    <button type="submit" class="btn-link link-principal is-uppercase" th:text="#{action.gotocreateaccount}">
+                        Create Account
+                    </button>
+                </form>
+            </li>
+            <li sec:authorize="hasRole('ROLE_ADMIN')" class="l-header-nav-grid-item">
+                <a th:href="@{/admin/clients}" class="link link-principal is-uppercase" th:text="#{action.gotoclients}">Clients</a>
+            </li>
+            <th:block sec:authorize="hasRole('ROLE_USER')">
+                <li class="l-header-nav-grid-item">
+                    <a th:href="@{/user}" class="link link-principal is-uppercase" th:text="#{action.gotomyaccount}">My Account</a>
+                </li>
+                <li class="l-header-nav-grid-item">
+                    <form th:action="@{/logout}" method="post">
+                        <button type="submit" class="btn-link link-principal is-uppercase" th:text="#{action.logout}">Logout</button>
+                    </form>
+                </li>
+            </th:block>
+        </ul>
+    </nav>
+</header>
+
+<section layout:fragment="content" id="ag-content"></section>
+<footer layout:fragment="footer" id="ag-footer"></footer>
+<th:block layout:fragment="scripts"></th:block>
+</body>
+</html>

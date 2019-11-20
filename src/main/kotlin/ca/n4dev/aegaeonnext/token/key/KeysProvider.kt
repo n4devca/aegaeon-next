@@ -17,34 +17,33 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
-<<<<<<< HEAD
-=======
- *
->>>>>>> master
- */
-
-package ca.n4dev.aegaeonnext.web
-
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
-
-/**
- *
- * AuthorizationController.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Nov 06 - 2019
  *
  */
-const val AuthorizationControllerURL = "/authorize"
 
-@RestController
-@RequestMapping(AuthorizationControllerURL)
-@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["oauth"], havingValue = "true", matchIfMissing = true)
-class AuthorizationController {
+package ca.n4dev.aegaeonnext.token.key
 
-    val consentView = "consent"
+import com.nimbusds.jose.jwk.JWK
+import com.nimbusds.jose.jwk.JWKSet
+import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Component
+import java.io.File
 
+@Component
+class KeysProvider(@Value("\${aegaeon.jwks}") pKeyUri: String) {
+
+    val jwkSet: JWKSet = JWKSet.load(File(pKeyUri))
+
+    fun getKeyById(pId: String): JWK? {
+        for (j in this.jwkSet.keys) {
+            if (j?.keyID == pId) {
+                return j
+            }
+        }
+        return null
+    }
+
+    fun toPublicJson(): String {
+        val jsonObj = this.jwkSet.toJSONObject(true)
+        return jsonObj.toJSONString()
+    }
 }
