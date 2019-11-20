@@ -23,13 +23,13 @@
  *
  */
 
-(function(window, document){
+(function (window, document) {
 
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', function () {
 
         // image display
         var inputPicture = document.getElementById('user-account-picture');
-        inputPicture.addEventListener('blur', function() {
+        inputPicture.addEventListener('blur', function () {
             var url = inputPicture.value;
             console.log(url);
 
@@ -40,7 +40,7 @@
 
         // Validate name
         var inputName = document.getElementById('user-account-name');
-        inputName.addEventListener('blur', function() {
+        inputName.addEventListener('blur', function () {
             var name = inputName.value;
             if (!name) {
                 document.getElementById('user-account-name-error').classList.add('show-error');

@@ -21,14 +21,13 @@
  */
 package ca.n4dev.aegaeonnext.web.interceptor
 
-import javax.servlet.http.HttpServletRequest
-
 import org.springframework.core.MethodParameter
 import org.springframework.web.bind.annotation.RequestMethod
 import org.springframework.web.bind.support.WebDataBinderFactory
 import org.springframework.web.context.request.NativeWebRequest
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
 import org.springframework.web.method.support.ModelAndViewContainer
+import javax.servlet.http.HttpServletRequest
 
 /**
  * RequestMethodInterceptor.java

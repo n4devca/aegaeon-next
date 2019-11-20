@@ -23,21 +23,19 @@
 package ca.n4dev.aegaeonnext.config
 
 import ca.n4dev.aegaeonnext.web.interceptor.RequestMethodArgumentResolver
+import nz.net.ultraq.thymeleaf.LayoutDialect
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
-import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
-import java.util.Locale
-import org.springframework.web.servlet.i18n.CookieLocaleResolver
-import nz.net.ultraq.thymeleaf.LayoutDialect
-import org.springframework.web.servlet.LocaleResolver
-import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect
 import org.springframework.web.method.support.HandlerMethodArgumentResolver
+import org.springframework.web.servlet.LocaleResolver
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry
-
-
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
+import org.springframework.web.servlet.i18n.CookieLocaleResolver
+import org.springframework.web.servlet.i18n.LocaleChangeInterceptor
+import org.thymeleaf.extras.springsecurity5.dialect.SpringSecurityDialect
+import java.util.*
 
 
 /**

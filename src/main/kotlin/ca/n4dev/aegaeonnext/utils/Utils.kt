@@ -1,7 +1,5 @@
 package ca.n4dev.aegaeonnext.utils
 
-import java.lang.Exception
-
 /**
  *
  * Utils.java

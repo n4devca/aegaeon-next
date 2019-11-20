@@ -8,7 +8,7 @@ html, body, * {
 }
 
 body {
-    margin:0;
+    margin: 0;
     padding: 0;
     background-color: #fafafa;
 }
@@ -173,10 +173,10 @@ a {
 }
 
 .btn-link {
-    border:0;
+    border: 0;
     padding: 0.3em 0.7em;
     background-color: transparent;
-    color:#095bb7;
+    color: #095bb7;
     cursor: pointer;
 }
 
@@ -196,7 +196,7 @@ a {
 
 .link {
     text-decoration: none;
-    color:#095bb7;
+    color: #095bb7;
 }
 
 .link:hover {
@@ -227,17 +227,17 @@ a {
     padding: 0.3em 0.5em;
     width: 100%;
     border-radius: 0;
-    border:1px solid #ddd;
+    border: 1px solid #ddd;
     background-color: #fff;
 }
 
 .form-input:focus {
-    border:1px solid #a9a9a9;
+    border: 1px solid #a9a9a9;
 }
 
 .error-text {
     display: none;
-    color:#f40000;
+    color: #f40000;
 }
 
 .pill {

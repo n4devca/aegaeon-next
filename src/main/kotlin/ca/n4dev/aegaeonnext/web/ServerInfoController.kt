@@ -26,9 +26,7 @@ import ca.n4dev.aegaeonnext.config.AegaeonServerInfo
 import ca.n4dev.aegaeonnext.loggerFor
 import ca.n4dev.aegaeonnext.token.TokenFactory
 import ca.n4dev.aegaeonnext.web.view.ServerInformation
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
@@ -49,12 +47,12 @@ const val ServerInfoControllerURL = "/.well-known/openid-configuration"
 @RestController
 @RequestMapping(ServerInfoControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["information"], havingValue = "true", matchIfMissing = true)
-class ServerInfoController(aegaeonServerInfo : AegaeonServerInfo /*,scopeServive: ScopeServive*/, tokenFactory: TokenFactory) {
+class ServerInfoController(aegaeonServerInfo: AegaeonServerInfo /*,scopeServive: ScopeServive*/, tokenFactory: TokenFactory) {
 
     private val LOGGER = loggerFor(javaClass)
 
     @GetMapping("")
-    fun info(httpServletRequest: HttpServletRequest) : ServerInformation? {
+    fun info(httpServletRequest: HttpServletRequest): ServerInformation? {
 
         val contextPath = httpServletRequest.contextPath
 

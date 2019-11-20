@@ -26,8 +26,7 @@ import ca.n4dev.aegaeonnext.token.key.KeysProvider
 import ca.n4dev.aegaeonnext.utils.requireNonNull
 import org.springframework.stereotype.Component
 import java.time.temporal.TemporalUnit
-import java.util.UUID
-
+import java.util.*
 
 
 /**
@@ -83,11 +82,11 @@ class TokenFactory(private val keysProvider: KeysProvider, providers: List<Provi
 
 
         return pTokenProvider.createToken(pOAuthUser,
-                                          pOAuthClient,
-                                          pTimeValue,
-                                          pTemporalUnit,
-                                          pPayloads,
-                                          tokenType)
+            pOAuthClient,
+            pTimeValue,
+            pTemporalUnit,
+            pPayloads,
+            tokenType)
     }
 
 
@@ -144,7 +143,7 @@ class TokenFactory(private val keysProvider: KeysProvider, providers: List<Provi
     }
 
     fun getSupportedAlgorithm(): List<String> {
-        return tokenProviderHolder.entries.map{ it.value.getAlgorithmName() }
+        return tokenProviderHolder.entries.map { it.value.getAlgorithmName() }
     }
 
     @Throws(Exception::class)
