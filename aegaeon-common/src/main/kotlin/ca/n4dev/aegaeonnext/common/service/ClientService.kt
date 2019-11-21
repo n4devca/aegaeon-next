@@ -21,7 +21,7 @@
 
 package ca.n4dev.aegaeonnext.common.service
 
-import ca.n4dev.aegaeonnext.common.model.ClientDto
+import ca.n4dev.aegaeonnext.common.model.Client
 import org.springframework.security.core.userdetails.UserDetailsService
 
 /**
@@ -35,11 +35,11 @@ import org.springframework.security.core.userdetails.UserDetailsService
  */
 interface ClientService : UserDetailsService {
 
-    fun getByPublicId(publicId: String) : ClientDto?
+    fun getByPublicId(publicId: String) : Client?
 
-    fun create(clientDto: ClientDto) : ClientDto
+    fun create(clientDto: Client) : Client
 
-    fun update(id: Long, clientDto: ClientDto) : ClientDto
+    fun update(id: Long, clientDto: Client) : Client
 
     fun delete(id: Long)
 

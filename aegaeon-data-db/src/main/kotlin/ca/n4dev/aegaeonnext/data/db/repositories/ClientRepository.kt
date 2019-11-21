@@ -22,9 +22,8 @@
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.common.model.Flow
+import ca.n4dev.aegaeonnext.common.model.*
 import ca.n4dev.aegaeonnext.common.utils.requireNonNull
-import ca.n4dev.aegaeonnext.data.db.entities.*
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert

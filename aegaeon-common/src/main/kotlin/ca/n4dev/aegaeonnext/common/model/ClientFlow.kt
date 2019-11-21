@@ -17,26 +17,32 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
 package ca.n4dev.aegaeonnext.common.model
 
+import ca.n4dev.aegaeonnext.common.model.Flow
+import java.time.LocalDateTime
+
 /**
  *
- * UserInfoDto.java
+ * ClientFlow.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 29 - 2019
+ * @since 2.0.0 - Sep 26 - 2019
  *
  */
-data class UserInfoDto(
-    val id: Long,
-    val scopeName: String,
-    val claimName: String,
-    val claimValue: String
-) {
-    override fun toString(): String {
-        return "UserInfoDto(id=$id, scopeName='$scopeName', claimName='$claimName', claimValue='$claimValue')"
-    }
-}
+data class ClientFlow (
+
+    val id: Long?,
+
+    val clientId: Long,
+
+    val flow: Flow,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
+)

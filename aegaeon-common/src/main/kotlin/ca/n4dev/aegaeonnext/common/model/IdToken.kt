@@ -17,21 +17,37 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.model
+
+import java.time.LocalDateTime
 
 /**
  *
- * Grant.java
+ * IdToken.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 10 - 2019
+ * @since 2.0.0 - Sep 25 - 2019
  *
  */
-enum class Grant {
-    code,
-    token,
-    id_token
-}
+data class IdToken(
+
+    val id: Long?,
+
+    val token: String,
+
+    val userId: Long,
+
+    val clientId: Long,
+
+    val scopes: String,
+
+    val validUntil: LocalDateTime,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
+)

@@ -20,34 +20,30 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.model
+
+import java.time.LocalDateTime
 
 /**
  *
- * User.java
+ * Authority.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 27 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class User (
+data class Authority (
+    val id: Long,
 
-    val id: Long?,
+    // ROLE_USER, ROLE_ADMIN
+    val code: String,
 
-    val userName: String,
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 
-    val passwd: String,
-
-    val uniqueIdentifier: String,
-
-    val name: String,
-
-    val enabled: Boolean = false
-
+    val version: Int = 0
 ) {
-
-    var authorities: Set<Authority> = emptySet()
-
-    var userInfos: Set<UserInfo> = emptySet()
+    override fun toString(): String {
+        return "Authority(id=$id, code='$code')"
+    }
 }

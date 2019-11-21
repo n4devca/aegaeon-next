@@ -17,46 +17,26 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
 package ca.n4dev.aegaeonnext.common.model
 
 /**
  *
- * ClientDto.java
+ * Scope.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 22 - 2019
+ * @since 2.0.0 - Sep 26 - 2019
  *
  */
 
-data class ClientDto(
+data class Scope (
+
     val id: Long?,
-    val publicId: String,
-    val secret: String,
-    val name: String,
-    val logoUrl: String?,
-    val scopes: Map<String, Long?> = emptyMap(),
-    val flows: Map<Flow, Long?> = emptyMap(),
-    val redirections: Map<String, Long?> = emptyMap()
-) {
-    override fun toString(): String {
-        return "ClientDto(id=$id, publicId='$publicId', name='$name')"
-    }
-}
 
-//    var publicId: String
-//    var secret: String
-//    var name: String
-//    var description: String?
-//    var logoUrl: String?
-//    var providerName: String?
-//    var idTokenSeconds: Long
-//    var accessTokenSeconds: Long
-//    var refreshTokenSeconds: Long
-//    var allowIntrospect: Boolean = false
-//    var createdAt: LocalDateTime = LocalDateTime.now()
-//    var updatedAt: LocalDateTime = LocalDateTime.now()
-//    var version: Int = 0
+    val code: String,
 
+    val isSystem: Boolean
+)

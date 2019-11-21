@@ -20,30 +20,35 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.repository
 
-import java.time.LocalDateTime
+import ca.n4dev.aegaeonnext.common.model.Client
+import ca.n4dev.aegaeonnext.common.model.ClientFlow
+import ca.n4dev.aegaeonnext.common.model.ClientRedirection
+import ca.n4dev.aegaeonnext.common.model.ClientScope
 
 /**
  *
- * ClientScope.java
+ * ClientRepository.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class ClientScope (
+interface ClientRepository {
 
-    val id: Long?,
+    fun getClientById(id: Long): Client?
 
-    val clientId: Long,
+    fun getClientByPublicId(publicId: String): Client?
 
-    val scopeId: Long,
+    fun getClientScopesByClientId(clientId: Long): List<ClientScope>
 
-    val scopeCode: String,
+    fun getClientFlowByClientId(clientId: Long): List<ClientFlow>
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    fun getClientRedirectionByClientId(clientId: Long): List<ClientRedirection>
 
-    val version: Int = 0
-)
+    fun create(client: Client): Long
+
+    fun update(id: Long, updatedClient: Client)
+}

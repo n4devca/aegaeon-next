@@ -21,8 +21,9 @@
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.data.db.entities.AuthorizationCode
-import org.springframework.data.domain.Pageable
+import ca.n4dev.aegaeonnext.common.model.AuthorizationCode
+import ca.n4dev.aegaeonnext.common.repository.AuthorizationCodeRepository
+import ca.n4dev.aegaeonnext.common.utils.Page
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
@@ -76,14 +77,14 @@ private val resultSetToAuthCode = RowMapper { rs, _ ->
 }
 
 @Repository
-class AuthorizationCodeRepository : BaseRepository() {
+class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepository {
 
-    fun getByCode(code: String) = jdbcTemplate.queryForObject(GET_BY_CODE, mapOf("code" to code), resultSetToAuthCode)
+    override fun getByCode(code: String) = jdbcTemplate.queryForObject(GET_BY_CODE, mapOf("code" to code), resultSetToAuthCode)
 
-    fun getByClientId(clientId: Long, page: Pageable) =
+    override fun getByClientId(clientId: Long, page: Page): List<AuthorizationCode> =
         jdbcTemplate.query(GET_BY_CLIENT_ID, mapOf("clientId" to clientId), resultSetToAuthCode)
 
-    fun getByUserId(userId: Long, page: Pageable) =
+    override fun getByUserId(userId: Long, page: Page): List<AuthorizationCode> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf("userId" to userId), resultSetToAuthCode)
 
 }

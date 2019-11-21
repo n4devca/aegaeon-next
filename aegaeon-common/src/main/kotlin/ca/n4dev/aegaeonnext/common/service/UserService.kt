@@ -21,7 +21,7 @@
 
 package ca.n4dev.aegaeonnext.common.service
 
-import ca.n4dev.aegaeonnext.common.model.UserDto
+import ca.n4dev.aegaeonnext.common.model.User
 import org.springframework.security.core.userdetails.UserDetailsService
 
 /**
@@ -35,9 +35,9 @@ import org.springframework.security.core.userdetails.UserDetailsService
  */
 interface UserService : UserDetailsService {
 
-    fun create(userDto: UserDto): UserDto
+    fun create(user: User): User
 
-    fun update(id: Long, userDto: UserDto): UserDto
+    fun update(id: Long, user: User): User
 
     fun delete(id: Long)
 

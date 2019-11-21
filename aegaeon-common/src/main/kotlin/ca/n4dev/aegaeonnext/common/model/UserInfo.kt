@@ -23,11 +23,20 @@ package ca.n4dev.aegaeonnext.common.model
 
 /**
  *
- * AuthorizationCodeDto.java
+ * UserInfoDto.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 30 - 2019
+ * @since 2.0.0 - Oct 29 - 2019
  *
  */
-data class AuthorizationCodeDto(val code: String, val clientId: String, val userName: String)
+data class UserInfo(
+    val id: Long,
+    val scopeId: Long,
+    val claimName: String,
+    val claimValue: String
+) {
+    override fun toString(): String {
+        return "UserInfoDto(id=$id, scopeId='$scopeId', claimName='$claimName', claimValue='$claimValue')"
+    }
+}

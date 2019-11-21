@@ -21,18 +21,21 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
+import java.time.ZonedDateTime
+
 /**
  *
- * ScopeDto.java
+ * TokenDto.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
  * @since 2.0.0 - Oct 30 - 2019
  *
  */
-class ScopeDto(val id: Long, val name: String, val claims: List<String> = emptyList()) {
-
-    override fun toString(): String {
-        return "ScopeDto(id=$id, name='$name')"
-    }
-}
+data class Token(
+    val id: Long,
+    val token: String,
+    val tokenType: String,
+    val scopes: String,
+    val validUntil: ZonedDateTime
+)

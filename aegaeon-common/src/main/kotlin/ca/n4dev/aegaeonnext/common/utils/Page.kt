@@ -20,28 +20,41 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
-
-import java.time.LocalDateTime
+package ca.n4dev.aegaeonnext.common.utils
 
 /**
  *
- * ClientRedirection.java
+ * Page.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class ClientRedirection(
+interface Page {
 
-    val id: Long?,
+    fun getPageNumber(): Int = 1
 
-    val clientId: Long,
+    fun getPageSize(): Int = 25
 
-    val url: String,
+    fun getSorts() : Set<Sort> = emptySet()
+}
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+enum class Direction {
+    ASC, DESC
+}
 
-    val version: Int = 0
-)
+interface Sort {
+    fun getName() : String
+
+    fun getDirection() : Direction
+}
+
+interface Result<R> {
+
+    fun getPage() : Page
+
+    fun getTotalResult() : Int
+
+    fun getResult() : List<R>
+}

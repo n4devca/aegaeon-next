@@ -20,26 +20,22 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.repository
+
+import ca.n4dev.aegaeonnext.common.model.Scope
 
 /**
  *
- * UserInfo.java
+ * ScopeRepository.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 27 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class UserInfo(
+interface ScopeRepository {
 
-    val id: Long,
+    fun getAll() : List<Scope>
 
-    val userId: Long,
-
-    val scopeId: Long,
-
-    val claimName: String,
-
-    val claimValue: String
-)
+    fun getByName(name: String) : Scope?
+}

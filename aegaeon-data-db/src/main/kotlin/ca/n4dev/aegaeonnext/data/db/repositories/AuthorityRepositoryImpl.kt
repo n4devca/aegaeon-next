@@ -19,17 +19,35 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.core.service
+package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.common.model.AccessToken
-import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import ca.n4dev.aegaeonnext.common.model.Authority
+import ca.n4dev.aegaeonnext.common.repository.AuthorityRepository
+import org.springframework.jdbc.core.RowMapper
+import org.springframework.stereotype.Repository
 
-@Service
-class AccessTokenService(private val accessTokenRepository: AccessTokenRepository) {
+/**
+ *
+ * AuthorityRepository.java
+ *
+ * Repository to access Authority.
+ *
+ * @author rguillemette
+ * @since 2.0.0 - Nov 04 - 2019
+ *
+ */
 
-    @Transactional(readOnly = true)
-    fun findByToken(pTokenValue: String): AccessToken? = accessTokenRepository.getByToken(pTokenValue)
+private const val GET_ALL = "select id, code, created_at, updated_at, version from authority"
 
+private val resultSetToAuthority = RowMapper { rs, _ ->
+    Authority(rs.getLong(1),
+        rs.getString(2),
+        toLocalDateTime(rs.getDate(3)),
+        rs.getInt(5))
+}
+
+@Repository
+class AuthorityRepositoryImpl : BaseRepository(), AuthorityRepository {
+
+    override fun getAll(): List<Authority> = jdbcTemplate.query(GET_ALL, resultSetToAuthority)
 }

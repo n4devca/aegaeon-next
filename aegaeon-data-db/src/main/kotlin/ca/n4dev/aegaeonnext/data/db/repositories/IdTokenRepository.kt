@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.data.db.entities.IdToken
+import ca.n4dev.aegaeonnext.common.model.IdToken
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet

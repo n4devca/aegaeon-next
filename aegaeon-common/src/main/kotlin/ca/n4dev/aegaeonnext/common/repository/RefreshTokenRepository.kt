@@ -17,30 +17,27 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package ca.n4dev.aegaeonnext.common.model
+package ca.n4dev.aegaeonnext.common.repository
+
+import ca.n4dev.aegaeonnext.common.model.RefreshToken
+import ca.n4dev.aegaeonnext.common.model.Token
 
 /**
  *
- * UserDto.java
+ * RefreshTokenRepository.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 29 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class UserDto(
-    val id: Long,
-    val userName: String,
-    val uniqueIdentifier: String,
-    val name: String,
-    val picture: String? = null,
-    val locale: String? = null,
-    val roles: List<String>,
-    val userInfos: List<UserInfoDto> = emptyList()
-) {
-    override fun toString(): String {
-        return "UserDto(id=$id, userName='$userName', uniqueIdentifier='$uniqueIdentifier')"
-    }
+interface RefreshTokenRepository {
+
+    fun getByToken(token: String): RefreshToken
+
+    fun getByUserId(userId: Long): List<RefreshToken>
+
 }

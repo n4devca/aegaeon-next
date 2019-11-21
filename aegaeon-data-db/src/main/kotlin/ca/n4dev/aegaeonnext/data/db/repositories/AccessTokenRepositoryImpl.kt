@@ -22,7 +22,8 @@
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.data.db.entities.AccessToken
+import ca.n4dev.aegaeonnext.common.model.AccessToken
+import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
@@ -56,11 +57,11 @@ private val resultSetToAccessToken = RowMapper { rs: ResultSet, _: Int ->
 }
 
 @Repository
-class AccessTokenRepository : BaseRepository() {
+class AccessTokenRepositoryImpl : BaseRepository(), AccessTokenRepository {
 
-    fun getByToken(token: String): AccessToken? =
+    override fun getByToken(token: String): AccessToken? =
         jdbcTemplate.queryForObject(GET_BY_TOKEN, mapOf(Pair("token", token)), resultSetToAccessToken)
 
-    fun getByUserId(userId: Long): List<AccessToken> =
+    override fun getByUserId(userId: Long): List<AccessToken> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf(Pair("user_id", userId)), resultSetToAccessToken)
 }

@@ -21,21 +21,17 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.ZonedDateTime
-
 /**
  *
- * TokenDto.java
+ * Grant.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 30 - 2019
+ * @since 2.0.0 - Nov 10 - 2019
  *
  */
-data class TokenDto(
-    val id: Long,
-    val token: String,
-    val tokenType: String,
-    val scopes: String,
-    val validUntil: ZonedDateTime
-)
+enum class Grant {
+    code,
+    token,
+    id_token
+}

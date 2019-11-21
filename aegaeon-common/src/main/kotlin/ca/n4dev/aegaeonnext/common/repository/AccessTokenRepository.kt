@@ -20,28 +20,23 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.repository
 
-import java.time.LocalDateTime
-
+import ca.n4dev.aegaeonnext.common.model.AccessToken
+import ca.n4dev.aegaeonnext.common.model.Token
 
 /**
  *
- * Authority.java
+ * AccessTokenRepository.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 27 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class Authority(
+interface AccessTokenRepository {
 
-    val id: Long,
+    fun getByToken(token: String): AccessToken?
 
-    // ROLE_USER, ROLE_ADMIN
-    val code: String,
-
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    val version: Int = 0
-)
+    fun getByUserId(userId: Long): List<AccessToken>
+}

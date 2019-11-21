@@ -20,23 +20,24 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.repository
+
+import ca.n4dev.aegaeonnext.common.model.IdToken
+import ca.n4dev.aegaeonnext.common.model.Token
 
 /**
  *
- * Scope.java
+ * IdTokenRepository.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
+interface IdTokenRepository {
 
-data class Scope (
+    fun getByToken(token: String): IdToken
 
-    val id: Long?,
+    fun getByUserId(userId: Long): List<IdToken>
 
-    val code: String,
-
-    val isSystem: Boolean
-)
+}

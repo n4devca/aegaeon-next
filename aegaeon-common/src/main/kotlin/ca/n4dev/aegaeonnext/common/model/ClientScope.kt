@@ -20,26 +20,28 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.model
 
 import java.time.LocalDateTime
 
 /**
  *
- * ClientRequestUri.java
+ * ClientScope.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
  * @since 2.0.0 - Sep 26 - 2019
  *
  */
-data class ClientRequestUri (
+data class ClientScope (
 
     val id: Long?,
 
     val clientId: Long,
 
-    val uri: String,
+    val scopeId: Long,
+
+    val scopeCode: String,
 
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

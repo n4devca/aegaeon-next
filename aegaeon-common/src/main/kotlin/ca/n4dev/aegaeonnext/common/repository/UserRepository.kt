@@ -17,19 +17,34 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package ca.n4dev.aegaeonnext.core.service
+package ca.n4dev.aegaeonnext.common.repository
 
-import ca.n4dev.aegaeonnext.common.model.AccessToken
-import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import ca.n4dev.aegaeonnext.common.model.Authority
+import ca.n4dev.aegaeonnext.common.model.User
+import ca.n4dev.aegaeonnext.common.model.UserInfo
+import ca.n4dev.aegaeonnext.common.utils.Page
+import ca.n4dev.aegaeonnext.common.utils.Result
 
-@Service
-class AccessTokenService(private val accessTokenRepository: AccessTokenRepository) {
+/**
+ *
+ * UserRepository.java
+ * TODO(rguillemette) Add description.
+ *
+ * @author rguillemette
+ * @since 2.0.0 - Nov 21 - 2019
+ *
+ */
+interface UserRepository {
 
-    @Transactional(readOnly = true)
-    fun findByToken(pTokenValue: String): AccessToken? = accessTokenRepository.getByToken(pTokenValue)
+    fun getAllUsers(page: Page): Result<User>
+
+    fun getUserInfoByUserId(userId: Long): List<UserInfo>
+
+    fun getUserInfoByUserName(userName: String): User?
+
+    fun getUserAuthorities(userId: Long): List<Authority>
 
 }

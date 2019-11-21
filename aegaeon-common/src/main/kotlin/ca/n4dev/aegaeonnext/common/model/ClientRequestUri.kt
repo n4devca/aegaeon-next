@@ -20,32 +20,26 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.model
 
 import java.time.LocalDateTime
 
 /**
  *
- * RefreshToken.java
+ * ClientRequestUri.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 25 - 2019
+ * @since 2.0.0 - Sep 26 - 2019
  *
  */
-data class RefreshToken (
+data class ClientRequestUri (
 
     val id: Long?,
 
-    val token: String,
-
-    val userId: Long,
-
     val clientId: Long,
 
-    val scopes: String,
-
-    val validUntil: LocalDateTime,
+    val uri: String,
 
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

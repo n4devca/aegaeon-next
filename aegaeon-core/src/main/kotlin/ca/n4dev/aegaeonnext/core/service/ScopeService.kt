@@ -21,15 +21,13 @@
  */
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.common.model.ScopeDto
-import ca.n4dev.aegaeonnext.data.db.entities.Scope
 import ca.n4dev.aegaeonnext.data.db.repositories.ScopeRepository
 import ca.n4dev.aegaeonnext.common.utils.splitStringOn
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 private val scopeToDto = { scope: Scope ->
-    ScopeDto(
+    ca.n4dev.aegaeonnext.common.model.Scope(
         scope.id!!,
         scope.code
     )
@@ -73,7 +71,7 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
         if (!scopeParam.isBlank()) {
 
             val scopeList = splitStringOn(scopeParam)
-            val scopeViews = mutableSetOf<ScopeDto>()
+            val scopeViews = mutableSetOf<ca.n4dev.aegaeonnext.common.model.Scope>()
             val invalidScopeViews = mutableSetOf<String>()
             for (s in scopeList) {
 
@@ -83,7 +81,7 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
                     val scopeByName = scopeRepository.getByName(scopeValue)
 
                     if (scopeByName != null && !exclusions.contains(scopeValue)) {
-                        scopeViews.add(ScopeDto(scopeByName.id!!, scopeByName.code))
+                        scopeViews.add(ca.n4dev.aegaeonnext.common.model.Scope(scopeByName.id!!, scopeByName.code))
                     } else {
                         invalidScopeViews.add(s)
                     }
@@ -100,7 +98,7 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
 
 data class ScopeSet(
 
-    val validScopes: Set<ScopeDto>,
+    val validScopes: Set<ca.n4dev.aegaeonnext.common.model.Scope>,
 
     val invalidScopes: Set<String>
 )

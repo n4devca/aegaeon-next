@@ -21,8 +21,8 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.common.model.ClientDto
-import ca.n4dev.aegaeonnext.data.db.entities.UserAuthorization
+import ca.n4dev.aegaeonnext.common.model.Client
+import ca.n4dev.aegaeonnext.common.model.UserAuthorization
 import ca.n4dev.aegaeonnext.data.db.repositories.UserAuthorizationRepository
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import org.springframework.security.core.Authentication
@@ -91,7 +91,7 @@ class UserAuthorizationService(private val userAuthorizationRepository: UserAuth
         return false
     }
 
-    private fun getUserAuthorization(pUserDetails: AegaeonUserDetails, pClient: ClientDto): UserAuthorization? {
+    private fun getUserAuthorization(pUserDetails: AegaeonUserDetails, pClient: Client): UserAuthorization? {
 
         if (pUserDetails.id != null) {
             return userAuthorizationRepository.getByUserIdAndClientId(pUserDetails.id, pClient.id!!)

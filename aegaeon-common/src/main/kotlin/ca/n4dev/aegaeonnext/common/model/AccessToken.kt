@@ -22,47 +22,34 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.model
 
 import java.time.LocalDateTime
 
 /**
  *
- * Client.java
+ * AccessToken.java
+ *
  *
  * @author rguillemette
  * @since 2.0.0 - Sep 25 - 2019
  *
  */
-data class Client(
+data class AccessToken (
 
         val id: Long?,
 
-        val publicId: String,
+        val token: String,
 
-        val secret: String,
+        val userId: Long,
 
-        val name: String,
+        val clientId: Long,
 
-        val description: String?,
+        val scopes: String,
 
-        val logoUrl: String?,
-
-        val providerName: String?,
-
-        val idTokenSeconds: Long = 60*10, // 10 minutes
-
-        val accessTokenSeconds: Long = 60*60, // 1 hour
-
-        val refreshTokenSeconds: Long = 60*60*24, // 24 hours
-
-        val allowIntrospect: Boolean = false,
+        val validUntil: LocalDateTime,
 
         val createdAt: LocalDateTime = LocalDateTime.now(),
 
-        val updatedAt: LocalDateTime = LocalDateTime.now(),
-
-        val version: Int = 0,
-
-        val createdBy: String
+        val version: Int = 0
 )

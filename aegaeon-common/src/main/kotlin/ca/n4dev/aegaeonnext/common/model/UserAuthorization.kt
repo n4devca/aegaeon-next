@@ -19,17 +19,32 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.core.service
+package ca.n4dev.aegaeonnext.common.model
 
-import ca.n4dev.aegaeonnext.common.model.AccessToken
-import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
-import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
+import java.time.LocalDateTime
 
-@Service
-class AccessTokenService(private val accessTokenRepository: AccessTokenRepository) {
+/**
+ *
+ * UserAuthorization.java
+ * TODO(rguillemette) Add description.
+ *
+ * @author rguillemette
+ * @since 2.0.0 - Nov 05 - 2019
+ *
+ */
+data class UserAuthorization(
 
-    @Transactional(readOnly = true)
-    fun findByToken(pTokenValue: String): AccessToken? = accessTokenRepository.getByToken(pTokenValue)
+    val id: Long?,
 
-}
+    val userId: Long,
+
+    val clientId: Long,
+
+    val scopes: String,
+
+    val createdAt: LocalDateTime = LocalDateTime.now(),
+
+    val updatedAt: LocalDateTime = LocalDateTime.now(),
+
+    val version: Int = 0
+)

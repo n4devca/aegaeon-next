@@ -22,11 +22,9 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.common.model.ClientDto
-import ca.n4dev.aegaeonnext.data.db.entities.Client
-import ca.n4dev.aegaeonnext.data.db.entities.ClientFlow
-import ca.n4dev.aegaeonnext.data.db.entities.ClientRedirection
-import ca.n4dev.aegaeonnext.data.db.entities.ClientScope
+import ca.n4dev.aegaeonnext.common.model.ClientFlow
+import ca.n4dev.aegaeonnext.common.model.ClientRedirection
+import ca.n4dev.aegaeonnext.common.model.ClientScope
 import ca.n4dev.aegaeonnext.data.db.repositories.ClientRepository
 import ca.n4dev.aegaeonnext.common.utils.isOneTrue
 import org.springframework.stereotype.Service
@@ -46,35 +44,35 @@ import org.springframework.transaction.annotation.Transactional
 fun clientToClientDto(client: Client,
                       clientScopes: List<ClientScope>,
                       clientFlows: List<ClientFlow>,
-                      clientRedirections: List<ClientRedirection>): ClientDto {
+                      clientRedirections: List<ClientRedirection>): ca.n4dev.aegaeonnext.common.model.Client {
 
     val scopeMap = clientScopes.associate { it.scopeCode to it.id }
     val flowMap = clientFlows.associate { it.flow to it.id }
     val redirectionMap = clientRedirections.associate { it.url to it.id }
 
-    return ClientDto(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap, redirectionMap)
+    return ca.n4dev.aegaeonnext.common.model.Client(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap, redirectionMap)
 }
 
 @Service
 class ClientService(private val clientRepository: ClientRepository) {
 
     @Transactional(readOnly = true)
-    fun getById(id: Long) : ClientDto? {
+    fun getById(id: Long) : ca.n4dev.aegaeonnext.common.model.Client? {
         return clientRepository.getClientById(id)?.let { loadClientInfo(it) }
     }
 
     @Transactional(readOnly = true)
-    fun getByPublicId(publicId: String) : ClientDto? {
+    fun getByPublicId(publicId: String) : ca.n4dev.aegaeonnext.common.model.Client? {
         return clientRepository.getClientByPublicId(publicId)?.let { loadClientInfo(it) }
     }
 
     @Transactional
-    fun create(clientDto: ClientDto) : ClientDto {
+    fun create(clientDto: ca.n4dev.aegaeonnext.common.model.Client) : ca.n4dev.aegaeonnext.common.model.Client {
         throw UnsupportedOperationException("Not implemented yet")
     }
 
     @Transactional
-    fun update(id: Long, clientDto: ClientDto) : ClientDto {
+    fun update(id: Long, clientDto: ca.n4dev.aegaeonnext.common.model.Client) : ca.n4dev.aegaeonnext.common.model.Client {
         throw UnsupportedOperationException("Not implemented yet")
     }
 
@@ -88,7 +86,7 @@ class ClientService(private val clientRepository: ClientRepository) {
         return false
     }
 
-    private fun loadClientInfo(client: Client) : ClientDto? {
+    private fun loadClientInfo(client: Client) : ca.n4dev.aegaeonnext.common.model.Client? {
 
         var clientScopes = emptyList<ClientScope>()
         var clientFlows = emptyList<ClientFlow>()

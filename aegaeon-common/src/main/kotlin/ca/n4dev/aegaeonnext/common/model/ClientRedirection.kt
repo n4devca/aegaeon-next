@@ -20,38 +20,26 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.data.db.entities
+package ca.n4dev.aegaeonnext.common.model
 
 import java.time.LocalDateTime
 
 /**
  *
- * AuthorizationCode.java
+ * ClientRedirection.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Sep 25 - 2019
+ * @since 2.0.0 - Sep 26 - 2019
  *
  */
-data class AuthorizationCode(
+data class ClientRedirection(
 
     val id: Long?,
 
-    val code: String,
-
     val clientId: Long,
 
-    val userId: Long,
-
-    val validUntil: LocalDateTime,
-
-    val scopes: String,
-
-    val redirectUrl: String,
-
-    val responseType: String,
-
-    val noonce: String,
+    val url: String,
 
     val createdAt: LocalDateTime = LocalDateTime.now(),
 

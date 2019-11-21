@@ -22,7 +22,7 @@
 package ca.n4dev.aegaeonnext.core.utils
 
 import ca.n4dev.aegaeonnext.common.model.Flow
-import ca.n4dev.aegaeonnext.data.db.entities.Grant
+import ca.n4dev.aegaeonnext.common.model.Grant
 
 /**
  *

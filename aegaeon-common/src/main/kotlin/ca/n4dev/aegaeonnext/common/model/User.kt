@@ -19,34 +19,28 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.data.db.repositories
-
-import ca.n4dev.aegaeonnext.data.db.entities.Authority
-import org.springframework.jdbc.core.RowMapper
-import org.springframework.stereotype.Repository
+package ca.n4dev.aegaeonnext.common.model
 
 /**
  *
- * AuthorityRepository.java
- *
- * Repository to access Authority.
+ * UserDto.java
+ * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 04 - 2019
+ * @since 2.0.0 - Oct 29 - 2019
  *
  */
-
-private const val GET_ALL = "select id, code, created_at, updated_at, version from authority"
-
-private val resultSetToAuthority = RowMapper { rs, _ ->
-    Authority(rs.getLong(1),
-        rs.getString(2),
-        toLocalDateTime(rs.getDate(3)),
-        rs.getInt(5))
-}
-
-@Repository
-class AuthorityRepository : BaseRepository() {
-
-    fun getAll() = jdbcTemplate.query(GET_ALL, resultSetToAuthority)
+data class User(
+    val id: Long,
+    val userName: String,
+    val uniqueIdentifier: String,
+    val name: String,
+    val picture: String? = null,
+    val locale: String? = null,
+    val roles: List<String>,
+    val userInfos: List<UserInfo> = emptyList()
+) {
+    override fun toString(): String {
+        return "UserDto(id=$id, userName='$userName', uniqueIdentifier='$uniqueIdentifier')"
+    }
 }
