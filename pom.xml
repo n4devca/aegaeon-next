@@ -1,13 +1,11 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <modelVersion>4.0.0</modelVersion>
     <groupId>ca.n4dev</groupId>
     <artifactId>aegaeon-next</artifactId>
     <version>1.0.0.RELEASE</version>
     <packaging>pom</packaging>
-
     <name>aegaeon-next</name>
     <description>Aegaeon - next version using kotlin</description>
 
@@ -15,120 +13,27 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-starter-parent</artifactId>
         <version>2.2.1.RELEASE</version>
-        <relativePath/> <!-- lookup parent from repository -->
+        <relativePath/>
     </parent>
 
     <modules>
-        <module>aegaeon-server</module>
-        <!--
+        <module>aegaeon-core</module>
         <module>aegaeon-common</module>
-        <module>release-account-db</module>
-        -->
+        <module>aegaeon-data-db</module>
+        <!--
+            <module>release-account-db</module>
+            -->
     </modules>
-
 
     <properties>
         <java.version>1.8</java.version>
-        <kotlin.version>1.3.50</kotlin.version>
+        <kotlin.version>1.3.60</kotlin.version>
         <nimbus.version>8.2</nimbus.version>
         <thymeleaf.dialect.version>2.4.1</thymeleaf.dialect.version>
-
     </properties>
 
 
-<!--        <dependencies>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-security</artifactId>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-web</artifactId>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>com.fasterxml.jackson.module</groupId>-->
-<!--                <artifactId>jackson-module-kotlin</artifactId>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.jetbrains.kotlin</groupId>-->
-<!--                <artifactId>kotlin-reflect</artifactId>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.jetbrains.kotlin</groupId>-->
-<!--                <artifactId>kotlin-stdlib-jdk8</artifactId>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-jdbc</artifactId>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.data</groupId>-->
-<!--                <artifactId>spring-data-commons</artifactId>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-tomcat</artifactId>-->
-<!--                <scope>provided</scope>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-test</artifactId>-->
-<!--                <scope>test</scope>-->
-<!--                <exclusions>-->
-<!--                    <exclusion>-->
-<!--                        <groupId>org.junit.vintage</groupId>-->
-<!--                        <artifactId>junit-vintage-engine</artifactId>-->
-<!--                    </exclusion>-->
-<!--                </exclusions>-->
-<!--            </dependency>-->
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.security</groupId>-->
-<!--                <artifactId>spring-security-test</artifactId>-->
-<!--                <scope>test</scope>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-configuration-processor</artifactId>-->
-<!--                <optional>false</optional>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>com.nimbusds</groupId>-->
-<!--                <artifactId>nimbus-jose-jwt</artifactId>-->
-<!--                <version>${nimbus.version}</version>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-starter-thymeleaf</artifactId>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>nz.net.ultraq.thymeleaf</groupId>-->
-<!--                <artifactId>thymeleaf-layout-dialect</artifactId>-->
-<!--            </dependency>-->
-
-<!--            <dependency>-->
-<!--                <groupId>org.thymeleaf.extras</groupId>-->
-<!--                <artifactId>thymeleaf-extras-springsecurity5</artifactId>-->
-<!--            </dependency>-->
-
-
-<!--            <dependency>-->
-<!--                <groupId>com.h2database</groupId>-->
-<!--                <artifactId>h2</artifactId>-->
-<!--                <scope>runtime</scope>-->
-<!--            </dependency>-->
-<!--        </dependencies>-->
-
     <build>
-
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -174,13 +79,10 @@
             </plugins>
         </pluginManagement>
     </build>
-
-
     <organization>
         <name>n4dev.ca</name>
         <url>http://n4dev.ca</url>
     </organization>
-
     <repositories>
         <repository>
             <id>spring-snapshots</id>
@@ -204,6 +106,4 @@
             <url>http://repo.spring.io/milestone</url>
         </pluginRepository>
     </pluginRepositories>
-
-
 </project>
