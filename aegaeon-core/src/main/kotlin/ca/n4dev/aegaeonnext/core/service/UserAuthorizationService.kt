@@ -23,7 +23,7 @@ package ca.n4dev.aegaeonnext.core.service
 
 import ca.n4dev.aegaeonnext.common.model.Client
 import ca.n4dev.aegaeonnext.common.model.UserAuthorization
-import ca.n4dev.aegaeonnext.data.db.repositories.UserAuthorizationRepository
+import ca.n4dev.aegaeonnext.data.db.repositories.UserAuthorizationRepositoryImpl
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional
  *
  */
 @Service
-class UserAuthorizationService(private val userAuthorizationRepository: UserAuthorizationRepository,
+class UserAuthorizationService(private val userAuthorizationRepository: UserAuthorizationRepositoryImpl,
                                private val clientService: ClientService,
                                private val scopeService: ScopeService) {
 

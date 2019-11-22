@@ -23,6 +23,7 @@
 package ca.n4dev.aegaeonnext.data.db.repositories
 
 import ca.n4dev.aegaeonnext.common.model.*
+import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import ca.n4dev.aegaeonnext.common.utils.requireNonNull
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.jdbc.core.RowMapper
@@ -145,24 +146,24 @@ private val resultSetToClientRedirection = RowMapper { rs, _ ->
 
 
 @Repository
-class ClientRepository : BaseRepository() {
+class ClientRepositoryImpl : BaseRepository(), ClientRepository {
 
-    fun getClientById(id: Long): Client? =
+    override fun getClientById(id: Long): Client? =
         jdbcTemplate.queryForObject(GET_CLIENT_BY_ID, mapOf(Pair("id", id)), resultSetToClient)
 
-    fun getClientByPublicId(publicId: String): Client? =
+    override fun getClientByPublicId(publicId: String): Client? =
         jdbcTemplate.queryForObject(GET_CLIENT_BY_PUBLICID, mapOf(Pair("public_id", publicId)), resultSetToClient)
 
-    fun getClientScopesByClientId(clientId: Long): List<ClientScope> =
+    override fun getClientScopesByClientId(clientId: Long): List<ClientScope> =
         jdbcTemplate.query(GET_CLIENT_SCOPES_BY_CLIENTID, mapOf(Pair("client_id", clientId)), resultSetToClientScope)
 
-    fun getClientFlowByClientId(clientId: Long): List<ClientFlow> =
+    override fun getClientFlowByClientId(clientId: Long): List<ClientFlow> =
         jdbcTemplate.query(GET_CLIENT_FLOW_BY_CLIENTID, mapOf(Pair("client_id", clientId)), resultSetToClientFlow)
 
-    fun getClientRedirectionByClientId(clientId: Long): List<ClientRedirection> =
+    override fun getClientRedirectionByClientId(clientId: Long): List<ClientRedirection> =
         jdbcTemplate.query(GET_CLIENT_REDIRECTION_BY_ID, mapOf(Pair("client_id", clientId)), resultSetToClientRedirection)
 
-    fun create(client: Client): Long {
+    override fun create(client: Client): Long {
 
         val insertTemplate = getInsertTemplate().value
 
@@ -187,7 +188,7 @@ class ClientRepository : BaseRepository() {
         return key as Long
     }
 
-    fun update(id: Long, updatedClient: Client) {
+    override fun update(id: Long, updatedClient: Client) {
 
         val client = requireNonNull(getClientById(id)) {
             Exception("Client $id cannot be found.")

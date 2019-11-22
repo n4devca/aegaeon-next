@@ -35,7 +35,7 @@ import ca.n4dev.aegaeonnext.common.model.RefreshToken
  */
 interface RefreshTokenRepository {
 
-    fun getByToken(token: String): RefreshToken
+    fun getByToken(token: String): RefreshToken?
 
     fun getByUserId(userId: Long): List<RefreshToken>
 

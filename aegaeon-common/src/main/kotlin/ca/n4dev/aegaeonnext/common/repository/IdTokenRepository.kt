@@ -35,7 +35,7 @@ import ca.n4dev.aegaeonnext.common.model.IdToken
  */
 interface IdTokenRepository {
 
-    fun getByToken(token: String): IdToken
+    fun getByToken(token: String): IdToken?
 
     fun getByUserId(userId: Long): List<IdToken>
 

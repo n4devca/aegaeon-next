@@ -22,6 +22,7 @@
 package ca.n4dev.aegaeonnext.data.db.repositories
 
 import ca.n4dev.aegaeonnext.common.model.UserAuthorization
+import ca.n4dev.aegaeonnext.common.repository.UserAuthorizationRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
@@ -69,14 +70,14 @@ private val resultSetToUserAuth = RowMapper { rs, _ ->
 }
 
 @Repository
-class UserAuthorizationRepository : BaseRepository() {
+class UserAuthorizationRepositoryImpl : BaseRepository(), UserAuthorizationRepository {
 
-    fun getByUserIdAndClientId(userId: Long, clientId: Long) =
+    override fun getByUserIdAndClientId(userId: Long, clientId: Long) =
         jdbcTemplate.queryForObject(GET_BY_USERID_AND_CLIENTID,
             mapOf("userId" to userId, "clientId" to clientId),
             resultSetToUserAuth)
 
-    fun getByUserNameAndClientId(userName: String, clientId: Long) =
+    override fun getByUserNameAndClientId(userName: String, clientId: Long) =
         jdbcTemplate.queryForObject(GET_BY_USERNAME_AND_CLIENTID,
             mapOf("userName" to userName, "clientId" to clientId),
             resultSetToUserAuth)

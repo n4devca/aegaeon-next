@@ -61,4 +61,10 @@ abstract class BaseRepository {
 
 }
 
-fun toLocalDateTime(date: Date) = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+fun toLocalDateTime(date: Date): LocalDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+
+// Zero based
+fun computeOffSet(page: Int, size: Int) : Int {
+    
+}
+

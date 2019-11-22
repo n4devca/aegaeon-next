@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.data.db.repositories.UserRepository
+import ca.n4dev.aegaeonnext.data.db.repositories.UserRepositoryImpl
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service
  *
  */
 @Service("userDetailsService")
-class SpringAuthUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
+class SpringAuthUserDetailsService(private val userRepository: UserRepositoryImpl) : UserDetailsService {
 
     /* (non-Javadoc)
      * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)

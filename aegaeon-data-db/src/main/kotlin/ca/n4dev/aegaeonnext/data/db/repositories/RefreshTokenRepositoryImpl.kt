@@ -23,6 +23,7 @@
 package ca.n4dev.aegaeonnext.data.db.repositories
 
 import ca.n4dev.aegaeonnext.common.model.RefreshToken
+import ca.n4dev.aegaeonnext.common.repository.RefreshTokenRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
@@ -56,11 +57,11 @@ private val resultSetToRefreshToken = RowMapper { rs: ResultSet, _: Int ->
 }
 
 @Repository
-class RefreshTokenRepository : BaseRepository() {
+class RefreshTokenRepositoryImpl : BaseRepository(), RefreshTokenRepository {
 
-    fun getByToken(token: String): RefreshToken? =
+    override fun getByToken(token: String): RefreshToken? =
         jdbcTemplate.queryForObject(GET_BY_TOKEN, params("token", token), resultSetToRefreshToken)
 
-    fun getByUserId(userId: Long): List<RefreshToken> =
+    override fun getByUserId(userId: Long): List<RefreshToken> =
         jdbcTemplate.query(GET_BY_USER_ID, params("user_id", userId), resultSetToRefreshToken);
 }

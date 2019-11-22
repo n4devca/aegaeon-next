@@ -25,7 +25,9 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 import ca.n4dev.aegaeonnext.common.model.Authority
 import ca.n4dev.aegaeonnext.common.model.User
 import ca.n4dev.aegaeonnext.common.model.UserInfo
-import org.springframework.data.domain.Pageable
+import ca.n4dev.aegaeonnext.common.repository.UserRepository
+import ca.n4dev.aegaeonnext.common.utils.Page
+import ca.n4dev.aegaeonnext.common.utils.Result
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
@@ -81,21 +83,25 @@ private val resultSetToAuthority = RowMapper { rs, _ ->
 }
 
 @Repository
-class UserRepository : BaseRepository() {
+class UserRepositoryImpl : BaseRepository(), UserRepository {
 
-    fun getAllUsers(pageable: Pageable): List<User> =
-        jdbcTemplate.query(GET_ALL_USERS, params("offset", pageable.offset, "limit", pageable.pageSize), resultSetToUser)
+    override fun getAllUsers(page: Page): Result<User> {
 
-    fun getUserInfoByUserId(userId: Long): List<UserInfo> =
+        val results =
+            jdbcTemplate.query(GET_ALL_USERS,
+                               params("offset", page.getPageNumber(), "limit", page.getPageSize()),
+                               resultSetToUser)
+
+        TODO("Create Result<List<User>>()")
+    }
+
+    override fun getUserInfoByUserId(userId: Long): List<UserInfo> =
         jdbcTemplate.query(GET_USER_INFO_BY_USERID, params("user_id", userId), resultSetToUserInfo)
 
-    fun getUserInfoByUserName(userName: String): User? =
+    override fun getUserInfoByUserName(userName: String): User? =
         jdbcTemplate.queryForObject(GET_USER_BY_USERNAME, params("userName", userName), resultSetToUser)
 
-    fun getUserInfoByUserId(userId: Set<Long>): List<UserInfo> =
-        jdbcTemplate.query(GET_USER_INFO_BY_USERIDS, params("user_id", userId), resultSetToUserInfo)
-
-    fun getUserAuthorities(userId: Long): List<Authority> =
+    override fun getUserAuthorities(userId: Long): List<Authority> =
         jdbcTemplate.query(GET_AUTHORITY_BY_USERID, params("user_id", userId), resultSetToAuthority)
 
 }

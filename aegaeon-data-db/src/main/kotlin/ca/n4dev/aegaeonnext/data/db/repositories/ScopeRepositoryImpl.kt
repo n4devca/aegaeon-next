@@ -22,6 +22,7 @@
 package ca.n4dev.aegaeonnext.data.db.repositories
 
 import ca.n4dev.aegaeonnext.common.model.Scope
+import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
@@ -56,9 +57,9 @@ private val resultSetToScope = RowMapper { rs, _ ->
 }
 
 @Repository
-class ScopeRepository : BaseRepository() {
+class ScopeRepositoryImpl : BaseRepository(), ScopeRepository {
 
-    fun getAll() = jdbcTemplate.query(GET_ALL, resultSetToScope)
+    override fun getAll(): List<Scope> = jdbcTemplate.query(GET_ALL, resultSetToScope)
 
-    fun getByName(name: String) = jdbcTemplate.queryForObject(GET_BY_NAME, params("name", name), resultSetToScope)
+    override fun getByName(name: String) = jdbcTemplate.queryForObject(GET_BY_NAME, params("name", name), resultSetToScope)
 }
