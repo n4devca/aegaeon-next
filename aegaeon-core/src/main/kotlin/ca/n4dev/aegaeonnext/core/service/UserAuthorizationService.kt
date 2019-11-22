@@ -91,7 +91,7 @@ class UserAuthorizationService(private val userAuthorizationRepository: UserAuth
         return false
     }
 
-    private fun getUserAuthorization(pUserDetails: AegaeonUserDetails, pClient: Client): UserAuthorization? {
+    private fun getUserAuthorization(pUserDetails: AegaeonUserDetails, pClient: ClientDto): UserAuthorization? {
 
         if (pUserDetails.id != null) {
             return userAuthorizationRepository.getByUserIdAndClientId(pUserDetails.id, pClient.id!!)

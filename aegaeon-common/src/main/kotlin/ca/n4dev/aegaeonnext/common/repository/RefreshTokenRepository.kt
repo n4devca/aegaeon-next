@@ -23,7 +23,6 @@
 package ca.n4dev.aegaeonnext.common.repository
 
 import ca.n4dev.aegaeonnext.common.model.RefreshToken
-import ca.n4dev.aegaeonnext.common.model.Token
 
 /**
  *

@@ -26,4 +26,7 @@ import org.springframework.stereotype.Service
 @Service
 class TokenFactory {
 
+    fun validate(clientId: Long, token: String) : Boolean {
+        return false
+    }
 }

@@ -22,9 +22,9 @@
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.data.db.entities.Authority
-import ca.n4dev.aegaeonnext.data.db.entities.User
-import ca.n4dev.aegaeonnext.data.db.entities.UserInfo
+import ca.n4dev.aegaeonnext.common.model.Authority
+import ca.n4dev.aegaeonnext.common.model.User
+import ca.n4dev.aegaeonnext.common.model.UserInfo
 import org.springframework.data.domain.Pageable
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository

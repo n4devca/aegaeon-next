@@ -19,23 +19,45 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.common.model
+package ca.n4dev.aegaeonnext.core.service
 
+import ca.n4dev.aegaeonnext.common.model.AccessToken
+import java.time.LocalDateTime
 import java.time.ZonedDateTime
 
 /**
  *
- * TokenDto.java
+ * BaseTokenService.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 30 - 2019
+ * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class Token(
+abstract class BaseTokenService {
+
+    abstract fun getManagedTokenType(): TokenType
+
+    protected fun accessTokenToTokenDto(accessToken: AccessToken) =
+        TokenDto(
+            accessToken.id!!,
+            accessToken.token,
+            getManagedTokenType(),
+            accessToken.scopes,
+            accessToken.validUntil
+        )
+}
+
+enum class TokenType {
+    ACCESS_TOKEN,
+    ID_TOKEN,
+    REFRESH_TOKEN
+}
+
+data class TokenDto(
     val id: Long,
     val token: String,
-    val tokenType: String,
+    val tokenType: TokenType,
     val scopes: String,
-    val validUntil: ZonedDateTime
+    val validUntil: LocalDateTime
 )

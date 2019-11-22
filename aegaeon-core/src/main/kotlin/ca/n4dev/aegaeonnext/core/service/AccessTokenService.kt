@@ -27,9 +27,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
-class AccessTokenService(private val accessTokenRepository: AccessTokenRepository) {
+class AccessTokenService(private val accessTokenRepository: AccessTokenRepository) : BaseTokenService() {
 
     @Transactional(readOnly = true)
-    fun findByToken(pTokenValue: String): AccessToken? = accessTokenRepository.getByToken(pTokenValue)
+    fun findByToken(pTokenValue: String): TokenDto? =
+        accessTokenRepository.getByToken(pTokenValue)?.let { accessToken ->  accessTokenToTokenDto(accessToken) }
 
+    override fun getManagedTokenType() = TokenType.ACCESS_TOKEN
 }

@@ -22,9 +22,7 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.common.model.ClientFlow
-import ca.n4dev.aegaeonnext.common.model.ClientRedirection
-import ca.n4dev.aegaeonnext.common.model.ClientScope
+import ca.n4dev.aegaeonnext.common.model.*
 import ca.n4dev.aegaeonnext.data.db.repositories.ClientRepository
 import ca.n4dev.aegaeonnext.common.utils.isOneTrue
 import org.springframework.stereotype.Service
@@ -42,61 +40,77 @@ import org.springframework.transaction.annotation.Transactional
 
 
 fun clientToClientDto(client: Client,
-                      clientScopes: List<ClientScope>,
-                      clientFlows: List<ClientFlow>,
-                      clientRedirections: List<ClientRedirection>): ca.n4dev.aegaeonnext.common.model.Client {
+                      clientScopes: List<ClientScope> = emptyList(),
+                      clientFlows: List<ClientFlow> = emptyList(),
+                      clientRedirections: List<ClientRedirection> = emptyList()): ClientDto {
 
     val scopeMap = clientScopes.associate { it.scopeCode to it.id }
     val flowMap = clientFlows.associate { it.flow to it.id }
     val redirectionMap = clientRedirections.associate { it.url to it.id }
 
-    return ca.n4dev.aegaeonnext.common.model.Client(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap, redirectionMap)
+    return ClientDto(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap, redirectionMap)
 }
 
 @Service
 class ClientService(private val clientRepository: ClientRepository) {
 
     @Transactional(readOnly = true)
-    fun getById(id: Long) : ca.n4dev.aegaeonnext.common.model.Client? {
+    fun getById(id: Long) : ClientDto? {
         return clientRepository.getClientById(id)?.let { loadClientInfo(it) }
     }
 
     @Transactional(readOnly = true)
-    fun getByPublicId(publicId: String) : ca.n4dev.aegaeonnext.common.model.Client? {
+    fun getByPublicId(publicId: String) : ClientDto? {
         return clientRepository.getClientByPublicId(publicId)?.let { loadClientInfo(it) }
     }
 
     @Transactional
-    fun create(clientDto: ca.n4dev.aegaeonnext.common.model.Client) : ca.n4dev.aegaeonnext.common.model.Client {
+    fun create(clientDto: ClientDto) : ClientDto {
         throw UnsupportedOperationException("Not implemented yet")
     }
 
     @Transactional
-    fun update(id: Long, clientDto: ca.n4dev.aegaeonnext.common.model.Client) : ca.n4dev.aegaeonnext.common.model.Client {
+    fun update(id: Long, clientDto: ClientDto) : ClientDto {
         throw UnsupportedOperationException("Not implemented yet")
     }
 
     @Transactional(readOnly = true)
-    fun hasRedirectionUri(pClientId: Long, pRedirectionUri: String): Boolean {
+    fun hasRedirectionUri(pClientId: Long, pRedirectionUri: String?): Boolean {
 
-        if (pRedirectionUri.isNotBlank()) {
+        if (pRedirectionUri.isNullOrBlank()) {
             val clientRedirections = clientRepository.getClientRedirectionByClientId(pClientId)
             return isOneTrue(clientRedirections, { r -> r.url.equals(pRedirectionUri) })
         }
         return false
     }
 
-    private fun loadClientInfo(client: Client) : ca.n4dev.aegaeonnext.common.model.Client? {
+    private fun loadClientInfo(client: Client) : ClientDto {
 
-        var clientScopes = emptyList<ClientScope>()
-        var clientFlows = emptyList<ClientFlow>()
-        var clientRedirections = emptyList<ClientRedirection>()
-        client.id?.let {
-            clientScopes = clientRepository.getClientScopesByClientId(it)
-            clientFlows = clientRepository.getClientFlowByClientId(it)
-            clientRedirections = clientRepository.getClientRedirectionByClientId(it)
-        }
+        return client.id?.let {id ->
 
-        return clientToClientDto(client, clientScopes, clientFlows, clientRedirections)
+            val clientScopes = clientRepository.getClientScopesByClientId(id)
+            val clientFlows = clientRepository.getClientFlowByClientId(id)
+            val clientRedirections = clientRepository.getClientRedirectionByClientId(id)
+
+            return clientToClientDto(client, clientScopes, clientFlows, clientRedirections)
+
+        } ?: clientToClientDto(client)
+    }
+
+}
+
+
+data class ClientDto(
+    val id: Long?,
+    val publicId: String,
+    val secret: String,
+    val name: String,
+    val logoUrl: String?,
+    val scopes: Map<String, Long?> = emptyMap(),
+    val flows: Map<Flow, Long?> = emptyMap(),
+    val redirections: Map<String, Long?> = emptyMap()
+) {
+    override fun toString(): String {
+        return "ClientDto(id=$id, publicId='$publicId', name='$name')"
     }
 }

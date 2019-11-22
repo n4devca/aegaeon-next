@@ -35,21 +35,21 @@ import java.time.LocalDateTime
  * @since 2.0.0 - Sep 25 - 2019
  *
  */
-data class AccessToken (
+data class AccessToken(
 
-        val id: Long?,
+    val id: Long?,
 
-        val token: String,
+    val token: String,
 
-        val userId: Long,
+    val userId: Long,
 
-        val clientId: Long,
+    val clientId: Long,
 
-        val scopes: String,
+    val scopes: String,
 
-        val validUntil: LocalDateTime,
+    val validUntil: LocalDateTime,
 
-        val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime = LocalDateTime.now(),
 
-        val version: Int = 0
+    val version: Int = 0
 )

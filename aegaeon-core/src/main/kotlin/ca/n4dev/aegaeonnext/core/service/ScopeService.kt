@@ -21,13 +21,14 @@
  */
 package ca.n4dev.aegaeonnext.core.service
 
+import ca.n4dev.aegaeonnext.common.model.Scope
 import ca.n4dev.aegaeonnext.data.db.repositories.ScopeRepository
 import ca.n4dev.aegaeonnext.common.utils.splitStringOn
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 private val scopeToDto = { scope: Scope ->
-    ca.n4dev.aegaeonnext.common.model.Scope(
+    ScopeDto(
         scope.id!!,
         scope.code
     )
@@ -68,38 +69,47 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
     @Transactional(readOnly = true)
     fun validate(scopeParam: String, exclusions: Set<String> = emptySet()): ScopeSet {
 
-        if (!scopeParam.isBlank()) {
+        return if (scopeParam.isNotBlank()) {
 
             val scopeList = splitStringOn(scopeParam)
-            val scopeViews = mutableSetOf<ca.n4dev.aegaeonnext.common.model.Scope>()
-            val invalidScopeViews = mutableSetOf<String>()
+            val validScopes = mutableSetOf<ScopeDto>()
+            val invalidScopes = mutableSetOf<String>()
             for (s in scopeList) {
 
-                if (!s.isBlank()) {
+                if (s.isNotBlank()) {
 
-                    val scopeValue = s.trim()
-                    val scopeByName = scopeRepository.getByName(scopeValue)
+                    val name = s.trim()
+                    val scopeByName = scopeRepository.getByName(s.trim())
 
-                    if (scopeByName != null && !exclusions.contains(scopeValue)) {
-                        scopeViews.add(ca.n4dev.aegaeonnext.common.model.Scope(scopeByName.id!!, scopeByName.code))
+                    if (scopeByName != null && !exclusions.contains(name)) {
+                        validScopes.add(ScopeDto(scopeByName.id!!, scopeByName.code))
                     } else {
-                        invalidScopeViews.add(s)
+                        invalidScopes.add(s)
                     }
                 }
             }
 
-            return ScopeSet(scopeViews, invalidScopeViews)
+            ScopeSet(validScopes, invalidScopes)
+        } else {
+            emptyScopeSet()
         }
 
-        return emptyScopeSet()
     }
 
 }
 
+data class ScopeDto(
+    val id: Long,
+    val name: String,
+    val claims: List<String> = emptyList()
+) {
+    override fun toString(): String {
+        return "ScopeDto(id=$id, name='$name')"
+    }
+}
+
 data class ScopeSet(
-
-    val validScopes: Set<ca.n4dev.aegaeonnext.common.model.Scope>,
-
+    val validScopes: Set<ScopeDto>,
     val invalidScopes: Set<String>
 )
 

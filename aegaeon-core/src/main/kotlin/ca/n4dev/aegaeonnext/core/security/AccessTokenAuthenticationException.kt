@@ -32,4 +32,4 @@ import org.springframework.security.core.AuthenticationException
  * @since 2.0.0 - Nov 05 - 2019
  *
  */
-class AccessTokenAuthenticationException(throwable: Throwable) : AuthenticationException(throwable.message, throwable)
+class AccessTokenAuthenticationException(message: String, throwable: Throwable? = null) : AuthenticationException(message, throwable)
