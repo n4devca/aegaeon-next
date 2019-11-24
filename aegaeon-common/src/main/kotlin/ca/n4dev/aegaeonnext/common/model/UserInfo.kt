@@ -32,9 +32,11 @@ package ca.n4dev.aegaeonnext.common.model
  */
 data class UserInfo(
     val id: Long,
-    val scopeId: Long,
+    val userId: Long,
+    val scopeId: Long?,
     val claimName: String,
-    val claimValue: String
+    val claimValue: String,
+    val version: Int = 0
 ) {
     override fun toString(): String {
         return "UserInfoDto(id=$id, scopeId='$scopeId', claimName='$claimName', claimValue='$claimValue')"

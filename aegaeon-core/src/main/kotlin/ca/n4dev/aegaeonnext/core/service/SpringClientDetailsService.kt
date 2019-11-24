@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.data.db.repositories.ClientRepositoryImpl
+import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
@@ -40,22 +40,22 @@ import org.springframework.stereotype.Service
  *
  */
 @Service("clientDetailsService")
-class SpringAuthClientDetailsService(private val clientRepository: ClientRepositoryImpl) : UserDetailsService {
+class SpringAuthClientDetailsService(private val clientRepository: ClientRepository) : UserDetailsService {
 
     /* (non-Javadoc)
      * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
      */
     override fun loadUserByUsername(pUsername: String): UserDetails {
 
-        clientRepository.getClientByPublicId(pUsername)?.let {
-            val aegaeonUserDetails = AegaeonUserDetails(it.id,
+        clientRepository.getClientByPublicId(pUsername)?.let { client ->
+            val aegaeonUserDetails = AegaeonUserDetails(client.id,
                 pUsername,
-                "{noop}" + it.secret,
+                "{noop}" + client.secret,
                 enable = true,
                 nonLocked = true,
                 authorities = listOf(SimpleGrantedAuthority("ROLE_CLIENT")))
 
-            aegaeonUserDetails.allowIntrospection = it.allowIntrospect
+            aegaeonUserDetails.allowIntrospection = client.allowIntrospect
 
             return aegaeonUserDetails
         }

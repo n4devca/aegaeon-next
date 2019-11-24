@@ -60,7 +60,7 @@ data class Client(
 
         val createdAt: LocalDateTime = LocalDateTime.now(),
 
-        val updatedAt: LocalDateTime = LocalDateTime.now(),
+        val updatedAt: LocalDateTime? = LocalDateTime.now(),
 
         val version: Int = 0,
 

@@ -47,10 +47,10 @@ class SpringAuthUserDetailsService(private val userRepository: UserRepositoryImp
      */
     override fun loadUserByUsername(pUsername: String): UserDetails {
 
-        userRepository.getUserInfoByUserName(pUsername)?.let {
-            val userAuthorities = userRepository.getUserAuthorities(it.id!!)
+        userRepository.getUserInfoByUserName(pUsername)?.let { user ->
+            val userAuthorities = userRepository.getUserAuthorities(user.id!!)
             val authorities = userAuthorities.map { SimpleGrantedAuthority(it.code) }
-            return AegaeonUserDetails(it.id, it.userName, it.passwd, it.enabled, true, authorities)
+            return AegaeonUserDetails(user.id, user.userName, user.password, user.enabled, user.locked, authorities)
         }
 
         throw UsernameNotFoundException("$pUsername not found")

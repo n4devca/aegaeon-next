@@ -53,7 +53,5 @@ data class AuthorizationCode(
 
     val noonce: String,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
     val version: Int = 0
 )

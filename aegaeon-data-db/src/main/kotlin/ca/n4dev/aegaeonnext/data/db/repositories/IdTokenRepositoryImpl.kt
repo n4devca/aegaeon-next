@@ -28,15 +28,6 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
 
-/**
- *
- * IdTokenRepository.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Oct 22 - 2019
- *
- */
 private const val GET_BY_TOKEN =
     "select id, token, user_id, client_id, scopes, valid_until, created_at, version from id_token where token = :token"
 
@@ -47,20 +38,20 @@ private const val GET_BY_USER_ID = """
     order by created_at
 """
 
-private val resultSetToIdToken = RowMapper { rs: ResultSet, _: Int ->
-    IdToken(
-        rs.getLong(1),
-        rs.getString(2),
-        rs.getLong(3),
-        rs.getLong(4),
-        rs.getString(5),
-        toLocalDateTime(rs.getDate(5)),
-        toLocalDateTime(rs.getDate(6)),
-        rs.getInt(7))
-}
-
 @Repository
 class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
+
+    private val resultSetToIdToken = RowMapper { rs: ResultSet, _: Int ->
+        IdToken(
+            rs.getLong(1),
+            rs.getString(2),
+            rs.getLong(3),
+            rs.getLong(4),
+            rs.getString(5),
+            toLocalDateTime(rs.getDate(5)),
+            toLocalDateTime(rs.getDate(6)),
+            rs.getInt(7))
+    }
 
     override fun getByToken(token: String): IdToken? =
         jdbcTemplate.queryForObject(GET_BY_TOKEN, params("token", token), resultSetToIdToken)

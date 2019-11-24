@@ -50,11 +50,27 @@ interface Sort {
     fun getDirection() : Direction
 }
 
-interface Result<R> {
+interface QueryResult<R> {
 
     fun getPage() : Page
 
-    fun getTotalResult() : Int
+    fun getTotalResult() : Long
 
     fun getResult() : List<R>
+}
+
+fun <R> resultOf(results : List<R>, page: Page, total: Long): QueryResult<R> {
+    return object : QueryResult<R> {
+        override fun getPage(): Page {
+            return page
+        }
+
+        override fun getTotalResult(): Long {
+            return total
+        }
+
+        override fun getResult(): List<R> {
+            return results
+        }
+    }
 }

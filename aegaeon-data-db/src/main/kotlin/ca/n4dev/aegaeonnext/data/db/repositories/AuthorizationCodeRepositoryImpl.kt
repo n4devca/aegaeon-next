@@ -27,25 +27,14 @@ import ca.n4dev.aegaeonnext.common.utils.Page
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
-/**
- *
- * AuthorizationCodeRepository.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Nov 04 - 2019
- *
- */
-
-
 private const val GET_BY_CODE = """
-    select id, code, client_id, user_id, valid_until, scopes, redirect_url, nonce, response_type, created_at, updated_at, version
+    select id, code, client_id, user_id, valid_until, scopes, redirect_url, response_type, nonce, version
     from authorization_code
     where code = :code
 """
 
 private const val GET_BY_CLIENT_ID = """
-    select id, code, client_id, user_id, valid_until, scopes, redirect_url, nonce, response_type, created_at, updated_at, version
+    select id, code, client_id, user_id, valid_until, scopes, redirect_url, response_type, nonce, version
     from authorization_code
     where client_id = :clientId
     order by :sort
@@ -53,31 +42,30 @@ private const val GET_BY_CLIENT_ID = """
 """
 
 private const val GET_BY_USER_ID = """
-    select id, code, client_id, user_id, valid_until, scopes, redirect_url, nonce, response_type, created_at, updated_at, version
+    select id, code, client_id, user_id, valid_until, scopes, redirect_url, response_type, nonce, version
     from authorization_code
     where user_id = :userId
     order by :sort
     limit :offset , :size
 """
 
-private val resultSetToAuthCode = RowMapper { rs, _ ->
-    AuthorizationCode(
-        rs.getLong(1),
-        rs.getString(2),
-        rs.getLong(3),
-        rs.getLong(4),
-        toLocalDateTime(rs.getDate(5)),
-        rs.getString(6),
-        rs.getString(7),
-        rs.getString(8),
-        rs.getString(9),
-        toLocalDateTime(rs.getDate(10)),
-        rs.getInt(12)
-    )
-}
-
 @Repository
 class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepository {
+
+    private val resultSetToAuthCode = RowMapper { rs, _ ->
+        AuthorizationCode(
+            id = rs.getLong("id"),
+            code = rs.getString("code"),
+            clientId = rs.getLong("client_id"),
+            userId = rs.getLong("user_id"),
+            validUntil = toLocalDateTime(rs.getTimestamp("valid_until"))!!,
+            scopes = rs.getString("scopes"),
+            redirectUrl = rs.getString("redirect_url"),
+            responseType = rs.getString("response_type"),
+            noonce = rs.getString("noonce"),
+            version = rs.getInt("version")
+        )
+    }
 
     override fun getByCode(code: String) = jdbcTemplate.queryForObject(GET_BY_CODE, mapOf("code" to code), resultSetToAuthCode)
 

@@ -17,20 +17,39 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package ca.n4dev.aegaeonnext.data.db.mapper
+package ca.n4dev.aegaeonnext.data.db.repositories
+
+import ca.n4dev.aegaeonnext.common.model.Authority
+import ca.n4dev.aegaeonnext.common.repository.AuthorityRepository
+import org.junit.jupiter.api.extension.ExtendWith
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.junit.jupiter.SpringExtension
 
 /**
- *
- * Mapper.java
+ * AuthorityRepositoryImplTest.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Oct 29 - 2019
- *
+ * @since 2.0.0 - Nov 22 - 2019
  */
-interface Mapper<E, D> {
-    fun toEntity(dto: D): E
-    fun toDto(entity: E): D
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration(classes = [TestConfiguration::class])
+internal class AuthorityRepositoryImplTest {
+
+    @Autowired
+    lateinit var authorityRepository: AuthorityRepository
+
+    @org.junit.jupiter.api.Test
+    fun getAll() {
+
+        val authorities: List<Authority> = authorityRepository.getAll()
+
+        authorities.forEach {
+            println(it.code)
+        }
+    }
 }

@@ -23,7 +23,7 @@
 package ca.n4dev.aegaeonnext.core.service
 
 import ca.n4dev.aegaeonnext.common.model.*
-import ca.n4dev.aegaeonnext.data.db.repositories.ClientRepository
+import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import ca.n4dev.aegaeonnext.common.utils.isOneTrue
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

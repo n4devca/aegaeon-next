@@ -22,7 +22,7 @@
 package ca.n4dev.aegaeonnext.core.service
 
 import ca.n4dev.aegaeonnext.common.model.Scope
-import ca.n4dev.aegaeonnext.data.db.repositories.ScopeRepository
+import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
 import ca.n4dev.aegaeonnext.common.utils.splitStringOn
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional

@@ -26,21 +26,10 @@ import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
-/**
- *
- * ScopeRepository.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Oct 30 - 2019
- *
- */
-
 private const val GET_ALL = """
     select id, name, is_system
     from scope 
 """
-
 
 private const val GET_BY_NAME = """
     select id, name, is_system
@@ -48,16 +37,16 @@ private const val GET_BY_NAME = """
     where name = :name
 """
 
-private val resultSetToScope = RowMapper { rs, _ ->
-    Scope(
-        rs.getLong(1),
-        rs.getString(2),
-        rs.getBoolean(3)
-    )
-}
-
 @Repository
 class ScopeRepositoryImpl : BaseRepository(), ScopeRepository {
+
+    private val resultSetToScope = RowMapper { rs, _ ->
+        Scope(
+            rs.getLong(1),
+            rs.getString(2),
+            rs.getBoolean(3)
+        )
+    }
 
     override fun getAll(): List<Scope> = jdbcTemplate.query(GET_ALL, resultSetToScope)
 

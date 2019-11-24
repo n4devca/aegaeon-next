@@ -70,7 +70,9 @@ class AccessTokenAuthenticationFilter(private val authenticationManager: Authent
             } catch (ae: AuthenticationException) {
                 this.authenticationEntryPoint.commence(request, response, ae)
             } catch (e: Exception) {
-                this.authenticationEntryPoint.commence(request, response, AccessTokenAuthenticationException(e))
+                this.authenticationEntryPoint.commence(request,
+                    response,
+                    AccessTokenAuthenticationException("AccessTokenAuthenticationFilter exception", e))
             }
 
         }

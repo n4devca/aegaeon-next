@@ -93,60 +93,60 @@ private const val UPDATE_CLIENT = """
       and version = :version
 """
 
-private val resultSetToClient = RowMapper { rs, _ ->
-    Client(
-        rs.getLong(1),
-        rs.getString(2),
-        rs.getString(3),
-        rs.getString(4),
-        rs.getString(5),
-        rs.getString(6),
-        rs.getString(7),
-        rs.getLong(8),
-        rs.getLong(9),
-        rs.getLong(10),
-        rs.getBoolean(11),
-        toLocalDateTime(rs.getDate(12)),
-        toLocalDateTime(rs.getDate(13)),
-        rs.getInt(14),
-        rs.getString(15)
-    )
-}
-
-private val resultSetToClientScope = RowMapper { rs, _ ->
-    ClientScope(
-        rs.getLong(1),
-        rs.getLong(2),
-        rs.getLong(3),
-        rs.getString(4),
-        toLocalDateTime(rs.getDate(5)),
-        rs.getInt(6)
-    )
-}
-
-private val resultSetToClientFlow = RowMapper { rs, _ ->
-    ClientFlow(
-        rs.getLong(1),
-        rs.getLong(2),
-        Flow.valueOf(rs.getString(3)),
-        toLocalDateTime(rs.getDate(4)),
-        rs.getInt(5)
-    )
-}
-
-private val resultSetToClientRedirection = RowMapper { rs, _ ->
-    ClientRedirection(
-        rs.getLong(1),
-        rs.getLong(2),
-        rs.getString(3),
-        toLocalDateTime(rs.getDate(4)),
-        rs.getInt(5)
-    )
-}
-
 
 @Repository
 class ClientRepositoryImpl : BaseRepository(), ClientRepository {
+
+    private val resultSetToClient = RowMapper { rs, _ ->
+        Client(
+            id = rs.getLong("id"),
+            publicId = rs.getString("public_id"),
+            secret = rs.getString("secret"),
+            name = rs.getString("name"),
+            description = rs.getString("description"),
+            logoUrl = rs.getString("logoUrl"),
+            providerName = rs.getString("providerName"),
+            idTokenSeconds = rs.getLong("id_token_seconds"),
+            accessTokenSeconds = rs.getLong("access_token_seconds"),
+            refreshTokenSeconds = rs.getLong("refresh_token_seconds"),
+            allowIntrospect = rs.getBoolean("allow_introspect"),
+            createdAt = toLocalDateTime(rs.getTimestamp("created_at"))!!,
+            updatedAt = toLocalDateTime(rs.getTimestamp("updated_at")),
+            version = rs.getInt("version"),
+            createdBy = rs.getString("created_by")
+        )
+    }
+
+    private val resultSetToClientScope = RowMapper { rs, _ ->
+        ClientScope(
+            rs.getLong(1),
+            rs.getLong(2),
+            rs.getLong(3),
+            rs.getString(4),
+            toLocalDateTime(rs.getTimestamp(5)),
+            rs.getInt(6)
+        )
+    }
+
+    private val resultSetToClientFlow = RowMapper { rs, _ ->
+        ClientFlow(
+            rs.getLong(1),
+            rs.getLong(2),
+            Flow.valueOf(rs.getString(3)),
+            toLocalDateTime(rs.getTimestamp(4)),
+            rs.getInt(5)
+        )
+    }
+
+    private val resultSetToClientRedirection = RowMapper { rs, _ ->
+        ClientRedirection(
+            rs.getLong(1),
+            rs.getLong(2),
+            rs.getString(3),
+            toLocalDateTime(rs.getTimestamp(4)),
+            rs.getInt(5)
+        )
+    }
 
     override fun getClientById(id: Long): Client? =
         jdbcTemplate.queryForObject(GET_CLIENT_BY_ID, mapOf(Pair("id", id)), resultSetToClient)

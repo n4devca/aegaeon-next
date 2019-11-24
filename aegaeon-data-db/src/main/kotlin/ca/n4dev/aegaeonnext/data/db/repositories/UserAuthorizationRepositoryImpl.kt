@@ -26,16 +26,6 @@ import ca.n4dev.aegaeonnext.common.repository.UserAuthorizationRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
-/**
- *
- * UserAuthorizationRepository.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Nov 05 - 2019
- *
- */
-
 private const val GET_BY_USERID_AND_CLIENTID = """
    select id, user_id, client_id, scopes, created_at, updated_at, version 
    from user_authorization 
@@ -57,20 +47,20 @@ private const val GET_BY_USERNAME_AND_CLIENTID = """
      and client_id = :clientId
 """
 
-private val resultSetToUserAuth = RowMapper { rs, _ ->
-    UserAuthorization(
-        rs.getLong(1),
-        rs.getLong(2),
-        rs.getLong(3),
-        rs.getString(4),
-        toLocalDateTime(rs.getDate(12)),
-        toLocalDateTime(rs.getDate(13)),
-        rs.getInt(14)
-    )
-}
-
 @Repository
 class UserAuthorizationRepositoryImpl : BaseRepository(), UserAuthorizationRepository {
+
+    private val resultSetToUserAuth = RowMapper { rs, _ ->
+        UserAuthorization(
+            rs.getLong(1),
+            rs.getLong(2),
+            rs.getLong(3),
+            rs.getString(4),
+            toLocalDateTime(rs.getTimestamp(12)),
+            toLocalDateTime(rs.getTimestamp(13)),
+            rs.getInt(14)
+        )
+    }
 
     override fun getByUserIdAndClientId(userId: Long, clientId: Long) =
         jdbcTemplate.queryForObject(GET_BY_USERID_AND_CLIENTID,

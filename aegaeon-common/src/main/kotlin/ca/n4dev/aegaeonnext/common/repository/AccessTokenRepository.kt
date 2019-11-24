@@ -23,6 +23,8 @@
 package ca.n4dev.aegaeonnext.common.repository
 
 import ca.n4dev.aegaeonnext.common.model.AccessToken
+import ca.n4dev.aegaeonnext.common.utils.Page
+import ca.n4dev.aegaeonnext.common.utils.QueryResult
 
 /**
  *
@@ -37,5 +39,5 @@ interface AccessTokenRepository {
 
     fun getByToken(token: String): AccessToken?
 
-    fun getByUserId(userId: Long): List<AccessToken>
+    fun getByUserId(userId: Long, page: Page): QueryResult<AccessToken>
 }

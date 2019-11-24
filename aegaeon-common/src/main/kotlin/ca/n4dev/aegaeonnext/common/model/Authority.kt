@@ -37,11 +37,8 @@ data class Authority (
     val id: Long,
 
     // ROLE_USER, ROLE_ADMIN
-    val code: String,
+    val code: String
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    val version: Int = 0
 ) {
     override fun toString(): String {
         return "Authority(id=$id, code='$code')"

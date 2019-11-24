@@ -21,6 +21,8 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
+import java.time.LocalDateTime
+
 /**
  *
  * UserDto.java
@@ -33,12 +35,15 @@ package ca.n4dev.aegaeonnext.common.model
 data class User(
     val id: Long,
     val userName: String,
+    val password: String,
     val uniqueIdentifier: String,
     val name: String,
     val picture: String? = null,
     val locale: String? = null,
-    val roles: List<String>,
-    val userInfos: List<UserInfo> = emptyList()
+    val enabled: Boolean = true,
+    val locked: Boolean = false,
+    val lastLoginDate: LocalDateTime? = null,
+    val version: Int = 0
 ) {
     override fun toString(): String {
         return "UserDto(id=$id, userName='$userName', uniqueIdentifier='$uniqueIdentifier')"

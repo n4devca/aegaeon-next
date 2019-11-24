@@ -26,7 +26,7 @@ import ca.n4dev.aegaeonnext.common.model.Authority
 import ca.n4dev.aegaeonnext.common.model.User
 import ca.n4dev.aegaeonnext.common.model.UserInfo
 import ca.n4dev.aegaeonnext.common.utils.Page
-import ca.n4dev.aegaeonnext.common.utils.Result
+import ca.n4dev.aegaeonnext.common.utils.QueryResult
 
 /**
  *
@@ -39,7 +39,7 @@ import ca.n4dev.aegaeonnext.common.utils.Result
  */
 interface UserRepository {
 
-    fun getAllUsers(page: Page): Result<User>
+    fun getAllUsers(page: Page): QueryResult<User>
 
     fun getUserInfoByUserId(userId: Long): List<UserInfo>
 

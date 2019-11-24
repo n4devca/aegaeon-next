@@ -49,7 +49,5 @@ data class AccessToken(
 
     val validUntil: LocalDateTime,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
     val version: Int = 0
 )

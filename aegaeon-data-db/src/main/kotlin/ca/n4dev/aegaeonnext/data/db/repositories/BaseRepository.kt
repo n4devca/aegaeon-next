@@ -24,19 +24,11 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
 
-/**
- *
- * BaseRepository.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Oct 22 - 2019
- *
- */
 abstract class BaseRepository {
 
     @Autowired
@@ -57,14 +49,14 @@ abstract class BaseRepository {
         return map
     }
 
-
+    protected fun count(query: String, params : Map<String, Any> = emptyMap()) : Long {
+        return jdbcTemplate.queryForObject(query, params, Long::class.java) ?: 0
+    }
 
 }
 
-fun toLocalDateTime(date: Date): LocalDateTime = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+fun toLocalDateTime(timestamp: Timestamp?): LocalDateTime? = timestamp?.toLocalDateTime()
 
 // Zero based
-fun computeOffSet(page: Int, size: Int) : Int {
-    
-}
+fun computeOffSet(page: Int, size: Int) = (page - 1).coerceAtLeast(0) * size
 

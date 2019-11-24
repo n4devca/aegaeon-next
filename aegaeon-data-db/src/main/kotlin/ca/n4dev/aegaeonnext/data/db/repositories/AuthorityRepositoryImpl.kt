@@ -26,28 +26,14 @@ import ca.n4dev.aegaeonnext.common.repository.AuthorityRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
-/**
- *
- * AuthorityRepository.java
- *
- * Repository to access Authority.
- *
- * @author rguillemette
- * @since 2.0.0 - Nov 04 - 2019
- *
- */
-
 private const val GET_ALL = "select id, code, created_at, updated_at, version from authority"
-
-private val resultSetToAuthority = RowMapper { rs, _ ->
-    Authority(rs.getLong(1),
-        rs.getString(2),
-        toLocalDateTime(rs.getDate(3)),
-        rs.getInt(5))
-}
 
 @Repository
 class AuthorityRepositoryImpl : BaseRepository(), AuthorityRepository {
+
+    private val resultSetToAuthority = RowMapper { rs, _ ->
+        Authority(rs.getLong("id"), rs.getString("code"))
+    }
 
     override fun getAll(): List<Authority> = jdbcTemplate.query(GET_ALL, resultSetToAuthority)
 }

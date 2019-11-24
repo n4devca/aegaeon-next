@@ -32,60 +32,32 @@ class AegaeonUserDetails(val id: Long?,
                          private val nonLocked: Boolean,
                          private val authorities: Collection<GrantedAuthority>) : UserDetails {
 
-    /**
-     * @return the allowIntrospection
-     */
-    /**
-     * @param pAllowIntrospection the allowIntrospection to set
-     */
     var allowIntrospection = false
 
-
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetails#getAuthorities()
-     */
     override fun getAuthorities(): Collection<GrantedAuthority> {
         return this.authorities
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetails#getPassword()
-     */
     override fun getPassword(): String {
         return this.password
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetails#getUserId()
-     */
     override fun getUsername(): String {
         return this.username
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonExpired()
-     */
     override fun isAccountNonExpired(): Boolean {
         return true
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetails#isAccountNonLocked()
-     */
     override fun isAccountNonLocked(): Boolean {
         return this.nonLocked
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetails#isCredentialsNonExpired()
-     */
     override fun isCredentialsNonExpired(): Boolean {
         return true
     }
 
-    /* (non-Javadoc)
-     * @see org.springframework.security.core.userdetails.UserDetails#isEnabled()
-     */
     override fun isEnabled(): Boolean {
         return this.enable
     }
