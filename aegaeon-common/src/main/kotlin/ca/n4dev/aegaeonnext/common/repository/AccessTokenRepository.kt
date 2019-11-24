@@ -40,4 +40,10 @@ interface AccessTokenRepository {
     fun getByToken(token: String): AccessToken?
 
     fun getByUserId(userId: Long, page: Page): QueryResult<AccessToken>
+
+    fun create(accessToken: AccessToken): Long
+
+    fun update(id: Long, accessToken: AccessToken)
+
+    fun delete(id: Long): Int
 }

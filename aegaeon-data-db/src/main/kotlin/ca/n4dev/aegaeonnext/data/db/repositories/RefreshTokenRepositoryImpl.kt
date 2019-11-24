@@ -39,19 +39,21 @@ class RefreshTokenRepositoryImpl : BaseRepository(), RefreshTokenRepository {
 
     private val resultSetToRefreshToken = RowMapper { rs: ResultSet, _: Int ->
         RefreshToken(
-            rs.getLong(1),
-            rs.getString(2),
-            rs.getLong(3),
-            rs.getLong(4),
-            rs.getString(5),
-            toLocalDateTime(rs.getTimestamp(5)),
-            toLocalDateTime(rs.getTimestamp(6)),
-            rs.getInt(7))
+            rs.getLong("id"),
+            rs.getString("token"),
+            rs.getLong("user_id"),
+            rs.getLong("client_id"),
+            rs.getString("scopes"),
+            toLocalDateTime(rs.getTimestamp("valid_until")),
+            toLocalDateTime(rs.getTimestamp("created_at")),
+            rs.getInt("version"))
     }
 
     override fun getByToken(token: String): RefreshToken? =
-        jdbcTemplate.queryForObject(GET_BY_TOKEN, params("token", token), resultSetToRefreshToken)
+        jdbcTemplate.queryForObject(GET_BY_TOKEN, mapOf("token" to token), resultSetToRefreshToken)
 
     override fun getByUserId(userId: Long): List<RefreshToken> =
-        jdbcTemplate.query(GET_BY_USER_ID, params("user_id", userId), resultSetToRefreshToken);
+        jdbcTemplate.query(GET_BY_USER_ID, mapOf("user_id" to userId), resultSetToRefreshToken);
+
+    override fun getTableName(): String = "refresh_token"
 }

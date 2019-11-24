@@ -58,7 +58,7 @@ data class Client(
 
         val allowIntrospect: Boolean = false,
 
-        val createdAt: LocalDateTime = LocalDateTime.now(),
+        val createdAt: LocalDateTime? = LocalDateTime.now(),
 
         val updatedAt: LocalDateTime? = LocalDateTime.now(),
 

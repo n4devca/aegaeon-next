@@ -43,8 +43,15 @@ interface UserRepository {
 
     fun getUserInfoByUserId(userId: Long): List<UserInfo>
 
-    fun getUserInfoByUserName(userName: String): User?
+    fun getUserById(id: Long): User?
+
+    fun getUserByUserName(userName: String): User?
 
     fun getUserAuthorities(userId: Long): List<Authority>
 
+    fun create(user: User): Long
+
+    fun update(id: Long, user: User)
+
+    fun delete(id: Long): Int
 }

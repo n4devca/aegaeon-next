@@ -27,7 +27,7 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
 private const val GET_BY_USERID_AND_CLIENTID = """
-   select id, user_id, client_id, scopes, created_at, updated_at, version 
+   select id, user_id, client_id, scopes, created_at, version 
    from user_authorization 
    where user_id = :userId
      and client_id = :clientId
@@ -39,7 +39,6 @@ private const val GET_BY_USERNAME_AND_CLIENTID = """
           user_authorization.client_id, 
           user_authorization.scopes, 
           user_authorization.created_at, 
-          user_authorization.updated_at, 
           user_authorization.version 
    from user_authorization
         join users on (user_authorization.user_id = users.id)
@@ -52,13 +51,12 @@ class UserAuthorizationRepositoryImpl : BaseRepository(), UserAuthorizationRepos
 
     private val resultSetToUserAuth = RowMapper { rs, _ ->
         UserAuthorization(
-            rs.getLong(1),
-            rs.getLong(2),
-            rs.getLong(3),
-            rs.getString(4),
-            toLocalDateTime(rs.getTimestamp(12)),
-            toLocalDateTime(rs.getTimestamp(13)),
-            rs.getInt(14)
+            rs.getLong("id"),
+            rs.getLong("user_id"),
+            rs.getLong("client_id"),
+            rs.getString("scopes"),
+            toLocalDateTime(rs.getTimestamp("created_at")),
+            rs.getInt("version")
         )
     }
 
@@ -71,4 +69,6 @@ class UserAuthorizationRepositoryImpl : BaseRepository(), UserAuthorizationRepos
         jdbcTemplate.queryForObject(GET_BY_USERNAME_AND_CLIENTID,
             mapOf("userName" to userName, "clientId" to clientId),
             resultSetToUserAuth)
+
+    override fun getTableName(): String = "user_authorization"
 }

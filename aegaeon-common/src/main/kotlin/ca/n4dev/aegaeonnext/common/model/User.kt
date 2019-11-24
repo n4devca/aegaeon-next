@@ -33,7 +33,7 @@ import java.time.LocalDateTime
  *
  */
 data class User(
-    val id: Long,
+    val id: Long?,
     val userName: String,
     val password: String,
     val uniqueIdentifier: String,

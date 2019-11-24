@@ -36,4 +36,6 @@ class AuthorityRepositoryImpl : BaseRepository(), AuthorityRepository {
     }
 
     override fun getAll(): List<Authority> = jdbcTemplate.query(GET_ALL, resultSetToAuthority)
+
+    override fun getTableName(): String = "authority"
 }

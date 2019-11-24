@@ -43,7 +43,7 @@ data class ClientScope (
 
     val scopeCode: String,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime? = LocalDateTime.now(),
 
     val version: Int = 0
 )

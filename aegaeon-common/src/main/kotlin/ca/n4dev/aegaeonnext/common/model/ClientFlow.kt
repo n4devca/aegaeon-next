@@ -42,7 +42,7 @@ data class ClientFlow (
 
     val flow: Flow,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime? = LocalDateTime.now(),
 
     val version: Int = 0
 )

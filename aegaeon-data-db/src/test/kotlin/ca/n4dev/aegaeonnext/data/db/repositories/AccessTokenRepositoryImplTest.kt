@@ -17,37 +17,53 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.common.model.Authority
+import ca.n4dev.aegaeonnext.common.model.AccessToken
+import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
 import ca.n4dev.aegaeonnext.common.repository.AuthorityRepository
-import org.junit.jupiter.api.Assertions
+import ca.n4dev.aegaeonnext.common.repository.UserRepository
 import org.junit.jupiter.api.Test
+
+import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 
 /**
- * AuthorityRepositoryImplTest.java
+ * AccessTokenRepositoryImplTest.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 22 - 2019
+ * @since 2.0.0 - Nov 24 - 2019
  */
 @ExtendWith(SpringExtension::class)
 @ContextConfiguration(classes = [TestConfiguration::class])
-internal class AuthorityRepositoryImplTest {
+internal class AccessTokenRepositoryImplTest {
+
 
     @Autowired
-    lateinit var authorityRepository: AuthorityRepository
+    lateinit var userRepository: UserRepository
+
+    @Autowired
+    lateinit var accessTokenRepository: AccessTokenRepository
+
 
     @Test
-    fun getAll() {
-        val authorities: List<Authority> = authorityRepository.getAll()
-        Assertions.assertTrue(authorities.isNotEmpty())
+    fun create() {
+
+        val userName = "admin@localhost"
+        val user = userRepository.getUserByUserName(userName)
+
+        assertNotNull(user, "User ${userName} cannot be found")
+
+        //AccessToken(null, "0xff", user.id)
+    }
+
+    @Test
+    fun update() {
     }
 }

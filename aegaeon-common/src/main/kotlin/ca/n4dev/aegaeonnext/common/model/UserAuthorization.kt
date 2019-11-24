@@ -42,9 +42,7 @@ data class UserAuthorization(
 
     val scopes: String,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
-
-    val updatedAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime? = LocalDateTime.now(),
 
     val version: Int = 0
 )

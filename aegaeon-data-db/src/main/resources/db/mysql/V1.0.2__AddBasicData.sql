@@ -31,13 +31,13 @@ insert into authority(code) values('ROLE_ADMIN');
 -- insert into grant_type(code, implementation) values('client_credentials', 'oauth');
 
 -- Scopes
-insert into scope(name, description, issystem) values('openid', 'To request an id_token.', 1);
-insert into scope(name, description, issystem) values('profile', 'To request user''s information.', 1);
-insert into scope(name, description, issystem) values('offline_access', 'To request a refresh token', 1);
-insert into scope(name, description, issystem) values('email', 'To request user''s email information.', 1);
-insert into scope(name, description, issystem) values('address', 'To request user''s address information.', 1);
-insert into scope(name, description, issystem) values('phone', 'To request user''s phone information.', 1);
-insert into scope(name, description, issystem) values('socialmedia', 'To request user''s social media information.', 1);
+insert into scope(name, description, is_system) values('openid', 'To request an id_token.', 1);
+insert into scope(name, description, is_system) values('profile', 'To request user''s information.', 1);
+insert into scope(name, description, is_system) values('offline_access', 'To request a refresh token', 1);
+insert into scope(name, description, is_system) values('email', 'To request user''s email information.', 1);
+insert into scope(name, description, is_system) values('address', 'To request user''s address information.', 1);
+insert into scope(name, description, is_system) values('phone', 'To request user''s phone information.', 1);
+insert into scope(name, description, is_system) values('socialmedia', 'To request user''s social media information.', 0);
 
 
 

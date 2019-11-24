@@ -4,3 +4,26 @@ spring:
         password: aegaeon
         driver-class-name: com.mysql.jdbc.Driver
         url: jdbc:mysql://localhost:3306/aegaeontest
+    messages:
+        encoding: UTF-8
+    flyway:
+        baseline-version: 1
+        check-location: false
+        enabled: true
+        locations: classpath:/db/mysql,classpath:/db-test/mysql
+        out-of-order: true
+
+aegaeon:
+    info:
+        issuer: localhost
+    jwks: /home/rguillemette/dev/jwks/aegaeon.jwks
+    modules:
+        oauth: true
+        login: true
+        createaccount: true
+        home: true
+        account: true
+        discovery: false
+        admin: true
+        introspect: true
+        information: true

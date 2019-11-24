@@ -31,15 +31,6 @@ import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
-/**
- *
- * ClientRepository.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Oct 22 - 2019
- *
- */
 private const val GET_CLIENT_BY_ID = """
    select id, public_id, secret, name, description, logoUrl, providerName,
           id_token_seconds, access_token_seconds, refresh_token_seconds, allow_introspect,
@@ -57,7 +48,7 @@ private const val GET_CLIENT_BY_PUBLICID = """
 """
 
 private const val GET_CLIENT_SCOPES_BY_CLIENTID = """
-    select cs.id, cs.client_id, cs.scope_id, s.code, cs.created_at, cs.version
+    select cs.id, cs.client_id, cs.scope_id, s.name as scope_name, cs.created_at, cs.version
     from client_scope cs join scope s on (cs.scope_id = s.id)
     where client_id = :client_id
 """
@@ -119,32 +110,32 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
 
     private val resultSetToClientScope = RowMapper { rs, _ ->
         ClientScope(
-            rs.getLong(1),
-            rs.getLong(2),
-            rs.getLong(3),
-            rs.getString(4),
-            toLocalDateTime(rs.getTimestamp(5)),
-            rs.getInt(6)
+            rs.getLong("id"),
+            rs.getLong("client_id"),
+            rs.getLong("scope_id"),
+            rs.getString("scope_name"),
+            toLocalDateTime(rs.getTimestamp("created_at")),
+            rs.getInt("version")
         )
     }
 
     private val resultSetToClientFlow = RowMapper { rs, _ ->
         ClientFlow(
-            rs.getLong(1),
-            rs.getLong(2),
-            Flow.valueOf(rs.getString(3)),
-            toLocalDateTime(rs.getTimestamp(4)),
-            rs.getInt(5)
+            rs.getLong("id"),
+            rs.getLong("client_id"),
+            Flow.valueOf(rs.getString("flow")),
+            toLocalDateTime(rs.getTimestamp("created_at")),
+            rs.getInt("version")
         )
     }
 
     private val resultSetToClientRedirection = RowMapper { rs, _ ->
         ClientRedirection(
-            rs.getLong(1),
-            rs.getLong(2),
-            rs.getString(3),
-            toLocalDateTime(rs.getTimestamp(4)),
-            rs.getInt(5)
+            rs.getLong("id"),
+            rs.getLong("client_id"),
+            rs.getString("url"),
+            toLocalDateTime(rs.getTimestamp("created_at")),
+            rs.getInt("version")
         )
     }
 
@@ -185,7 +176,7 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
                 Pair("created_by", "n/a"))
 
         val key = insertTemplate.executeAndReturnKey(clientParams)
-        return key as Long
+        return key.toLong()
     }
 
     override fun update(id: Long, updatedClient: Client) {
@@ -214,9 +205,5 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
         }
     }
 
-    private fun getInsertTemplate(): Lazy<SimpleJdbcInsert> = lazy {
-        SimpleJdbcInsert(jdbcTemplate.jdbcTemplate).withTableName("client")
-    }
-
-
+    override fun getTableName(): String = "client"
 }

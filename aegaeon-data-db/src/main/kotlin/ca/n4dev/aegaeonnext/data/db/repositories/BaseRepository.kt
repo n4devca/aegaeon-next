@@ -24,6 +24,7 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -34,25 +35,22 @@ abstract class BaseRepository {
     @Autowired
     protected lateinit var jdbcTemplate: NamedParameterJdbcTemplate;
 
+    protected abstract fun getTableName(): String
+
     protected fun defaultSort() = "id"
 
-    protected fun params(vararg params : Any) : Map<String, Any> {
-        require(params.size % 2 == 0) {
-            "The parameters should be pairs."
-        }
-
-        val map : MutableMap<String, Any> = LinkedHashMap();
-        for (i in params.indices step 2) {
-            map.put(params[i] as String, params[i + 1])
-        }
-
-        return map
-    }
+    fun delete(id: Long) : Int = jdbcTemplate.update("delete from ${getTableName()} where id = :id", mapOf("id" to id))
 
     protected fun count(query: String, params : Map<String, Any> = emptyMap()) : Long {
         return jdbcTemplate.queryForObject(query, params, Long::class.java) ?: 0
     }
 
+    protected fun getInsertTemplate(): Lazy<SimpleJdbcInsert> = lazy {
+        SimpleJdbcInsert(jdbcTemplate.jdbcTemplate)
+            .withTableName(getTableName())
+            .usingGeneratedKeyColumns("id")
+
+    }
 }
 
 fun toLocalDateTime(timestamp: Timestamp?): LocalDateTime? = timestamp?.toLocalDateTime()

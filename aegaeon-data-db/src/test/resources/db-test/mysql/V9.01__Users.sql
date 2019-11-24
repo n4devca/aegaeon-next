@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright 2019 Remi Guillemette - n4dev.ca
  *
  * Licensed to the Apache Software Foundation (ASF) under one
@@ -20,28 +20,10 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.common.model
+insert into users(username, name, unique_identifier, passwd, enabled)
+values('admin@localhost', 'Admin User', uuid(), '{bcrypt}$2a$10$z5Mxvmr82Oaodfgz2EWZ9uNsX/Xtvo7GrrP8LI6Ra1LezlbA5g02K', 1);
+select last_insert_id() into @uid;
 
-import java.time.LocalDateTime
-
-/**
- *
- * ClientContact.java
- * TODO(rguillemette) Add description.
- *
- * @author rguillemette
- * @since 2.0.0 - Sep 26 - 2019
- *
- */
-data class ClientContact (
-
-    val id: Long?,
-
-    val clientId: Long,
-
-    val email: String,
-
-    val createdAt: LocalDateTime? = LocalDateTime.now(),
-
-    val version: Int = 0
-)
+insert into user_authority(user_id, authority_id)
+select @uid, id
+from authority;

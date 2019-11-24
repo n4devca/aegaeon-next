@@ -31,7 +31,7 @@ import ca.n4dev.aegaeonnext.common.utils.QueryResult
 import ca.n4dev.aegaeonnext.common.utils.resultOf
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
-import java.util.*
+import java.util.Locale
 
 
 private val COUNT_ALL_USERS = "select count(*) from users"
@@ -47,20 +47,22 @@ private val GET_USER_INFO_BY_USERID =
     "select id, user_id, scope_id, name, value, version from user_info where user_id = :user_id"
 
 private val GET_USER_BY_USERNAME =
-    "select id, userName, passwd, unique_identifier, name, picture_url, enabled from users where userName = :userName"
+    "select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version from users where userName = :userName"
+
+private val GET_USER_BY_ID =
+    "select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version from users where id = :id"
 
 private val GET_USER_INFO_BY_USERIDS =
     "select id, user_id, scope_id, name, value from user_info where user_id in :user_id order by user_id"
 
 private val GET_AUTHORITY_BY_USERID = """
-    select id, code, created_at, version 
+    select a.id, a.code 
     from authority a join user_authority ua on (a.id = ua.authority_id)
     where ua.user_id = :user_id
 """
 
 @Repository
 class UserRepositoryImpl : BaseRepository(), UserRepository {
-
 
     private val resultSetToUser = RowMapper { rs, _ ->
         User(
@@ -91,10 +93,8 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
 
     private val resultSetToAuthority = RowMapper { rs, _ ->
         Authority(
-            rs.getLong(1),
-            rs.getString(2),
-            toLocalDateTime(rs.getTimestamp(3)),
-            rs.getInt(4)
+            rs.getLong("id"),
+            rs.getString("code")
         )
     }
 
@@ -110,12 +110,41 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
     }
 
     override fun getUserInfoByUserId(userId: Long): List<UserInfo> =
-        jdbcTemplate.query(GET_USER_INFO_BY_USERID, params("user_id", userId), resultSetToUserInfo)
+        jdbcTemplate.query(GET_USER_INFO_BY_USERID, mapOf("user_id" to userId), resultSetToUserInfo)
 
-    override fun getUserInfoByUserName(userName: String): User? =
-        jdbcTemplate.queryForObject(GET_USER_BY_USERNAME, params("userName", userName), resultSetToUser)
+    override fun getUserById(id: Long): User? =
+        jdbcTemplate.queryForObject(GET_USER_BY_ID, mapOf("id" to id), resultSetToUser)
+
+    override fun getUserByUserName(userName: String): User? =
+        jdbcTemplate.queryForObject(GET_USER_BY_USERNAME, mapOf("userName" to userName), resultSetToUser)
 
     override fun getUserAuthorities(userId: Long): List<Authority> =
-        jdbcTemplate.query(GET_AUTHORITY_BY_USERID, params("user_id", userId), resultSetToAuthority)
+        jdbcTemplate.query(GET_AUTHORITY_BY_USERID, mapOf("user_id" to userId), resultSetToAuthority)
 
+    override fun create(user: User): Long {
+
+        val insertTemplate = getInsertTemplate().value
+
+        val params =
+            mapOf(
+                "username" to user.userName,
+                "unique_identifier" to user.uniqueIdentifier,
+                "name" to user.name,
+                "passwd" to user.password,
+                "picture_url" to user.picture,
+                "enabled" to user.enabled,
+                "version" to 0
+            )
+
+        val key = insertTemplate.executeAndReturnKey(params)
+        return key.toLong()
+    }
+
+    override fun update(id: Long, user: User) {
+
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+
+    override fun getTableName(): String = "users"
 }

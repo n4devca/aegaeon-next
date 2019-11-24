@@ -41,7 +41,7 @@ data class ClientRedirection(
 
     val url: String,
 
-    val createdAt: LocalDateTime = LocalDateTime.now(),
+    val createdAt: LocalDateTime? = LocalDateTime.now(),
 
     val version: Int = 0
 )

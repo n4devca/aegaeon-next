@@ -75,4 +75,5 @@ class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepos
     override fun getByUserId(userId: Long, page: Page): List<AuthorizationCode> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf("userId" to userId), resultSetToAuthCode)
 
+    override fun getTableName(): String = "authorization_code"
 }

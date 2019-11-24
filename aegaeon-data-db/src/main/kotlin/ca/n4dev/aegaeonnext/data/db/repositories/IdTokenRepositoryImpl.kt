@@ -43,19 +43,21 @@ class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
 
     private val resultSetToIdToken = RowMapper { rs: ResultSet, _: Int ->
         IdToken(
-            rs.getLong(1),
-            rs.getString(2),
-            rs.getLong(3),
-            rs.getLong(4),
-            rs.getString(5),
-            toLocalDateTime(rs.getDate(5)),
-            toLocalDateTime(rs.getDate(6)),
-            rs.getInt(7))
+            rs.getLong("id"),
+            rs.getString("token"),
+            rs.getLong("user_id"),
+            rs.getLong("client_id"),
+            rs.getString("scopes"),
+            toLocalDateTime(rs.getTimestamp("valid_until")),
+            toLocalDateTime(rs.getTimestamp("created_at")),
+            rs.getInt("version"))
     }
 
     override fun getByToken(token: String): IdToken? =
-        jdbcTemplate.queryForObject(GET_BY_TOKEN, params("token", token), resultSetToIdToken)
+        jdbcTemplate.queryForObject(GET_BY_TOKEN, mapOf("token" to token), resultSetToIdToken)
 
     override fun getByUserId(userId: Long): List<IdToken> =
-        jdbcTemplate.query(GET_BY_USER_ID, params("user_id", userId), resultSetToIdToken)
+        jdbcTemplate.query(GET_BY_USER_ID, mapOf("user_id" to userId), resultSetToIdToken)
+
+    override fun getTableName(): String = "id_token"
 }

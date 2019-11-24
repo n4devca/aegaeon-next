@@ -42,13 +42,15 @@ class ScopeRepositoryImpl : BaseRepository(), ScopeRepository {
 
     private val resultSetToScope = RowMapper { rs, _ ->
         Scope(
-            rs.getLong(1),
-            rs.getString(2),
-            rs.getBoolean(3)
+            rs.getLong("id"),
+            rs.getString("name"),
+            rs.getBoolean("is_system")
         )
     }
 
     override fun getAll(): List<Scope> = jdbcTemplate.query(GET_ALL, resultSetToScope)
 
-    override fun getByName(name: String) = jdbcTemplate.queryForObject(GET_BY_NAME, params("name", name), resultSetToScope)
+    override fun getByName(name: String) = jdbcTemplate.queryForObject(GET_BY_NAME, mapOf("name" to name), resultSetToScope)
+
+    override fun getTableName(): String = "scope"
 }
