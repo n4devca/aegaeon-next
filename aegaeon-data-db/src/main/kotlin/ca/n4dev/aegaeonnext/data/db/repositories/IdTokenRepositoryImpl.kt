@@ -49,8 +49,8 @@ class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
             rs.getLong("client_id"),
             rs.getString("scopes"),
             toLocalDateTime(rs.getTimestamp("valid_until")),
-            toLocalDateTime(rs.getTimestamp("created_at")),
-            rs.getInt("version"))
+            toLocalDateTime(rs.getTimestamp("created_at"))
+        )
     }
 
     override fun getByToken(token: String): IdToken? =

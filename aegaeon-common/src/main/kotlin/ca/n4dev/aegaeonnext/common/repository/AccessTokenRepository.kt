@@ -43,7 +43,5 @@ interface AccessTokenRepository {
 
     fun create(accessToken: AccessToken): Long
 
-    fun update(id: Long, accessToken: AccessToken)
-
     fun delete(id: Long): Int
 }

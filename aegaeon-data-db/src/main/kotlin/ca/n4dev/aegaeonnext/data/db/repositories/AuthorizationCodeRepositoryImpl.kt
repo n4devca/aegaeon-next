@@ -62,8 +62,7 @@ class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepos
             scopes = rs.getString("scopes"),
             redirectUrl = rs.getString("redirect_url"),
             responseType = rs.getString("response_type"),
-            noonce = rs.getString("noonce"),
-            version = rs.getInt("version")
+            noonce = rs.getString("noonce")
         )
     }
 
@@ -74,6 +73,23 @@ class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepos
 
     override fun getByUserId(userId: Long, page: Page): List<AuthorizationCode> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf("userId" to userId), resultSetToAuthCode)
+
+    override fun create(authorizationCode: AuthorizationCode): Long {
+        val params = mapOf("code" to authorizationCode.code,
+            "client_id" to authorizationCode.clientId,
+            "user_id" to authorizationCode.userId,
+            "valid_until" to authorizationCode.validUntil,
+            "scopes" to authorizationCode.scopes,
+            "redirect_url" to authorizationCode.redirectUrl,
+            "response_type" to authorizationCode.responseType,
+            "noonce" to authorizationCode.noonce
+        )
+
+        val insertTemplate = getInsertTemplate(params.keys).value
+
+        val key = insertTemplate.executeAndReturnKey(params)
+        return key.toLong()
+    }
 
     override fun getTableName(): String = "authorization_code"
 }

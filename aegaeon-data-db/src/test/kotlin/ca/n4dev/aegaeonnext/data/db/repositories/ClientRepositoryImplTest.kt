@@ -17,55 +17,52 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import ca.n4dev.aegaeonnext.common.model.AccessToken
-import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
-import ca.n4dev.aegaeonnext.common.repository.AuthorityRepository
-import ca.n4dev.aegaeonnext.common.repository.UserRepository
+import ca.n4dev.aegaeonnext.common.model.Client
+import ca.n4dev.aegaeonnext.common.repository.ClientRepository
+import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
-import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.test.context.ContextConfiguration
-import org.springframework.test.context.junit.jupiter.SpringExtension
 
 /**
- * AccessTokenRepositoryImplTest.java
+ * ClientRepositoryImplTest.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 24 - 2019
+ * @since 2.0.0 - Nov 27 - 2019
  */
-@ExtendWith(SpringExtension::class)
-@ContextConfiguration(classes = [TestConfiguration::class])
-internal class AccessTokenRepositoryImplTest {
-
+internal class ClientRepositoryImplTest {
 
     @Autowired
-    lateinit var userRepository: UserRepository
+    lateinit var clientRepository: ClientRepository
 
-    @Autowired
-    lateinit var accessTokenRepository: AccessTokenRepository
-
+    @Test
+    fun getClientById() {
+    }
 
     @Test
     fun create() {
 
-        val userName = "admin@localhost"
-        val user = userRepository.getUserByUserName(userName)
+        val aClient = Client(null,
+            "c-test-001", "secret", "a-client", null, null,
+            "RSA256", 60, 300, 600, false, createdBy = "junit")
 
-        assertNotNull(user, "User $userName cannot be found")
-//
-//        AccessToken(null,
-//              "0xff",
-//                user.id!!, )
+        val clientId = clientRepository.create(aClient)
+
+        Assertions.assertTrue(clientId > 0, "The client id should be a positive number")
+
+        val savedClient = clientRepository.getClientById(clientId)
+        Assertions.assertNotNull(savedClient, "Client id=$clientId cannot be found.")
+
     }
 
     @Test
     fun update() {
     }
+
+
 }

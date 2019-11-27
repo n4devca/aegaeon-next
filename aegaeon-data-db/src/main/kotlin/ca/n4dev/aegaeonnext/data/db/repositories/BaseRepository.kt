@@ -45,11 +45,17 @@ abstract class BaseRepository {
         return jdbcTemplate.queryForObject(query, params, Long::class.java) ?: 0
     }
 
-    protected fun getInsertTemplate(): Lazy<SimpleJdbcInsert> = lazy {
-        SimpleJdbcInsert(jdbcTemplate.jdbcTemplate)
+    protected fun getInsertTemplate(columns: Set<String> = emptySet()): Lazy<SimpleJdbcInsert> = lazy(LazyThreadSafetyMode.PUBLICATION) {
+
+        val insertTemplate = SimpleJdbcInsert(jdbcTemplate.jdbcTemplate)
             .withTableName(getTableName())
             .usingGeneratedKeyColumns("id")
 
+        if (columns.isNotEmpty()) {
+            insertTemplate.usingColumns(*columns.toTypedArray())
+        }
+
+        insertTemplate
     }
 }
 

@@ -123,8 +123,6 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
 
     override fun create(user: User): Long {
 
-        val insertTemplate = getInsertTemplate().value
-
         val params =
             mapOf(
                 "username" to user.userName,
@@ -132,10 +130,10 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
                 "name" to user.name,
                 "passwd" to user.password,
                 "picture_url" to user.picture,
-                "enabled" to user.enabled,
-                "version" to 0
+                "enabled" to user.enabled
             )
 
+        val insertTemplate = getInsertTemplate(params.keys).value
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()
     }

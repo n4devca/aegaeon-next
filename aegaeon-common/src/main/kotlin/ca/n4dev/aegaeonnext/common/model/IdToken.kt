@@ -47,7 +47,5 @@ data class IdToken(
 
     val validUntil: LocalDateTime?,
 
-    val createdAt: LocalDateTime? = LocalDateTime.now(),
-
-    val version: Int = 0
+    val createdAt: LocalDateTime? = LocalDateTime.now()
 )

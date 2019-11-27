@@ -42,4 +42,7 @@ interface AuthorizationCodeRepository {
 
     fun getByUserId(userId: Long, page: Page) : List<AuthorizationCode>
 
+    fun create(authorizationCode: AuthorizationCode): Long
+
+    fun delete(id: Long): Int
 }

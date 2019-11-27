@@ -47,7 +47,5 @@ data class AccessToken(
 
     val scopes: String,
 
-    val validUntil: LocalDateTime,
-
-    val version: Int = 0
+    val validUntil: LocalDateTime
 )
