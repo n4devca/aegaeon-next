@@ -57,12 +57,10 @@ internal class AccessTokenRepositoryImplTest {
 
         val userName = "admin@localhost"
         val user = userRepository.getUserByUserName(userName)
-
         assertNotNull(user, "User $userName cannot be found")
-//
-//        AccessToken(null,
-//              "0xff",
-//                user.id!!, )
+
+
+
     }
 
     @Test

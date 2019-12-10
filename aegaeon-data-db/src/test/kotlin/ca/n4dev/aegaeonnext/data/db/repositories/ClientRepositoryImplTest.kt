@@ -26,7 +26,11 @@ import ca.n4dev.aegaeonnext.common.model.Client
 import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.junit.jupiter.SpringExtension
+import org.springframework.transaction.annotation.Transactional
 
 /**
  * ClientRepositoryImplTest.java
@@ -35,33 +39,48 @@ import org.springframework.beans.factory.annotation.Autowired
  * @author rguillemette
  * @since 2.0.0 - Nov 27 - 2019
  */
-internal class ClientRepositoryImplTest {
+@ExtendWith(SpringExtension::class)
+@ContextConfiguration(classes = [TestConfiguration::class])
+internal open class ClientRepositoryImplTest {
 
     @Autowired
     lateinit var clientRepository: ClientRepository
 
-    @Test
-    fun getClientById() {
-    }
-
-    @Test
-    fun create() {
-
-        val aClient = Client(null,
+    private fun newClient() : Client =  Client(null,
             "c-test-001", "secret", "a-client", null, null,
             "RSA256", 60, 300, 600, false, createdBy = "junit")
 
-        val clientId = clientRepository.create(aClient)
+    @Test
+    @Transactional
+    open fun create() {
 
+        val aClient = newClient()
+        val clientId = clientRepository.create(aClient)
         Assertions.assertTrue(clientId > 0, "The client id should be a positive number")
 
         val savedClient = clientRepository.getClientById(clientId)
         Assertions.assertNotNull(savedClient, "Client id=$clientId cannot be found.")
-
     }
 
     @Test
-    fun update() {
+    @Transactional
+    open fun update() {
+        val aClient = newClient()
+        val clientId = clientRepository.create(aClient)
+        Assertions.assertTrue(clientId > 0, "The client id should be a positive number")
+
+        // Update name and access token limit
+        val newName = "A new client name"
+        val newLimit: Long = 6000
+        val updateClient = aClient.copy(name = newName, accessTokenSeconds = newLimit)
+
+        clientRepository.update(clientId, updateClient);
+
+        // Fetch
+        val savedClient = clientRepository.getClientById(clientId)
+        Assertions.assertNotNull(savedClient, "Client id=$clientId cannot be found.")
+        Assertions.assertEquals(savedClient?.name, newName);
+        Assertions.assertEquals(savedClient?.accessTokenSeconds, newLimit);
     }
 
 

@@ -26,9 +26,10 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
+import org.springframework.jdbc.datasource.DataSourceTransactionManager
 import org.springframework.jdbc.datasource.DriverManagerDataSource
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.ContextConfiguration
+import org.springframework.transaction.annotation.EnableTransactionManagement
 import javax.sql.DataSource
 
 
@@ -46,6 +47,7 @@ import javax.sql.DataSource
 @Configuration
 @ComponentScan("ca.n4dev.aegaeonnext")
 @ActiveProfiles("test")
+@EnableTransactionManagement
 open class TestConfiguration {
 
     @Bean
@@ -57,6 +59,13 @@ open class TestConfiguration {
         dataSource.password = "aegaeon"
 
         return dataSource
+    }
+
+    @Bean
+    fun transactionManager(): DataSourceTransactionManager? {
+        val txManager = DataSourceTransactionManager()
+        txManager.dataSource = dataSource()
+        return txManager
     }
 
     @Bean

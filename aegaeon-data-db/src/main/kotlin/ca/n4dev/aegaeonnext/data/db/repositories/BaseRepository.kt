@@ -23,12 +23,15 @@
 package ca.n4dev.aegaeonnext.data.db.repositories
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
+import java.lang.StringBuilder
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.ZoneId
 import java.util.*
+import java.util.function.BiConsumer
 
 abstract class BaseRepository {
 
@@ -40,6 +43,41 @@ abstract class BaseRepository {
     protected fun defaultSort() = "id"
 
     fun delete(id: Long) : Int = jdbcTemplate.update("delete from ${getTableName()} where id = :id", mapOf("id" to id))
+
+    protected fun create(params: Map<String, Any?>) : Long {
+        val insertTemplate = getInsertTemplate(params.keys).value
+        val key = insertTemplate.executeAndReturnKey(params)
+        return key.toLong()
+    }
+
+    protected fun update(id: Long, params: Map<String, Any?>) {
+
+        require(params.containsKey("version")) {
+            "Update parameters required a 'version' attribute."
+        }
+
+        require(!params.containsKey("id")) {
+            "Update parameters cannot contain an 'id' attribute."
+        }
+
+        val updateStatement = StringBuilder()
+        val version = params["version"]
+
+        updateStatement.append("update ${getTableName()}")
+        updateStatement.append("set version = version + 1")
+
+        params.forEach { (key, value) ->
+            updateStatement.append(", $key = :$key")
+        }
+
+        updateStatement.append("where id = :id")
+
+        val nbUpdated = jdbcTemplate.update(updateStatement.toString(), params);
+
+        if (nbUpdated == 0) {
+            throw OptimisticLockingFailureException("${getTableName()} [$id][v${version}] has been already updated.")
+        }
+    }
 
     protected fun count(query: String, params : Map<String, Any> = emptyMap()) : Long {
         return jdbcTemplate.queryForObject(query, params, Long::class.java) ?: 0

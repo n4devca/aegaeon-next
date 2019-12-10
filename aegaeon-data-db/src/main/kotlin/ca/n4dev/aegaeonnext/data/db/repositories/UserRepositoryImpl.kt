@@ -133,14 +133,11 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
                 "enabled" to user.enabled
             )
 
-        val insertTemplate = getInsertTemplate(params.keys).value
-        val key = insertTemplate.executeAndReturnKey(params)
-        return key.toLong()
+        return super.create(params)
     }
 
     override fun update(id: Long, user: User) {
-
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented yet")
     }
 
 

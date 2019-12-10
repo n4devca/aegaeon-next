@@ -57,6 +57,7 @@ CREATE TABLE `client` (
   `refresh_token_seconds` int(11) NOT NULL DEFAULT 604800,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `created_by` varchar(100) COLLATE utf8mb4_unicode_ci NOT NULL,
   `version` int(11) NOT NULL DEFAULT 0,
   `application_type` varchar(45) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL DEFAULT 'web',
   `allow_introspect` tinyint(1) not null default 0,

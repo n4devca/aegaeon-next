@@ -32,7 +32,7 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
 private const val GET_CLIENT_BY_ID = """
-   select id, public_id, secret, name, description, logoUrl, providerName,
+   select id, public_id, secret, name, description, logo_url, provider_name,
           id_token_seconds, access_token_seconds, refresh_token_seconds, allow_introspect,
           created_at, updated_at, version, created_by  
    from client 
@@ -40,7 +40,7 @@ private const val GET_CLIENT_BY_ID = """
 """
 
 private const val GET_CLIENT_BY_PUBLICID = """
-   select id, public_id, secret, name, description, logoUrl, providerName,
+   select id, public_id, secret, name, description, logo_url, provider_name,
           id_token_seconds, access_token_seconds, refresh_token_seconds, allow_introspect,
           created_at, updated_at, version, created_by  
    from client 
@@ -72,7 +72,7 @@ private const val UPDATE_CLIENT = """
             secret = :secret, 
             name = :name, 
             description = :description, 
-            logoUrl = :logoUrl, 
+            logo_url = :logo_url, 
             provider_name = :provider_name,
             id_token_seconds = :id_token_seconds, 
             access_token_seconds = :access_token_seconds, 
@@ -95,8 +95,8 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             secret = rs.getString("secret"),
             name = rs.getString("name"),
             description = rs.getString("description"),
-            logoUrl = rs.getString("logoUrl"),
-            providerName = rs.getString("providerName"),
+            logoUrl = rs.getString("logo_url"),
+            providerName = rs.getString("provider_name"),
             idTokenSeconds = rs.getLong("id_token_seconds"),
             accessTokenSeconds = rs.getLong("access_token_seconds"),
             refreshTokenSeconds = rs.getLong("refresh_token_seconds"),
@@ -156,8 +156,6 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
 
     override fun create(client: Client): Long {
 
-        val insertTemplate = getInsertTemplate().value
-
         val clientParams =
             mapOf(
                 Pair("public_id", client.publicId),
@@ -175,8 +173,7 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
                 Pair("version", 0),
                 Pair("created_by", "n/a"))
 
-        val key = insertTemplate.executeAndReturnKey(clientParams)
-        return key.toLong()
+        return super.create(clientParams)
     }
 
     override fun update(id: Long, updatedClient: Client) {
@@ -185,20 +182,22 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             Exception("Client $id cannot be found.")
         }
 
-        val nbUpdated = jdbcTemplate.update(UPDATE_CLIENT, mapOf(
-            Pair("id", id),
-            Pair("public_id", updatedClient.publicId),
-            Pair("secret", updatedClient.secret),
-            Pair("name", updatedClient.name),
-            Pair("description", updatedClient.description),
-            Pair("logo_url", updatedClient.logoUrl),
-            Pair("provider_name", updatedClient.providerName),
-            Pair("id_token_seconds", updatedClient.idTokenSeconds),
-            Pair("access_token_seconds", updatedClient.accessTokenSeconds),
-            Pair("refresh_token_seconds", updatedClient.refreshTokenSeconds),
-            Pair("allow_introspect", updatedClient.allowIntrospect),
-            Pair("updated_at", LocalDateTime.now()),
-            Pair("version", client.version)))
+        val params = mapOf(
+            "id" to id,
+            "public_id" to updatedClient.publicId,
+            "secret" to updatedClient.secret,
+            "name" to updatedClient.name,
+            "description" to updatedClient.description,
+            "logo_url" to updatedClient.logoUrl,
+            "provider_name" to updatedClient.providerName,
+            "id_token_seconds" to updatedClient.idTokenSeconds,
+            "access_token_seconds" to updatedClient.accessTokenSeconds,
+            "refresh_token_seconds" to updatedClient.refreshTokenSeconds,
+            "allow_introspect" to updatedClient.allowIntrospect,
+            "updated_at" to LocalDateTime.now(),
+            "version" to client.version)
+
+        val nbUpdated = jdbcTemplate.update(UPDATE_CLIENT, params)
 
         if (nbUpdated == 0) {
             throw OptimisticLockingFailureException("The client [$id][v${client.version}] has been already updated.")
