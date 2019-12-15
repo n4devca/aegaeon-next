@@ -22,10 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.repository
 
-import ca.n4dev.aegaeonnext.common.model.Client
-import ca.n4dev.aegaeonnext.common.model.ClientFlow
-import ca.n4dev.aegaeonnext.common.model.ClientRedirection
-import ca.n4dev.aegaeonnext.common.model.ClientScope
+import ca.n4dev.aegaeonnext.common.model.*
 
 /**
  *
@@ -51,4 +48,17 @@ interface ClientRepository {
     fun create(client: Client): Long
 
     fun update(id: Long, updatedClient: Client)
+
+    fun addScopeToClient(clientId: Long, scope: Scope)
+
+    fun deleteScopeFromClient(clientId: Long, scopeId: Long)
+
+    fun addFlowToClient(clientId: Long, flow: Flow)
+
+    fun deleteFlowFromClient(clientId: Long, flow: Flow)
+
+    fun addRedirectionToClient(clientId: Long, clientRedirection: String)
+
+    fun deleteRedirectionFromClient(clientId: Long, clientRedirection: String)
+
 }

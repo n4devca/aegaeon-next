@@ -204,5 +204,44 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
         }
     }
 
+    override fun addScopeToClient(clientId: Long, scope: Scope) {
+
+        val client = requireNonNull(getClientById(clientId)) {
+            Exception("Client $clientId cannot be found.")
+        }
+
+        val insert = "insert into client_scope(client_id, scope_id, version) values(:client_id, :scope_id, :version)"
+
+        val params = mapOf(
+            "client_id" to clientId,
+            "scope_id" to scope.id,
+            "version" to 0
+        )
+
+
+
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun deleteScopeFromClient(clientId: Long, scopeId: Long) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun addFlowToClient(clientId: Long, flow: Flow) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun deleteFlowFromClient(clientId: Long, flow: Flow) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun addRedirectionToClient(clientId: Long, clientRedirection: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun deleteRedirectionFromClient(clientId: Long, clientRedirection: String) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun getTableName(): String = "client"
 }

@@ -52,11 +52,9 @@ internal open class ClientRepositoryImplTest {
 
     @Test
     @Transactional
-    open fun create() {
+    open fun testSuccessfulCreateClient() {
 
-        val aClient = newClient()
-        val clientId = clientRepository.create(aClient)
-        Assertions.assertTrue(clientId > 0, "The client id should be a positive number")
+        val clientId = createClient()
 
         val savedClient = clientRepository.getClientById(clientId)
         Assertions.assertNotNull(savedClient, "Client id=$clientId cannot be found.")
@@ -64,15 +62,13 @@ internal open class ClientRepositoryImplTest {
 
     @Test
     @Transactional
-    open fun update() {
-        val aClient = newClient()
-        val clientId = clientRepository.create(aClient)
-        Assertions.assertTrue(clientId > 0, "The client id should be a positive number")
+    open fun testSuccessfulUpdateClient() {
+        val clientId = createClient()
 
         // Update name and access token limit
         val newName = "A new client name"
         val newLimit: Long = 6000
-        val updateClient = aClient.copy(name = newName, accessTokenSeconds = newLimit)
+        val updateClient = newClient().copy(name = newName, accessTokenSeconds = newLimit)
 
         clientRepository.update(clientId, updateClient);
 
@@ -84,4 +80,26 @@ internal open class ClientRepositoryImplTest {
     }
 
 
+    @Test
+    @Transactional
+    open fun testGetCompleteClient() {
+        val clientId = createClient()
+
+        // Fetch all
+        val client = clientRepository.getClientById(clientId)
+        val flows = clientRepository.getClientFlowByClientId(clientId)
+        val redirection = clientRepository.getClientRedirectionByClientId(clientId)
+        val scopes = clientRepository.getClientScopesByClientId(clientId)
+
+        Assertions.assertTrue(flows.isNotEmpty())
+        Assertions.assertTrue(redirection.isNotEmpty())
+        Assertions.assertTrue(scopes.isNotEmpty())
+    }
+
+    private fun createClient(): Long {
+        val aClient = newClient()
+        val clientId = clientRepository.create(aClient)
+        Assertions.assertTrue(clientId > 0, "The client id should be a positive number")
+        return clientId
+    }
 }
