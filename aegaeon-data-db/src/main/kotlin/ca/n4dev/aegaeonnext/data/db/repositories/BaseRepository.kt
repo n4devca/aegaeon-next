@@ -42,7 +42,7 @@ abstract class BaseRepository {
 
     protected fun defaultSort() = "id"
 
-    fun delete(id: Long) : Int = jdbcTemplate.update("delete from ${getTableName()} where id = :id", mapOf("id" to id))
+    fun delete(id: Long) : Int = delete(getTableName(), id)
 
     protected fun create(params: Map<String, Any?>) : Long {
         val insertTemplate = getInsertTemplate(params.keys).value
@@ -66,7 +66,7 @@ abstract class BaseRepository {
         updateStatement.append("update ${getTableName()}")
         updateStatement.append("set version = version + 1")
 
-        params.forEach { (key, value) ->
+        params.forEach { (key, _) ->
             updateStatement.append(", $key = :$key")
         }
 
@@ -81,6 +81,10 @@ abstract class BaseRepository {
 
     protected fun count(query: String, params : Map<String, Any> = emptyMap()) : Long {
         return jdbcTemplate.queryForObject(query, params, Long::class.java) ?: 0
+    }
+
+    protected fun delete(tableName: String, id: Long): Int {
+        return jdbcTemplate.update("delete $tableName where id = :id", mapOf("id" to id))
     }
 
     protected fun getInsertTemplate(columns: Set<String> = emptySet()): Lazy<SimpleJdbcInsert> = lazy(LazyThreadSafetyMode.PUBLICATION) {

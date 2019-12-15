@@ -39,4 +39,7 @@ interface RefreshTokenRepository {
 
     fun getByUserId(userId: Long): List<RefreshToken>
 
+    fun create(refreshToken: RefreshToken): Long
+
+    fun delete(id: Long): Int
 }

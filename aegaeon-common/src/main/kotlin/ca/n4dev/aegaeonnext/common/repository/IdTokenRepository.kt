@@ -39,4 +39,7 @@ interface IdTokenRepository {
 
     fun getByUserId(userId: Long): List<IdToken>
 
+    fun create(idToken: IdToken): Long
+
+    fun delete(id: Long): Int
 }

@@ -49,16 +49,16 @@ interface ClientRepository {
 
     fun update(id: Long, updatedClient: Client)
 
-    fun addScopeToClient(clientId: Long, scope: Scope)
+    fun addScopeToClient(clientId: Long, scope: Scope): Int
 
-    fun deleteScopeFromClient(clientId: Long, scopeId: Long)
+    fun deleteScopeFromClient(clientScopeId: Long): Int
 
-    fun addFlowToClient(clientId: Long, flow: Flow)
+    fun addFlowToClient(clientId: Long, flow: Flow): Int
 
-    fun deleteFlowFromClient(clientId: Long, flow: Flow)
+    fun deleteFlowFromClient(clientFlowId: Long): Int
 
-    fun addRedirectionToClient(clientId: Long, clientRedirection: String)
+    fun addRedirectionToClient(clientId: Long, clientRedirection: String): Int
 
-    fun deleteRedirectionFromClient(clientId: Long, clientRedirection: String)
+    fun deleteRedirectionFromClient(clientRedirectionId: Long): Int
 
 }

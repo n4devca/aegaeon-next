@@ -26,7 +26,7 @@ import ca.n4dev.aegaeonnext.common.repository.AuthorityRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
-private const val GET_ALL = "select id, code, created_at, updated_at, version from authority"
+private const val GET_ALL = "select id, code from authority"
 
 @Repository
 class AuthorityRepositoryImpl : BaseRepository(), AuthorityRepository {

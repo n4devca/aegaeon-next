@@ -25,9 +25,7 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 import ca.n4dev.aegaeonnext.common.model.*
 import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import ca.n4dev.aegaeonnext.common.utils.requireNonNull
-import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.core.simple.SimpleJdbcInsert
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
@@ -83,6 +81,18 @@ private const val UPDATE_CLIENT = """
     where id = :id
       and version = :version
 """
+
+private const val CREATE_CLIENT_SCOPE = "insert into client_scope(client_id, scope_id, version) values(:client_id, :scope_id, :version)"
+
+private const val HAS_CLIENT_SCOPE = "select count(*) from client_scope where client_id = :client_id and scope_id = :scope_id"
+
+private const val CREATE_CLIENT_FLOW = "insert into client_flow(client_id, flow, version) values(:client_id, :flow, :version)"
+
+private const val HAS_CLIENT_FLOW = "select count(*) from client_flow where client_id = :client_id and flow = :flow"
+
+private const val CREATE_CLIENT_REDIRECT = "insert into client_redirection(client_id, url, version) values(:client_id, :url, :version)"
+
+private const val HAS_CLIENT_REDIRECT = "select count(*) from client_redirection where client_id = :client_id and url = :url"
 
 
 @Repository
@@ -182,8 +192,7 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             Exception("Client $id cannot be found.")
         }
 
-        val params = mapOf(
-            "id" to id,
+        super.update(id, mapOf(
             "public_id" to updatedClient.publicId,
             "secret" to updatedClient.secret,
             "name" to updatedClient.name,
@@ -195,53 +204,90 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             "refresh_token_seconds" to updatedClient.refreshTokenSeconds,
             "allow_introspect" to updatedClient.allowIntrospect,
             "updated_at" to LocalDateTime.now(),
-            "version" to client.version)
+            "version" to client.version))
 
-        val nbUpdated = jdbcTemplate.update(UPDATE_CLIENT, params)
-
-        if (nbUpdated == 0) {
-            throw OptimisticLockingFailureException("The client [$id][v${client.version}] has been already updated.")
-        }
     }
 
-    override fun addScopeToClient(clientId: Long, scope: Scope) {
+    override fun addScopeToClient(clientId: Long, scope: Scope): Int {
 
         val client = requireNonNull(getClientById(clientId)) {
             Exception("Client $clientId cannot be found.")
         }
 
-        val insert = "insert into client_scope(client_id, scope_id, version) values(:client_id, :scope_id, :version)"
+        return if (!hasScope(client.id, scope.id)) {
+            jdbcTemplate.update(CREATE_CLIENT_SCOPE, mapOf(
+                "client_id" to client.id,
+                "scope_id" to scope.id,
+                "version" to 0
+            ))
+        } else {
+            0
+        }
+    }
 
-        val params = mapOf(
-            "client_id" to clientId,
-            "scope_id" to scope.id,
-            "version" to 0
-        )
+    override fun deleteScopeFromClient(clientScopeId: Long): Int = delete("client_scope", clientScopeId)
 
+    override fun addFlowToClient(clientId: Long, flow: Flow): Int {
 
+        val client = requireNonNull(getClientById(clientId)) {
+            Exception("Client $clientId cannot be found.")
+        }
+
+        return if (!hasFlow(client.id, flow)) {
+            jdbcTemplate.update(CREATE_CLIENT_FLOW, mapOf(
+                "client_id" to client.id,
+                "flow" to flow.toString(),
+                "version" to 0
+            ))
+        } else {
+            0
+        }
+    }
+
+    override fun deleteFlowFromClient(clientFlowId: Long): Int = delete("client_flow", clientFlowId)
+
+    override fun addRedirectionToClient(clientId: Long, clientRedirectionUrl: String): Int {
+
+        val client = requireNonNull(getClientById(clientId)) {
+            Exception("Client $clientId cannot be found.")
+        }
+
+        val url = clientRedirectionUrl.trim()
+
+        return if (!hasRedirection(client.id, url)) {
+            jdbcTemplate.update(CREATE_CLIENT_REDIRECT, mapOf(
+                "client_id" to client.id,
+                "url" to url,
+                "version" to 0
+            ))
+        } else {
+            0
+        }
 
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun deleteScopeFromClient(clientId: Long, scopeId: Long) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun addFlowToClient(clientId: Long, flow: Flow) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun deleteFlowFromClient(clientId: Long, flow: Flow) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun addRedirectionToClient(clientId: Long, clientRedirection: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun deleteRedirectionFromClient(clientId: Long, clientRedirection: String) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
+    override fun deleteRedirectionFromClient(clientRedirectionId: Long): Int = delete("client_redirection", clientRedirectionId)
 
     override fun getTableName(): String = "client"
+
+    fun hasScope(clientId: Long?, scopeId: Long?): Boolean {
+        return if (clientId != null && scopeId != null) {
+            jdbcTemplate.queryForObject(HAS_CLIENT_SCOPE, mapOf("client_id" to clientId, "scope_id" to scopeId), Int::class.java) != 0
+        } else {
+            false
+        }
+    }
+
+    fun hasFlow(clientId: Long?, flow: Flow): Boolean {
+        return clientId?.let {
+            jdbcTemplate.queryForObject(HAS_CLIENT_FLOW, mapOf("client_id" to clientId, "flow" to flow.toString()), Int::class.java) != 0
+        } ?: false
+    }
+
+    fun hasRedirection(clientId: Long?, redirectionUrl: String): Boolean {
+        return clientId?.let {
+            jdbcTemplate.queryForObject(HAS_CLIENT_REDIRECT, mapOf("client_id" to clientId, "url" to redirectionUrl), Int::class.java) != 0
+        } ?: false
+    }
 }

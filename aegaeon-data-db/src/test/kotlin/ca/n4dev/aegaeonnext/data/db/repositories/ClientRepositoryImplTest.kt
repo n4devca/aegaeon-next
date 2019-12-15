@@ -24,6 +24,7 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 
 import ca.n4dev.aegaeonnext.common.model.Client
 import ca.n4dev.aegaeonnext.common.repository.ClientRepository
+import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
 import org.junit.jupiter.api.Assertions
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -45,6 +46,9 @@ internal open class ClientRepositoryImplTest {
 
     @Autowired
     lateinit var clientRepository: ClientRepository
+
+    @Autowired
+    lateinit var scopeRepository: ScopeRepository
 
     private fun newClient() : Client =  Client(null,
             "c-test-001", "secret", "a-client", null, null,
@@ -94,6 +98,21 @@ internal open class ClientRepositoryImplTest {
         Assertions.assertTrue(flows.isNotEmpty())
         Assertions.assertTrue(redirection.isNotEmpty())
         Assertions.assertTrue(scopes.isNotEmpty())
+    }
+
+    @Test
+    @Transactional
+    open fun testSuccessfulAddScopeToClient() {
+        val clientId = createClient()
+        val openidScope = requireNotNull(scopeRepository.getByName("openid"))
+
+        clientRepository.addScopeToClient(clientId, openidScope)
+
+        // Fetch and check if OK
+        val clientScopes = clientRepository.getClientScopesByClientId(clientId)
+
+        Assertions.assertTrue(clientScopes.isNotEmpty(), "The client scopes should not be empty.")
+        Assertions.assertTrue(clientScopes.any { clientScope -> clientScope.scopeCode == "openid" })
     }
 
     private fun createClient(): Long {

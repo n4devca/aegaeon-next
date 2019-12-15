@@ -55,5 +55,19 @@ class RefreshTokenRepositoryImpl : BaseRepository(), RefreshTokenRepository {
     override fun getByUserId(userId: Long): List<RefreshToken> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf("user_id" to userId), resultSetToRefreshToken);
 
+    override fun create(refreshToken: RefreshToken): Long {
+        val params =
+            mapOf("token" to refreshToken.token,
+                "user_id" to refreshToken.userId,
+                "client_id" to refreshToken.clientId,
+                "scopes" to refreshToken.scopes,
+                "valid_until" to refreshToken.validUntil)
+
+        val insertTemplate = getInsertTemplate(params.keys).value
+
+        val key = insertTemplate.executeAndReturnKey(params)
+        return key.toLong()
+    }
+
     override fun getTableName(): String = "refresh_token"
 }

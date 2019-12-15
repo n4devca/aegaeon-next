@@ -59,5 +59,20 @@ class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
     override fun getByUserId(userId: Long): List<IdToken> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf("user_id" to userId), resultSetToIdToken)
 
+    override fun create(idToken: IdToken): Long {
+
+        val params =
+            mapOf("token" to idToken.token,
+                "user_id" to idToken.userId,
+                "client_id" to idToken.clientId,
+                "scopes" to idToken.scopes,
+                "valid_until" to idToken.validUntil)
+
+        val insertTemplate = getInsertTemplate(params.keys).value
+
+        val key = insertTemplate.executeAndReturnKey(params)
+        return key.toLong()
+    }
+
     override fun getTableName(): String = "id_token"
 }

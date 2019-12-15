@@ -69,7 +69,8 @@ class AccessTokenRepositoryImpl : BaseRepository(), AccessTokenRepository {
             mapOf("token" to accessToken.token,
                   "user_id" to accessToken.userId,
                   "client_id" to accessToken.clientId,
-                  "scopes" to accessToken.scopes)
+                  "scopes" to accessToken.scopes,
+                  "valid_until" to accessToken.validUntil)
 
         val insertTemplate = getInsertTemplate(params.keys).value
 

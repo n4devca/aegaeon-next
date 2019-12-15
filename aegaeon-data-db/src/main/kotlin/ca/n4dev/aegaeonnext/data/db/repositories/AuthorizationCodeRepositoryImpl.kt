@@ -82,7 +82,8 @@ class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepos
             "scopes" to authorizationCode.scopes,
             "redirect_url" to authorizationCode.redirectUrl,
             "response_type" to authorizationCode.responseType,
-            "noonce" to authorizationCode.noonce
+            "noonce" to authorizationCode.noonce,
+            "version" to 0
         )
 
         val insertTemplate = getInsertTemplate(params.keys).value
