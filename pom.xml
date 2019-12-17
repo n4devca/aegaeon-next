@@ -20,6 +20,7 @@
         <module>aegaeon-core</module>
         <module>aegaeon-common</module>
         <module>aegaeon-data-db</module>
+        <module>aegaeon-rocket</module>
         <!--
             <module>release-account-db</module>
             -->
@@ -75,6 +76,12 @@
                             <version>${kotlin.version}</version>
                         </dependency>
                     </dependencies>
+                </plugin>
+
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.2.3</version>
                 </plugin>
             </plugins>
         </pluginManagement>

@@ -107,17 +107,7 @@
 			<artifactId>aegaeon-common</artifactId>
 			<version>1.0.0.RELEASE</version>
 		</dependency>
-		<dependency>
-			<groupId>ca.n4dev</groupId>
-			<artifactId>aegaeon-data-db</artifactId>
-			<version>1.0.0.RELEASE</version>
-		</dependency>
 
-<!--        <dependency>-->
-<!--			<groupId>com.h2database</groupId>-->
-<!--			<artifactId>h2</artifactId>-->
-<!--			<scope>runtime</scope>-->
-<!--		</dependency>-->
 
 	</dependencies>
 
