@@ -21,12 +21,23 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
+import ca.n4dev.aegaeonnext.common.model.AccessToken
 import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AccessTokenService(private val accessTokenRepository: AccessTokenRepository) : BaseTokenService() {
+
+
+    private fun accessTokenToTokenDto(accessToken: AccessToken) =
+        TokenDto(
+            accessToken.id!!,
+            accessToken.token,
+            getManagedTokenType(),
+            accessToken.scopes,
+            accessToken.validUntil
+        )
 
     @Transactional(readOnly = true)
     fun findByToken(pTokenValue: String): TokenDto? =

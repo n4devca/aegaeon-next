@@ -33,27 +33,28 @@ import org.springframework.web.bind.annotation.RequestMethod
  * @since 2.0.0 - Nov 06 - 2019
  *
  */
-class AuthRequest(
+open class AuthRequest(
+
     clientId: String? = null,
 
     redirectUri: String? = null,
 
     state: String? = null,
 
-    var responseType: String? = null,
+    val responseType: String? = null,
 
-    var responseTypes: List<ResponseType>? = null,
+    val responseTypes: List<ResponseType>? = null,
 
-    var nonce: String? = null,
+    val nonce: String? = null,
 
-    var scope: String? = null,
+    val scope: String? = null,
 
-    var display: String? = null,
+    val display: String? = null,
 
-    var prompt: String? = null,
+    val prompt: String? = null,
 
-    var idTokenHint: String? = null,
+    val idTokenHint: String? = null,
 
-    var requestMethod: RequestMethod? = null
+    val requestMethod: RequestMethod? = null
 
 ) : ClientRequest(clientId, redirectUri, state)

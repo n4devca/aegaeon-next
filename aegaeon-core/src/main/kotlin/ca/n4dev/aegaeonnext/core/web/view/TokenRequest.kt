@@ -19,14 +19,48 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.core.service
+package ca.n4dev.aegaeonnext.core.web.view
 
-import org.springframework.stereotype.Service
+import ca.n4dev.aegaeonnext.core.web.ResponseType
+import org.springframework.web.bind.annotation.RequestMethod
 
-@Service
-class TokenFactory {
+/**
+ *
+ * TokenRequest.java
+ * TODO(rguillemette) Add description.
+ *
+ * @author rguillemette
+ * @since 2.0.0 - Dec 17 - 2019
+ *
+ */
+class TokenRequest (
 
-    fun validate(clientId: Long, token: String) : Boolean {
-        return false
-    }
-}
+    val grantType: String?,
+
+    val code: String?,
+
+    val refreshToken: String?,
+
+    clientId: String?,
+
+    redirectUri: String?,
+
+    state: String?,
+
+    responseType: String?,
+
+    responseTypes: List<ResponseType>?,
+
+    nonce: String?,
+
+    scope: String?,
+
+    display: String?,
+
+    prompt: String?,
+
+    idTokenHint: String?,
+
+    requestMethod: RequestMethod?
+
+) : AuthRequest(clientId, redirectUri, state, responseType, responseTypes, nonce, scope, display, prompt, idTokenHint, requestMethod)

@@ -30,10 +30,10 @@ package ca.n4dev.aegaeonnext.core.web.view
  * @since 2.0.0 - Nov 06 - 2019
  *
  */
-abstract class ClientRequest(
-    var clientId: String?,
+abstract class ClientRequest (
+    val clientId: String?,
 
-    var redirectUri: String?,
+    val redirectUri: String?,
 
-    var state: String?
+    val state: String?
 )

@@ -38,14 +38,7 @@ abstract class BaseTokenService {
 
     abstract fun getManagedTokenType(): TokenType
 
-    protected fun accessTokenToTokenDto(accessToken: AccessToken) =
-        TokenDto(
-            accessToken.id!!,
-            accessToken.token,
-            getManagedTokenType(),
-            accessToken.scopes,
-            accessToken.validUntil
-        )
+
 }
 
 enum class TokenType {

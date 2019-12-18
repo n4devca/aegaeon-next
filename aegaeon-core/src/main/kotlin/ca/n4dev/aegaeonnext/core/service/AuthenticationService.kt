@@ -21,17 +21,10 @@
  */
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.common.utils.isAfterNow
 import ca.n4dev.aegaeonnext.core.loggerFor
-import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthentication
-import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationException
-import com.nimbusds.jwt.SignedJWT
-import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
-import org.springframework.security.authentication.CredentialsExpiredException
+import ca.n4dev.aegaeonnext.core.token.TokenFactory
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
-import java.text.ParseException
 
 /**
  *
