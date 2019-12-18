@@ -34,33 +34,11 @@ import org.springframework.web.bind.annotation.RequestMethod
  *
  */
 class TokenRequest (
-
-    val grantType: String?,
-
-    val code: String?,
-
-    val refreshToken: String?,
-
-    clientId: String?,
-
-    redirectUri: String?,
-
-    state: String?,
-
-    responseType: String?,
-
-    responseTypes: List<ResponseType>?,
-
-    nonce: String?,
-
-    scope: String?,
-
-    display: String?,
-
-    prompt: String?,
-
-    idTokenHint: String?,
-
-    requestMethod: RequestMethod?
-
-) : AuthRequest(clientId, redirectUri, state, responseType, responseTypes, nonce, scope, display, prompt, idTokenHint, requestMethod)
+    val grantType: String,
+    val code: String,
+    val refreshToken: String,
+    val clientPublicId: String,
+    val redirectUri: String,
+    val scope: String,
+    val requestMethod: RequestMethod
+)

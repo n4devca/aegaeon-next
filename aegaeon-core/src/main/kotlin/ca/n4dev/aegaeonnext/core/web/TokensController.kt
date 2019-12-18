@@ -22,9 +22,12 @@
 
 package ca.n4dev.aegaeonnext.core.web
 
+import ca.n4dev.aegaeonnext.core.web.view.TokenRequest
+import ca.n4dev.aegaeonnext.core.web.view.TokenResponse
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RestController
+import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
+import org.springframework.web.bind.annotation.*
 
 /**
  *
@@ -41,5 +44,29 @@ const val TokensControllerURL = "/token"
 @RequestMapping(TokensControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["oauth"], havingValue = "true", matchIfMissing = true)
 class TokensController {
+
+
+    @RequestMapping(value = [""])
+    @ResponseBody
+    fun token(@RequestParam(value = "grant_type", required = false) pGrantType: String,
+              @RequestParam(value = "code", required = false) pCode: String,
+              @RequestParam(value = "redirect_uri", required = false) pRedirectUri: String,
+              @RequestParam(value = "client_id", required = false) pClientPublicId: String,
+              @RequestParam(value = "scope", required = false) pScope: String,
+              @RequestParam(value = "refresh_token", required = false) pRefreshToken: String,
+              pAuthentication: Authentication ,
+              pRequestMethod: RequestMethod) : ResponseEntity<TokenResponse> {
+
+
+        val response: TokenResponse? = null
+
+        val clientPublicId: String = pClientPublicId ?: pAuthentication.name
+
+        val tokenRequest = TokenRequest(pGrantType, pCode, pRefreshToken, clientPublicId, pRedirectUri, pScope, pRequestMethod)
+
+
+        return ResponseEntity.noContent().build()
+    }
+
 
 }
