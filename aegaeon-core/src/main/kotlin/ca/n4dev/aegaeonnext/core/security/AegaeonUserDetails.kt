@@ -25,7 +25,7 @@ package ca.n4dev.aegaeonnext.core.security
 import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.userdetails.UserDetails
 
-class AegaeonUserDetails(val id: Long?,
+class AegaeonUserDetails(val id: Long,
                          private val username: String,
                          private val password: String,
                          private val enable: Boolean,

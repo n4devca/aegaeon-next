@@ -36,6 +36,8 @@ import ca.n4dev.aegaeonnext.common.utils.Page
  */
 interface AuthorizationCodeRepository {
 
+    fun getById(id: Long) : AuthorizationCode?
+
     fun getByCode(code: String) : AuthorizationCode?
 
     fun getByClientId(clientId: Long, page: Page) : List<AuthorizationCode>

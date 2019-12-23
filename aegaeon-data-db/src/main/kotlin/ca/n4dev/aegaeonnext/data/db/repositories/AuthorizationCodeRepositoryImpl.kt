@@ -27,6 +27,13 @@ import ca.n4dev.aegaeonnext.common.utils.Page
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
+
+private const val GET_BY_ID = """
+    select id, code, client_id, user_id, valid_until, scopes, redirect_url, response_type, nonce, version
+    from authorization_code
+    where id = :id
+"""
+
 private const val GET_BY_CODE = """
     select id, code, client_id, user_id, valid_until, scopes, redirect_url, response_type, nonce, version
     from authorization_code
@@ -65,6 +72,8 @@ class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepos
             noonce = rs.getString("noonce")
         )
     }
+
+    override fun getById(id: Long): AuthorizationCode? = jdbcTemplate.queryForObject(GET_BY_ID, mapOf("id" to id), resultSetToAuthCode)
 
     override fun getByCode(code: String) = jdbcTemplate.queryForObject(GET_BY_CODE, mapOf("code" to code), resultSetToAuthCode)
 

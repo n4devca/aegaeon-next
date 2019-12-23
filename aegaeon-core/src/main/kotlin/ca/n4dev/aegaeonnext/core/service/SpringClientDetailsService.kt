@@ -40,7 +40,7 @@ import org.springframework.stereotype.Service
  *
  */
 @Service("clientDetailsService")
-class SpringAuthClientDetailsService(private val clientRepository: ClientRepository) : UserDetailsService {
+class SpringClientDetailsService(private val clientRepository: ClientRepository) : UserDetailsService {
 
     /* (non-Javadoc)
      * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
@@ -48,7 +48,7 @@ class SpringAuthClientDetailsService(private val clientRepository: ClientReposit
     override fun loadUserByUsername(pUsername: String): UserDetails {
 
         clientRepository.getClientByPublicId(pUsername)?.let { client ->
-            val aegaeonUserDetails = AegaeonUserDetails(client.id,
+            val aegaeonUserDetails = AegaeonUserDetails(client.id!!,
                 pUsername,
                 "{noop}" + client.secret,
                 enable = true,

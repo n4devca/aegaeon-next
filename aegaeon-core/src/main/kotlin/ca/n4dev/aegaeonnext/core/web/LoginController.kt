@@ -22,6 +22,7 @@
 
 package ca.n4dev.aegaeonnext.core.web
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -31,24 +32,22 @@ import org.springframework.web.servlet.ModelAndView
 /**
  *
  * LoginController.java
- * TODO(rguillemette) Add description.
+ *
+ * Controller driving login page.
+ *
+ * Can be enable/disable using aegaeon.modules.login flag.
  *
  * @author rguillemette
  * @since 2.0.0 - Nov 13 - 2019
  *
  */
 
-public const val LoginControllerURL = "/login"
+const val LoginControllerURL = "/login"
 
 @Controller
 @RequestMapping(LoginControllerURL)
-// @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["login"], havingValue = "true", matchIfMissing = true)
+@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["login"], havingValue = "true", matchIfMissing = true)
 class LoginController {
-
-
     @GetMapping("")
-    fun login(): ModelAndView {
-        println("/login")
-        return ModelAndView("signin")
-    }
+    fun login(): ModelAndView = ModelAndView("signin")
 }

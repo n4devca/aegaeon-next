@@ -33,22 +33,39 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 private const val BEARER = "Bearer"
 
-data class TokenResponse(
+sealed class TokenResponse {
 
-    @JsonProperty("id_token")
-    val idToken: String? = null,
+    data class Success(
 
-    @JsonProperty("access_token")
-    val accessToken: String? = null,
+        @JsonProperty("id_token")
+        val idToken: String? = null,
 
-    @JsonProperty("token_type")
-    val tokenType: String? = null,
+        @JsonProperty("access_token")
+        val accessToken: String? = null,
 
-    @JsonProperty("expires_in")
-    val expiresIn: Long? = null,
+        @JsonProperty("token_type")
+        val tokenType: String? = null,
 
-    val scope: String? = null,
+        @JsonProperty("expires_in")
+        val expiresIn: Long? = null,
 
-    @JsonProperty("refresh_token")
-    val refreshToken: String? = null
-)
+        val scope: String? = null,
+
+        @JsonProperty("refresh_token")
+        val refreshToken: String? = null
+    ) : TokenResponse();
+
+    data class Error(
+
+        val error: String,
+
+        @JsonProperty("error_description")
+        val description: String?,
+
+        @JsonProperty("error_uri")
+        val uri: String?,
+
+        val state: String?
+
+    ) : TokenResponse()
+}

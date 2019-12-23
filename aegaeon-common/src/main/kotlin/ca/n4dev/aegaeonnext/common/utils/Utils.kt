@@ -88,8 +88,8 @@ fun <E> isOneTrue(entities: Collection<E>, pTest: (E) -> Boolean): Boolean {
     return false;
 }
 
-fun splitStringOn(str: String, separator: String = " "): List<String> {
-    return str.split(separator)
+fun splitStringOn(str: String?, separator: String = " "): List<String> {
+    return str?.split(separator) ?: listOf()
 }
 
 fun isAfterNow(pValidUntil: LocalDateTime?): Boolean {

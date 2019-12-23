@@ -33,14 +33,13 @@ import org.springframework.stereotype.Service
 /**
  *
  * SpringUserDetailService.java
- * TODO(rguillemette) Add description.
- *
+ * Spring Service Security to load user by user name.
  * @author rguillemette
  * @since 2.0.0 - Oct 28 - 2019
  *
  */
 @Service("userDetailsService")
-class SpringAuthUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
+class SpringUserDetailsService(private val userRepository: UserRepository) : UserDetailsService {
 
     /* (non-Javadoc)
      * @see org.springframework.security.core.userdetails.UserDetailsService#loadUserByUsername(java.lang.String)
@@ -50,7 +49,7 @@ class SpringAuthUserDetailsService(private val userRepository: UserRepository) :
         userRepository.getUserByUserName(pUsername)?.let { user ->
             val userAuthorities = userRepository.getUserAuthorities(user.id!!)
             val authorities = userAuthorities.map { SimpleGrantedAuthority(it.code) }
-            return AegaeonUserDetails(user.id, user.userName, user.password, user.enabled, user.locked, authorities)
+            return AegaeonUserDetails(user.id!!, user.userName, user.password, user.enabled, user.locked, authorities)
         }
 
         throw UsernameNotFoundException("$pUsername not found")

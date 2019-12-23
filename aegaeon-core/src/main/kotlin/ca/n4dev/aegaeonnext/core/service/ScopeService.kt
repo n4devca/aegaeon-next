@@ -93,8 +93,16 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
         } else {
             emptyScopeSet()
         }
-
     }
+
+    fun getValidScopes(scopeParam: String?, exclusions: Set<String> = emptySet()): Set<ScopeDto> {
+        if (!scopeParam.isNullOrBlank()) {
+            val scopeSet = validate(scopeParam!!, exclusions)
+            return scopeSet.validScopes
+        }
+        return emptySet()
+    }
+
 
 }
 

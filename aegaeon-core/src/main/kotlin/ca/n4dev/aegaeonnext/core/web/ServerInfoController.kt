@@ -61,20 +61,4 @@ class ServerInfoController(aegaeonServerInfo: AegaeonServerInfo /*,scopeServive:
         //return ServerInformation(aegaeonServerInfo.issuer, "", "")
         return null
     }
-
-    @GetMapping("/test")
-    fun test(@RequestParam("t") t: String) : ResponseEntity<AegaeonResponse> {
-        return if (t == "1") {
-            ResponseEntity.ok(AegaeonResponse.SuccessfulResponse(1, "a"))
-        } else {
-            ResponseEntity.ok(AegaeonResponse.ErrorResponse("error"))
-        }
-    }
-
-}
-
-
-sealed class AegaeonResponse {
-    class SuccessfulResponse(val id: Long, val token: String): AegaeonResponse()
-    class ErrorResponse(val errorMsg: String): AegaeonResponse()
 }

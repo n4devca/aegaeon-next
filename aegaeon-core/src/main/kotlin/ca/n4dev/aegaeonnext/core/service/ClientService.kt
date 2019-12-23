@@ -39,7 +39,7 @@ import org.springframework.transaction.annotation.Transactional
  */
 
 
-fun clientToClientDto(client: Client,
+private fun clientToClientDto(client: Client,
                       clientScopes: List<ClientScope> = emptyList(),
                       clientFlows: List<ClientFlow> = emptyList(),
                       clientRedirections: List<ClientRedirection> = emptyList()): ClientDto {
@@ -99,7 +99,9 @@ class ClientService(private val clientRepository: ClientRepository) {
 
 }
 
-
+/**
+ *
+ */
 data class ClientDto(
     val id: Long?,
     val publicId: String,
