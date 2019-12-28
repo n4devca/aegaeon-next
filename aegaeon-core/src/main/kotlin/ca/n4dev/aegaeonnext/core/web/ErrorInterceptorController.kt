@@ -22,30 +22,31 @@
 package ca.n4dev.aegaeonnext.core.web
 
 import ca.n4dev.aegaeonnext.core.config.AegaeonServerInfo
+import ca.n4dev.aegaeonnext.core.loggerFor
 import ca.n4dev.aegaeonnext.core.service.ClientService
 import ca.n4dev.aegaeonnext.core.utils.LabelUtils
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.servlet.ModelAndView
-import javax.print.attribute.standard.Severity
 
 /**
  *
- * ControllerErrorInterceptor.java
- * TODO(rguillemette) Add description.
+ * ErrorInterceptorController
+ *
+ * Intercept error and exception and show the error page.
  *
  * @author rguillemette
  * @since 2.0.0 - Nov 06 - 2019
  *
  */
 @ControllerAdvice
-class ControllerErrorInterceptor(labelUtils: LabelUtils, serverInfo: AegaeonServerInfo, clientService: ClientService) {
+class ErrorInterceptorController(labelUtils: LabelUtils, serverInfo: AegaeonServerInfo, clientService: ClientService) {
 
+    private val LOGGER = loggerFor(javaClass)
     private val ERROR_PAGE = "error"
 
     @ExceptionHandler(Throwable::class)
     fun handleAll(throwable: Throwable): ModelAndView {
-
         return internalErrorPage(Severity.ERROR, "", throwable);
     }
 
@@ -57,11 +58,13 @@ class ControllerErrorInterceptor(labelUtils: LabelUtils, serverInfo: AegaeonServ
         mv.addObject("errorCode", errorCode)
         mv.addObject("throwable", throwable)
 
+        LOGGER.error("Error {$severity, $errorCode}", throwable)
+
         return mv;
     }
 }
 
 enum class Severity {
-    INFO, WARNING, DANGER
+    INFO, WARNING, DANGER, ERROR
 }
 

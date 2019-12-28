@@ -34,31 +34,39 @@ import org.springframework.stereotype.Repository
 import java.util.Locale
 
 
-private val COUNT_ALL_USERS = "select count(*) from users"
+private const val COUNT_ALL_USERS = "select count(*) from users"
 
-private val GET_ALL_USERS = """
-    select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version
-    from users 
-    order by userName 
-    limit :offset, :limit
+private const val GET_ALL_USERS = """
+select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version
+from users 
+order by userName 
+limit :offset, :limit
 """
 
-private val GET_USER_INFO_BY_USERID =
+private const val GET_USER_INFO_BY_USERID =
     "select id, user_id, scope_id, name, value, version from user_info where user_id = :user_id"
 
-private val GET_USER_BY_USERNAME =
+
+private const val GET_USER_INFO_BY_USERID_AND_SCOPEIDS = """
+select user_info.id, user_info.user_id, scope.id as scope_id, scope.name as scope_name, user_info.name, user_info.value, user_info.version 
+from user_info join scope on (user_info.scope_id = scope.id)
+where user_id = :user_id
+  and scope_id in (:scope_ids)
+"""
+
+private const val GET_USER_BY_USERNAME =
     "select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version from users where userName = :userName"
 
-private val GET_USER_BY_ID =
+private const val GET_USER_BY_ID =
     "select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version from users where id = :id"
 
-private val GET_USER_INFO_BY_USERIDS =
-    "select id, user_id, scope_id, name, value from user_info where user_id in :user_id order by user_id"
+private const val GET_USER_INFO_BY_USERIDS =
+    "select id, user_id, scope_id, name, value from user_info where user_id in (:user_id) order by user_id"
 
-private val GET_AUTHORITY_BY_USERID = """
-    select a.id, a.code 
-    from authority a join user_authority ua on (a.id = ua.authority_id)
-    where ua.user_id = :user_id
+private const val GET_AUTHORITY_BY_USERID = """
+select a.id, a.code 
+from authority a join user_authority ua on (a.id = ua.authority_id)
+where ua.user_id = :user_id
 """
 
 @Repository
@@ -85,6 +93,7 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
             id = rs.getLong("id"),
             userId = rs.getLong("user_id"),
             scopeId = rs.getLong("scope_id"),
+            scopeName = rs.getString("scope_name"),
             claimName = rs.getString("name"),
             claimValue = rs.getString("value"),
             version = rs.getInt("version")
@@ -112,11 +121,19 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
     override fun getUserInfoByUserId(userId: Long): List<UserInfo> =
         jdbcTemplate.query(GET_USER_INFO_BY_USERID, mapOf("user_id" to userId), resultSetToUserInfo)
 
+    override fun getUserInfoByUserIdAndScopeIds(userId: Long, scopeIds: Set<Long>): List<UserInfo> {
+
+        return jdbcTemplate.query(GET_USER_INFO_BY_USERID_AND_SCOPEIDS,
+            mapOf("user_id" to userId,
+                  "scope_ids" to scopeIds),
+            resultSetToUserInfo)
+    }
+
     override fun getUserById(id: Long): User? =
-        jdbcTemplate.queryForObject(GET_USER_BY_ID, mapOf("id" to id), resultSetToUser)
+        single(jdbcTemplate.query(GET_USER_BY_ID, mapOf("id" to id), resultSetToUser))
 
     override fun getUserByUserName(userName: String): User? =
-        jdbcTemplate.queryForObject(GET_USER_BY_USERNAME, mapOf("userName" to userName), resultSetToUser)
+        single(jdbcTemplate.query(GET_USER_BY_USERNAME, mapOf("userName" to userName), resultSetToUser))
 
     override fun getUserAuthorities(userId: Long): List<Authority> =
         jdbcTemplate.query(GET_AUTHORITY_BY_USERID, mapOf("user_id" to userId), resultSetToAuthority)

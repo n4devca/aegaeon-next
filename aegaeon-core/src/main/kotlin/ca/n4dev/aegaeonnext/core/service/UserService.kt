@@ -22,14 +22,26 @@
 package ca.n4dev.aegaeonnext.core.service
 
 import ca.n4dev.aegaeonnext.common.model.User
+import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
 import ca.n4dev.aegaeonnext.common.repository.UserRepository
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 
-private fun userToUserDto(user: User): UserDto {
-    TODO()
-}
+private fun userToUserDto(user: User): UserDto =
+    // TODO(RG): It's mainly a copy, see possible transformation
+    UserDto(user.id,
+        user.userName,
+        user.uniqueIdentifier,
+        user.name,
+        user.picture,
+        user.locale,
+        user.enabled,
+        user.locked,
+        user.lastLoginDate,
+        user.version)
+
 
 /**
  * UserService.java
@@ -37,17 +49,44 @@ private fun userToUserDto(user: User): UserDto {
  * @since 2.0.0 - Dec 22 - 2019
  */
 @Service
-class UserService(private val userRepository: UserRepository) {
+class UserService(private val userRepository: UserRepository,
+                  private val scopeRepository: ScopeRepository) {
 
+    @Transactional(readOnly = true)
     fun getUserById(id: Long): UserDto? {
         return userRepository.getUserById(id)?.let {user ->  userToUserDto(user) }
     }
 
-    fun createPayload(userDto: UserDto, scopes: Set<String>): Map<String, Map<String, Object>> {
+    @Transactional(readOnly = true)
+    fun createPayload(userDto: UserDto, scopes: Set<ScopeDto>): Map<ScopeDto, List<ClaimDto>> {
 
-        TODO()
+        val userId = requireNotNull(userDto.id)
+
+        val payload =
+            scopes.associateBy ({ scopeDto -> scopeDto }, { mutableListOf<ClaimDto>() })
+
+        val requestedScopeIds =
+            scopeRepository.getByNames(scopes.map { scopeDto -> scopeDto.name }.toSet())
+                .map { scope -> scope.id!! }.toSet()
+
+
+        val userInfos = userRepository.getUserInfoByUserIdAndScopeIds(userId, requestedScopeIds)
+
+        payload.forEach { scopeAndClaims ->
+            val claims = userInfos.filter { userInfo -> userInfo.scopeId == scopeAndClaims.key.id }
+                .map { userInfo -> ClaimDto(userInfo.claimName, userInfo.claimValue) }
+
+            scopeAndClaims.value.addAll(claims)
+        }
+
+//        return userInfos.groupBy( { userInfo -> requireNotNull(userInfo.scopeName) },
+//                                  {userInfo -> userInfo.claimName to userInfo.claimValue} )
+
+        return payload
     }
 }
+
+data class ClaimDto(val name: String, val value: String)
 
 data class UserDto(val id: Long?,
                    val userName: String,
@@ -59,3 +98,4 @@ data class UserDto(val id: Long?,
                    val locked: Boolean = false,
                    val lastLoginDate: LocalDateTime? = null,
                    val version: Int = 0)
+

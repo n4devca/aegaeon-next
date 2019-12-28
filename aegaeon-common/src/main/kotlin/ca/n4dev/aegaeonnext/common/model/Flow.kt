@@ -38,5 +38,36 @@ enum class Flow {
     REFRESH_TOKEN,
     PASSWORD, // Not implemented
     HYBRID // Not implemented
+}
 
+
+
+fun responseTypesToFlow(responseTypes: Set<ResponseType>): Flow {
+
+    require(responseTypes.isNotEmpty()) {
+        "This function does not accept an empty set of ResponseType"
+    }
+
+    return when {
+        containsOnly(responseTypes, ResponseType.code) -> {
+            Flow.AUTHORIZATION_CODE // openid
+        }
+        containsAll(responseTypes, ResponseType.id_token, ResponseType.token) -> {
+            Flow.IMPLICIT // openid
+        }
+        containsOnly(responseTypes, ResponseType.token) -> {
+            Flow.IMPLICIT // oauth
+        }
+        else -> {
+            Flow.HYBRID
+        }
+    }
+}
+
+private fun <A> containsOnly(set: Set<A>, a : A): Boolean {
+    return set.size == 1 && set.contains(a)
+}
+
+private fun <A> containsAll(set: Set<A>, vararg a : A): Boolean {
+    return a.size == set.size && set.containsAll(a.toList())
 }

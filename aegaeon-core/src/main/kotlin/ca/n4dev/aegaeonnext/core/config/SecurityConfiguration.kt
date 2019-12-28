@@ -26,6 +26,7 @@ import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationFilter
 import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationProvider
 import ca.n4dev.aegaeonnext.core.security.PromptAwareAuthenticationFilter
 import ca.n4dev.aegaeonnext.core.service.AuthenticationService
+import ca.n4dev.aegaeonnext.core.service.ClientService
 import ca.n4dev.aegaeonnext.core.service.UserAuthorizationService
 import ca.n4dev.aegaeonnext.core.web.*
 import org.springframework.beans.factory.annotation.Autowired
@@ -163,12 +164,13 @@ class UserInfoWebSecurityConfigurerAdapter(val serverInfo: AegaeonServerInfo,
 @Configuration
 // @Order(3)
 class FormLoginWebSecurityConfigurerAdapter(private val userDetailsService: UserDetailsService,
-                                            private val controllerErrorInterceptor: ControllerErrorInterceptor,
-                                            private val userAuthorizationService: UserAuthorizationService) : WebSecurityConfigurerAdapter() {
+                                            private val controllerErrorInterceptor: ErrorInterceptorController,
+                                            private val userAuthorizationService: UserAuthorizationService,
+                                            private val clientService: ClientService) : WebSecurityConfigurerAdapter() {
 
 
     fun promptAwareAuthenticationFilter(): PromptAwareAuthenticationFilter {
-        return PromptAwareAuthenticationFilter(controllerErrorInterceptor, userAuthorizationService)
+        return PromptAwareAuthenticationFilter(controllerErrorInterceptor, userAuthorizationService, clientService)
     }
 
     override fun configure(pHttp: HttpSecurity) {

@@ -54,7 +54,7 @@ class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
     }
 
     override fun getByToken(token: String): IdToken? =
-        jdbcTemplate.queryForObject(GET_BY_TOKEN, mapOf("token" to token), resultSetToIdToken)
+        single(jdbcTemplate.query(GET_BY_TOKEN, mapOf("token" to token), resultSetToIdToken))
 
     override fun getByUserId(userId: Long): List<IdToken> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf("user_id" to userId), resultSetToIdToken)
@@ -68,7 +68,7 @@ class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
                 "scopes" to idToken.scopes,
                 "valid_until" to idToken.validUntil)
 
-        val insertTemplate = getInsertTemplate(params.keys).value
+        val insertTemplate = getInsertTemplate(params.keys)
 
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()

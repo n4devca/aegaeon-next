@@ -19,12 +19,13 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.core.web
+package ca.n4dev.aegaeonnext.common.model
 
 /**
  *
  * Prompt.java
- * TODO(rguillemette) Add description.
+ *
+ * Prompt requested by the client.
  *
  * @author rguillemette
  * @since 2.0.0 - Nov 06 - 2019

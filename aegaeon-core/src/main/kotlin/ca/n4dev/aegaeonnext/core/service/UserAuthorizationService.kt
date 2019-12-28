@@ -24,6 +24,7 @@ package ca.n4dev.aegaeonnext.core.service
 import ca.n4dev.aegaeonnext.common.model.UserAuthorization
 import ca.n4dev.aegaeonnext.common.repository.UserAuthorizationRepository
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -40,54 +41,70 @@ import org.springframework.transaction.annotation.Transactional
 @Service
 class UserAuthorizationService(private val userAuthorizationRepository: UserAuthorizationRepository,
                                private val clientService: ClientService,
+                               private val userService: UserService,
                                private val scopeService: ScopeService) {
 
 
     @Transactional(readOnly = true)
-    fun isAuthorized(pAuthentication: Authentication?,
-                     pClientPublicId: String?,
-                     pClientRedirectionUrl: String?,
-                     pRawScopeParam: String): Boolean {
+    fun isAuthorized(authentication: Authentication?,
+                     clientPublicId: String?,
+                     clientRedirectionUrl: String?,
+                     rawScopeParam: String): Boolean {
 
-        if (!pClientPublicId.isNullOrBlank() && !pClientRedirectionUrl.isNullOrBlank()
-            && pAuthentication != null
-            && pAuthentication.principal is AegaeonUserDetails) {
-
-            val userDetails = pAuthentication.principal as AegaeonUserDetails
-            val client = this.clientService.getByPublicId(pClientPublicId) ?: return false
-
-
-            return client.id?.let { id ->
-
-                // Redirection should be allowed by the client
-                if (!clientService.hasRedirectionUri(id, pClientRedirectionUrl)) {
-                    return false;
-                }
-
-                // finally, Validate scopes
-                val userAuthorization = getUserAuthorization(userDetails, client) ?: return false
-
-                return scopeService.isPartOf(userAuthorization.scopes, pRawScopeParam)
-            } ?: false
-
-        }
-
-        return false
+        return isAuthorized(authentication,
+                            clientPublicId,
+                            clientRedirectionUrl,
+                            scopeService.validate(rawScopeParam).validScopes)
     }
 
     @Transactional(readOnly = true)
-    fun isClientInfoValid(pClientPublicId: String?, pRedirectionUrl: String?): Boolean {
+    fun isAuthorized(authentication: Authentication?,
+                     clientPublicId: String?,
+                     clientRedirectionUrl: String?,
+                     requestedScopes: Set<ScopeDto>): Boolean {
 
-        if (!pClientPublicId.isNullOrBlank() && !pRedirectionUrl.isNullOrBlank()) {
+        if (!clientPublicId.isNullOrBlank() && !clientRedirectionUrl.isNullOrBlank()
+            && authentication != null
+            && authentication.principal is AegaeonUserDetails) {
 
-            // Get client by public id and check if exists
-            val client = this.clientService.getByPublicId(pClientPublicId)
+            val userDetails = authentication.principal as AegaeonUserDetails
+            val client = this.clientService.getByPublicId(clientPublicId) ?: return false
 
-            return client?.id?.let { id -> clientService.hasRedirectionUri(id, pRedirectionUrl) } ?: false
+            // It's load from the persistence layer, id is never null
+            val clientId = requireNotNull(client.id)
 
+            // Redirection should be allowed by the client
+            if (!clientService.hasRedirectionUri(clientId, clientRedirectionUrl)) {
+                return false;
+            }
+
+            // finally, Validate scopes
+            val userAuthorization = getUserAuthorization(userDetails, client) ?: return false
+            return scopeService.isPartOf(userAuthorization.scopes, requestedScopes)
         }
 
         return false
+
+    }
+
+    @Transactional
+    @PreAuthorize("#userDetails.id == principal.id")
+    fun createOneUserAuthorization(userDetails: AegaeonUserDetails, clientPublicId: String, scopes: String): Long? {
+
+        val client = clientService.getByPublicId(clientPublicId)
+        val user = userService.getUserById(userDetails.id)
+        val scopeSet = scopeService.validate(scopes, emptySet())
+
+        if (client != null && user != null) {
+            // Load from persistence, cannot be null
+            val userId = requireNotNull(user.id)
+            val clientId = requireNotNull(client.id)
+            val scopes = addOpenIdScope(scopeSet.validScopes.joinToString(" ") { scopeDto -> scopeDto.name })
+            val userAuthorization = UserAuthorization(null, userId, clientId, scopes)
+            return userAuthorizationRepository.create(userAuthorization)
+        }
+
+        return null
     }
 
     private fun getUserAuthorization(pUserDetails: AegaeonUserDetails, pClient: ClientDto): UserAuthorization? {
@@ -99,5 +116,14 @@ class UserAuthorizationService(private val userAuthorizationRepository: UserAuth
         }
 
         return null
+    }
+
+
+    private fun addOpenIdScope(acceptedScopes: String): String {
+        return if (!acceptedScopes.contains("openid")) {
+            "openid $acceptedScopes"
+        } else {
+            acceptedScopes
+        }
     }
 }

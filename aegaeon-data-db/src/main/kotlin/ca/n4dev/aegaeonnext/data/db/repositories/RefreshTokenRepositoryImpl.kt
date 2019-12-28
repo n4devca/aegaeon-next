@@ -50,7 +50,7 @@ class RefreshTokenRepositoryImpl : BaseRepository(), RefreshTokenRepository {
     }
 
     override fun getByToken(token: String): RefreshToken? =
-        jdbcTemplate.queryForObject(GET_BY_TOKEN, mapOf("token" to token), resultSetToRefreshToken)
+        single(jdbcTemplate.query(GET_BY_TOKEN, mapOf("token" to token), resultSetToRefreshToken))
 
     override fun getByUserId(userId: Long): List<RefreshToken> =
         jdbcTemplate.query(GET_BY_USER_ID, mapOf("user_id" to userId), resultSetToRefreshToken);
@@ -63,7 +63,7 @@ class RefreshTokenRepositoryImpl : BaseRepository(), RefreshTokenRepository {
                 "scopes" to refreshToken.scopes,
                 "valid_until" to refreshToken.validUntil)
 
-        val insertTemplate = getInsertTemplate(params.keys).value
+        val insertTemplate = getInsertTemplate(params.keys)
 
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()

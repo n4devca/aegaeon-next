@@ -55,11 +55,10 @@ class AccessTokenRepositoryImpl : BaseRepository(), AccessTokenRepository {
     }
 
     override fun getByToken(token: String): AccessToken? =
-        jdbcTemplate.queryForObject(GET_BY_TOKEN, mapOf("token" to token), resultSetToAccessToken)
+        single(jdbcTemplate.query(GET_BY_TOKEN, mapOf("token" to token), resultSetToAccessToken))
 
     override fun getByUserId(userId: Long, page: Page): QueryResult<AccessToken> {
         val results = jdbcTemplate.query(GET_BY_USER_ID, mapOf("user_id" to userId), resultSetToAccessToken)
-
         return resultOf(results, page, count(COUNT_BY_USER_ID, mapOf("user_id" to userId)))
     }
 
@@ -72,7 +71,7 @@ class AccessTokenRepositoryImpl : BaseRepository(), AccessTokenRepository {
                   "scopes" to accessToken.scopes,
                   "valid_until" to accessToken.validUntil)
 
-        val insertTemplate = getInsertTemplate(params.keys).value
+        val insertTemplate = getInsertTemplate(params.keys)
 
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()

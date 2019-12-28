@@ -43,6 +43,8 @@ interface UserRepository {
 
     fun getUserInfoByUserId(userId: Long): List<UserInfo>
 
+    fun getUserInfoByUserIdAndScopeIds(userId: Long, scopeIds: Set<Long>): List<UserInfo>
+
     fun getUserById(id: Long): User?
 
     fun getUserByUserName(userName: String): User?

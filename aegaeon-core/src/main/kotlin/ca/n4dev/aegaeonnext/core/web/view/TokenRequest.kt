@@ -21,7 +21,6 @@
 
 package ca.n4dev.aegaeonnext.core.web.view
 
-import ca.n4dev.aegaeonnext.core.web.ResponseType
 import org.springframework.web.bind.annotation.RequestMethod
 
 /**

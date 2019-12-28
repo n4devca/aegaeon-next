@@ -55,10 +55,10 @@ class AuthorizationCodeService(private val authorizationCodeRepository: Authoriz
     fun create(userId: Long,
                clientId: Long, redirectUrl: String,
                scopes: String, responseType: String,
-               noonce: String): AuthorizationCodeDto {
+               nonce: String): AuthorizationCodeDto {
 
-        val scopes = scopeService.getValidScopes(scopes)
-        val authCodeId = create(userId, clientId, redirectUrl, scopes, responseType, noonce)
+        val validScopes = scopeService.getValidScopes(scopes)
+        val authCodeId = create(userId, clientId, redirectUrl, validScopes, responseType, nonce)
         val authorizationCode = authorizationCodeRepository.getById(authCodeId)
         return authorizationCodeToDto(authorizationCode!!)
     }
@@ -88,19 +88,19 @@ class AuthorizationCodeService(private val authorizationCodeRepository: Authoriz
                        redirectUrl: String,
                        scopes: Set<ScopeDto>,
                        responseType: String,
-                       noonce: String): Long {
+                       nonce: String): Long {
 
         val validUntil = LocalDateTime.now().plus(3L, ChronoUnit.MINUTES)
         val scopesAsString = scopes.joinToString(separator = " ") { scopeDto -> scopeDto.name }
         val authorizationCode = AuthorizationCode(null,
                                                     tokenFactory.uniqueCode(),
-            clientId,
-            userId,
-            validUntil,
-            scopesAsString,
-            redirectUrl,
-            responseType,
-            noonce)
+                                                    clientId,
+                                                    userId,
+                                                    validUntil,
+                                                    scopesAsString,
+                                                    redirectUrl,
+                                                    responseType,
+                                                    nonce)
 
         return authorizationCodeRepository.create(authorizationCode)
     }

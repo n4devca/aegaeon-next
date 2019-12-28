@@ -25,6 +25,7 @@ import ca.n4dev.aegaeonnext.common.model.UserAuthorization
 import ca.n4dev.aegaeonnext.common.repository.UserAuthorizationRepository
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
 
 private const val GET_BY_USERID_AND_CLIENTID = """
    select id, user_id, client_id, scopes, created_at, version 
@@ -61,14 +62,26 @@ class UserAuthorizationRepositoryImpl : BaseRepository(), UserAuthorizationRepos
     }
 
     override fun getByUserIdAndClientId(userId: Long, clientId: Long) =
-        jdbcTemplate.queryForObject(GET_BY_USERID_AND_CLIENTID,
+        single(jdbcTemplate.query(GET_BY_USERID_AND_CLIENTID,
             mapOf("userId" to userId, "clientId" to clientId),
-            resultSetToUserAuth)
+            resultSetToUserAuth))
 
     override fun getByUserNameAndClientId(userName: String, clientId: Long) =
-        jdbcTemplate.queryForObject(GET_BY_USERNAME_AND_CLIENTID,
+        single(jdbcTemplate.query(GET_BY_USERNAME_AND_CLIENTID,
             mapOf("userName" to userName, "clientId" to clientId),
-            resultSetToUserAuth)
+            resultSetToUserAuth))
+
+    override fun create(userAuthorization: UserAuthorization): Long {
+
+        val params = mapOf(
+            "user_id" to userAuthorization.userId,
+            "client_id" to userAuthorization.clientId,
+            "scopes" to userAuthorization.scopes,
+            "created_at" to LocalDateTime.now(),
+            "version" to 0)
+
+        return super.create(params)
+    }
 
     override fun getTableName(): String = "user_authorization"
 }

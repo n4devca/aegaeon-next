@@ -21,11 +21,14 @@
  */
 package ca.n4dev.aegaeonnext.core.service
 
+import ca.n4dev.aegaeonnext.common.model.Flow
 import ca.n4dev.aegaeonnext.common.model.Scope
 import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
 import ca.n4dev.aegaeonnext.common.utils.splitStringOn
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+
+const val OFFLINE_SCOPE = "offline_access"
 
 private val scopeToDto = { scope: Scope ->
     ScopeDto(
@@ -44,26 +47,16 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
 
     @Transactional(readOnly = true)
     fun isPartOf(pAuthorizedScopes: String, pRequestedScopes: String): Boolean {
-
-        val authorizedScopeSet = validate(pAuthorizedScopes)
         val requestedScopeSet = validate(pRequestedScopes)
+        return isPartOf(pAuthorizedScopes, requestedScopeSet.validScopes)
+    }
 
-        // Simple equals (same)
-        if (authorizedScopeSet.validScopes.size == requestedScopeSet.validScopes.size
-            && authorizedScopeSet.validScopes == requestedScopeSet.validScopes) {
-            return true
-        }
+    @Transactional(readOnly = true)
+    fun isPartOf(pAuthorizedScopes: String, requestedScopes: Set<ScopeDto>): Boolean {
+        val authorizedScopeSet = validate(pAuthorizedScopes)
 
         // Check if the requested scope is a subset of the authorized
-        var allOk = true
-        for (scopeView in requestedScopeSet.validScopes) {
-            if (!authorizedScopeSet.validScopes.contains(scopeView)) {
-                allOk = false
-                break
-            }
-        }
-
-        return allOk
+        return requestedScopes.all { scopeDto -> authorizedScopeSet.validScopes.contains(scopeDto) }
     }
 
     @Transactional(readOnly = true)
@@ -95,9 +88,20 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
         }
     }
 
+    @Transactional(readOnly = true)
+    fun validate(scopeParam: String, flow: Flow): ScopeSet {
+        val exclusions = if (flow == Flow.IMPLICIT) {
+            setOf(OFFLINE_SCOPE)
+        } else {
+            emptySet()
+        }
+
+        return validate(scopeParam, exclusions)
+    }
+
     fun getValidScopes(scopeParam: String?, exclusions: Set<String> = emptySet()): Set<ScopeDto> {
         if (!scopeParam.isNullOrBlank()) {
-            val scopeSet = validate(scopeParam!!, exclusions)
+            val scopeSet = validate(scopeParam, exclusions)
             return scopeSet.validScopes
         }
         return emptySet()
@@ -106,15 +110,7 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
 
 }
 
-data class ScopeDto(
-    val id: Long,
-    val name: String,
-    val claims: List<String> = emptyList()
-) {
-    override fun toString(): String {
-        return "ScopeDto(id=$id, name='$name')"
-    }
-}
+data class ScopeDto(val id: Long, val name: String)
 
 data class ScopeSet(
     val validScopes: Set<ScopeDto>,

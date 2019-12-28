@@ -34,6 +34,7 @@ data class UserInfo(
     val id: Long,
     val userId: Long,
     val scopeId: Long?,
+    val scopeName: String?,
     val claimName: String,
     val claimValue: String,
     val version: Int = 0

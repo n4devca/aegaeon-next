@@ -51,5 +51,5 @@ data class AuthorizationCode(
 
     val responseType: String,
 
-    val noonce: String
+    val nonce: String
 )

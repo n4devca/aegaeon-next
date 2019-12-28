@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{base-page}">
+<body>
+<section layout:fragment="content">
+    <div class="t-page-error">
+        <div class="panel">
+            <div class="panel-header">
+                <span class="panel-title" th:text="#{page.error.panel.title}"></span>
+            </div>
+            <div class="panel-body">
+                <div class="error-message">
+                    <!--
+                    <div class="error-logo">
+                        <span th:text="${severity}"></span>
+                    </div>
+                    -->
+                    <div class="error-details">
+
+                        <p th:if="${errorCode}" th:text="${errorCode}"></p>
+                        <p th:unless="${errorCode}" th:text="#{page.error.list.unexpected}"></p>
+
+<!--                        <p th:text="${date}"></p>-->
+<!--                        <p th:text="${errorType}"></p>-->
+<!--                        <p th:text="${errorMessage}"></p>-->
+<!--                        <p th:text="${#strings.defaultString(description, descriptionCode)}"></p>-->
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+</body>
+</html>

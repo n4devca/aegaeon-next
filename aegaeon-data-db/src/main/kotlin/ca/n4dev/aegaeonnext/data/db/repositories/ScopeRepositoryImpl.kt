@@ -27,15 +27,22 @@ import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
 
 private const val GET_ALL = """
-    select id, name, is_system
-    from scope 
+select id, name, is_system
+from scope 
 """
 
 private const val GET_BY_NAME = """
-    select id, name, is_system
-    from scope 
-    where name = :name
+select id, name, is_system
+from scope 
+where name = :name
 """
+
+private const val GET_BY_NAMES = """
+select id, name, is_system
+from scope 
+where name in (:names)
+"""
+
 
 @Repository
 class ScopeRepositoryImpl : BaseRepository(), ScopeRepository {
@@ -50,7 +57,20 @@ class ScopeRepositoryImpl : BaseRepository(), ScopeRepository {
 
     override fun getAll(): List<Scope> = jdbcTemplate.query(GET_ALL, resultSetToScope)
 
-    override fun getByName(name: String) = jdbcTemplate.queryForObject(GET_BY_NAME, mapOf("name" to name), resultSetToScope)
+    override fun getByName(name: String): Scope? {
+        return if (name.isNotBlank()) {
+            single(jdbcTemplate.query(GET_BY_NAME, mapOf("name" to name), resultSetToScope))
+        } else {
+            null
+        }
+    }
 
+    override fun getByNames(names: Set<String>): List<Scope> {
+        if (names.isNotEmpty()) {
+            return jdbcTemplate.query(GET_BY_NAMES, mapOf("names" to names), resultSetToScope)
+        } else {
+            return emptyList()
+        }
+    }
     override fun getTableName(): String = "scope"
 }

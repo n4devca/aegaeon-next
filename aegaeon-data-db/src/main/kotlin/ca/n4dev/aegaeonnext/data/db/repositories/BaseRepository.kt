@@ -45,7 +45,7 @@ abstract class BaseRepository {
     fun delete(id: Long) : Int = delete(getTableName(), id)
 
     protected fun create(params: Map<String, Any?>) : Long {
-        val insertTemplate = getInsertTemplate(params.keys).value
+        val insertTemplate = getInsertTemplate(params.keys)
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()
     }
@@ -87,7 +87,7 @@ abstract class BaseRepository {
         return jdbcTemplate.update("delete $tableName where id = :id", mapOf("id" to id))
     }
 
-    protected fun getInsertTemplate(columns: Set<String> = emptySet()): Lazy<SimpleJdbcInsert> = lazy(LazyThreadSafetyMode.PUBLICATION) {
+    protected fun getInsertTemplate(columns: Set<String> = emptySet()): SimpleJdbcInsert {
 
         val insertTemplate = SimpleJdbcInsert(jdbcTemplate.jdbcTemplate)
             .withTableName(getTableName())
@@ -97,7 +97,14 @@ abstract class BaseRepository {
             insertTemplate.usingColumns(*columns.toTypedArray())
         }
 
-        insertTemplate
+        return insertTemplate
+    }
+
+    protected fun <R> single(results: Collection<R>?): R? {
+        if (results != null && results.isNotEmpty()) {
+            return results.first()
+        }
+        return null;
     }
 }
 

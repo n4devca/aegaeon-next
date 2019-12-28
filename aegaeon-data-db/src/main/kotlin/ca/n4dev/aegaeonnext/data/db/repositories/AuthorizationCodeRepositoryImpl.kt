@@ -69,13 +69,15 @@ class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepos
             scopes = rs.getString("scopes"),
             redirectUrl = rs.getString("redirect_url"),
             responseType = rs.getString("response_type"),
-            noonce = rs.getString("noonce")
+            nonce = rs.getString("nonce")
         )
     }
 
-    override fun getById(id: Long): AuthorizationCode? = jdbcTemplate.queryForObject(GET_BY_ID, mapOf("id" to id), resultSetToAuthCode)
+    override fun getById(id: Long): AuthorizationCode? =
+        single(jdbcTemplate.query(GET_BY_ID, mapOf("id" to id), resultSetToAuthCode))
 
-    override fun getByCode(code: String) = jdbcTemplate.queryForObject(GET_BY_CODE, mapOf("code" to code), resultSetToAuthCode)
+    override fun getByCode(code: String) =
+        single(jdbcTemplate.query(GET_BY_CODE, mapOf("code" to code), resultSetToAuthCode))
 
     override fun getByClientId(clientId: Long, page: Page): List<AuthorizationCode> =
         jdbcTemplate.query(GET_BY_CLIENT_ID, mapOf("clientId" to clientId), resultSetToAuthCode)
@@ -91,11 +93,11 @@ class AuthorizationCodeRepositoryImpl : BaseRepository(), AuthorizationCodeRepos
             "scopes" to authorizationCode.scopes,
             "redirect_url" to authorizationCode.redirectUrl,
             "response_type" to authorizationCode.responseType,
-            "noonce" to authorizationCode.noonce,
+            "nonce" to authorizationCode.nonce,
             "version" to 0
         )
 
-        val insertTemplate = getInsertTemplate(params.keys).value
+        val insertTemplate = getInsertTemplate(params.keys)
 
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()

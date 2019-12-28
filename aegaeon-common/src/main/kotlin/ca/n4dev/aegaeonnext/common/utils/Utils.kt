@@ -111,3 +111,12 @@ fun isAfterNow(pValidUntil: ZonedDateTime?): Boolean {
 fun join(vararg pStrings: String) = pStrings.joinToString(" ")
 
 fun toLocalDateTime(date: Date) = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
+
+
+fun trim(string: String?): String? {
+    return if (!string.isNullOrBlank()) {
+        string.trim()
+    } else {
+        null
+    }
+}

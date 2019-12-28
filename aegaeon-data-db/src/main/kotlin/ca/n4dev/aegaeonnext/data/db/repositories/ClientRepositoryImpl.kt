@@ -150,10 +150,10 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
     }
 
     override fun getClientById(id: Long): Client? =
-        jdbcTemplate.queryForObject(GET_CLIENT_BY_ID, mapOf(Pair("id", id)), resultSetToClient)
+        single(jdbcTemplate.query(GET_CLIENT_BY_ID, mapOf(Pair("id", id)), resultSetToClient))
 
     override fun getClientByPublicId(publicId: String): Client? =
-        jdbcTemplate.queryForObject(GET_CLIENT_BY_PUBLICID, mapOf(Pair("public_id", publicId)), resultSetToClient)
+        single(jdbcTemplate.query(GET_CLIENT_BY_PUBLICID, mapOf(Pair("public_id", publicId)), resultSetToClient))
 
     override fun getClientScopesByClientId(clientId: Long): List<ClientScope> =
         jdbcTemplate.query(GET_CLIENT_SCOPES_BY_CLIENTID, mapOf(Pair("client_id", clientId)), resultSetToClientScope)
@@ -168,20 +168,20 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
 
         val clientParams =
             mapOf(
-                Pair("public_id", client.publicId),
-                Pair("secret", client.secret),
-                Pair("name", client.name),
-                Pair("description", client.description),
-                Pair("logo_url", client.logoUrl),
-                Pair("provider_name", client.providerName),
-                Pair("id_token_seconds", client.idTokenSeconds),
-                Pair("access_token_seconds", client.accessTokenSeconds),
-                Pair("refresh_token_seconds", client.refreshTokenSeconds),
-                Pair("allow_introspect", client.allowIntrospect),
-                Pair("created_at", LocalDateTime.now()),
-                Pair("updated_at", LocalDateTime.now()),
-                Pair("version", 0),
-                Pair("created_by", "n/a"))
+                "public_id" to client.publicId,
+                "secret" to client.secret,
+                "name" to client.name,
+                "description" to client.description,
+                "logo_url" to client.logoUrl,
+                "provider_name" to client.providerName,
+                "id_token_seconds" to client.idTokenSeconds,
+                "access_token_seconds" to client.accessTokenSeconds,
+                "refresh_token_seconds" to client.refreshTokenSeconds,
+                "allow_introspect" to client.allowIntrospect,
+                "created_at" to LocalDateTime.now(),
+                "updated_at" to LocalDateTime.now(),
+                "version" to 0,
+                "created_by" to "n/a")
 
         return super.create(clientParams)
     }
@@ -246,13 +246,13 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
 
     override fun deleteFlowFromClient(clientFlowId: Long): Int = delete("client_flow", clientFlowId)
 
-    override fun addRedirectionToClient(clientId: Long, clientRedirectionUrl: String): Int {
+    override fun addRedirectionToClient(clientId: Long, clientRedirection: String): Int {
 
         val client = requireNonNull(getClientById(clientId)) {
             Exception("Client $clientId cannot be found.")
         }
 
-        val url = clientRedirectionUrl.trim()
+        val url = clientRedirection.trim()
 
         return if (!hasRedirection(client.id, url)) {
             jdbcTemplate.update(CREATE_CLIENT_REDIRECT, mapOf(

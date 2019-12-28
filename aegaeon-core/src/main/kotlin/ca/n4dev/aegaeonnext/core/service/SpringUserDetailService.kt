@@ -49,7 +49,7 @@ class SpringUserDetailsService(private val userRepository: UserRepository) : Use
         userRepository.getUserByUserName(pUsername)?.let { user ->
             val userAuthorities = userRepository.getUserAuthorities(user.id!!)
             val authorities = userAuthorities.map { SimpleGrantedAuthority(it.code) }
-            return AegaeonUserDetails(user.id!!, user.userName, user.password, user.enabled, user.locked, authorities)
+            return AegaeonUserDetails(user.id!!, user.userName, user.password, user.enabled, !user.locked, authorities)
         }
 
         throw UsernameNotFoundException("$pUsername not found")

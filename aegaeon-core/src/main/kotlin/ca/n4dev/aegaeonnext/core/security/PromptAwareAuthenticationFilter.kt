@@ -23,11 +23,12 @@ package ca.n4dev.aegaeonnext.core.security
 
 import ca.n4dev.aegaeonnext.core.loggerFor
 import ca.n4dev.aegaeonnext.core.service.UserAuthorizationService
-import ca.n4dev.aegaeonnext.core.utils.UriBuilder
 import ca.n4dev.aegaeonnext.common.utils.areOneEmpty
 import ca.n4dev.aegaeonnext.core.web.AuthorizationControllerURL
-import ca.n4dev.aegaeonnext.core.web.ControllerErrorInterceptor
-import ca.n4dev.aegaeonnext.core.web.Prompt
+import ca.n4dev.aegaeonnext.core.web.ErrorInterceptorController
+import ca.n4dev.aegaeonnext.common.model.Prompt
+import ca.n4dev.aegaeonnext.core.service.ClientService
+import ca.n4dev.aegaeonnext.core.utils.*
 import ca.n4dev.aegaeonnext.core.web.view.AuthRequest
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
@@ -48,8 +49,9 @@ import javax.servlet.http.HttpServletResponse
  * @since 2.0.0 - Nov 06 - 2019
  *
  */
-class PromptAwareAuthenticationFilter(private val controllerErrorInterceptor: ControllerErrorInterceptor,
-                                      private val userAuthorizationService: UserAuthorizationService) : GenericFilterBean() {
+class PromptAwareAuthenticationFilter(private val controllerErrorInterceptor: ErrorInterceptorController,
+                                      private val userAuthorizationService: UserAuthorizationService,
+                                      private val clientService: ClientService) : GenericFilterBean() {
 
     private val LOGGER = loggerFor(javaClass)
 
@@ -67,13 +69,13 @@ class PromptAwareAuthenticationFilter(private val controllerErrorInterceptor: Co
 
         if (AuthorizationControllerURL.startsWith(requestedPath)) {
 
-            val prompt = request.getParameter(UriBuilder.PARAM_PROMPT)
-            val clientIdStr = request.getParameter(UriBuilder.PARAM_CLIENT_ID)
-            val redirectionUrl = request.getParameter(UriBuilder.PARAM_REDIRECTION_URL)
-            val responseType = request.getParameter(UriBuilder.PARAM_RESPONSE_TYPE)
-            val state = request.getParameter(UriBuilder.PARAM_STATE)
-            val nonce = request.getParameter(UriBuilder.PARAM_NONCE)
-            val scope = request.getParameter(UriBuilder.PARAM_SCOPE)
+            val prompt = request.getParameter(URI_PARAM_PROMPT)
+            val clientIdStr = request.getParameter(URI_PARAM_CLIENT_ID)
+            val redirectionUrl = request.getParameter(URI_PARAM_REDIRECTION_URL)
+            val responseType = request.getParameter(URI_PARAM_RESPONSE_TYPE)
+            val state = request.getParameter(URI_PARAM_STATE)
+            val nonce = request.getParameter(URI_PARAM_NONCE)
+            val scope = request.getParameter(URI_PARAM_SCOPE)
 
 
             val authRequest = AuthRequest(responseType = responseType,
@@ -172,7 +174,7 @@ class PromptAwareAuthenticationFilter(private val controllerErrorInterceptor: Co
 
         return if (hasProperParams) {
             // OK, then, check the client
-            userAuthorizationService.isClientInfoValid(pAuthRequest.clientId, pAuthRequest.redirectUri)
+            clientService.isClientInfoValid(pAuthRequest.clientId, pAuthRequest.redirectUri)
         } else false
 
     }

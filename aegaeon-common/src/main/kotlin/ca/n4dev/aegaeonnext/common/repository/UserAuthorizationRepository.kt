@@ -38,4 +38,8 @@ interface UserAuthorizationRepository {
     fun getByUserIdAndClientId(userId: Long, clientId: Long): UserAuthorization?
 
     fun getByUserNameAndClientId(userName: String, clientId: Long): UserAuthorization?
+
+    fun create(userAuthorization: UserAuthorization): Long
+
+    fun delete(id: Long): Int
 }

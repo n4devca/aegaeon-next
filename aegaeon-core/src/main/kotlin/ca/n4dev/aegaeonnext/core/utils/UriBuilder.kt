@@ -20,7 +20,10 @@
  */
 package ca.n4dev.aegaeonnext.core.utils
 
+import ca.n4dev.aegaeonnext.common.model.Separator
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
+import org.springframework.web.util.UriComponentsBuilder
 
 /**
  * UriBuilder.java
@@ -30,26 +33,55 @@ import org.springframework.util.MultiValueMap
  * @author by rguillemette
  * @since May 17, 2017
  */
+const val URI_REDIRECTION_ERROR_KEY = "error"
+const val URI_REDIRECTION_DESC_KEY = "error_description"
+const val URI_PARAM_PROMPT = "prompt"
+const val URI_PARAM_STATE = "state"
+const val URI_PARAM_CLIENT_ID = "client_id"
+const val URI_PARAM_REDIRECTION_URL = "redirect_uri"
+const val URI_PARAM_RESPONSE_TYPE = "response_type"
+const val URI_PARAM_NONCE = "nonce"
+const val URI_PARAM_SCOPE = "scope"
+const val URI_PARAM_DISPLAY = "display"
+const val URI_PARAM_IDTOKENHINT = "id_token_hint"
+const val URI_PARAM_ID_TOKEN = "id_token"
+const val URI_PARAM_ACCESS_TOKEN = "access_token"
+const val URI_PARAM_REFRESH_TOKEN = "refresh_token"
+const val URI_PARAM_TOKEN_TYPE = "token_type"
+const val URI_PARAM_EXPIRES_IN = "expires_in"
+const val URI_PARAM_CODE = "code"
+
+private fun append(pParams: MultiValueMap<String, String>, pKey: String, pValue: String?) {
+    if (!pKey.isNullOrBlank() && !pValue.isNullOrBlank()) {
+        pParams.add(pKey, pValue)
+    }
+}
+
+private fun append(pParams: MultiValueMap<String, String>, pKey: String, pValue: Long?) {
+    if (!pKey.isNullOrBlank() && pValue != null) {
+        pParams.add(pKey, pValue.toString())
+    }
+}
+
+fun buildAuthorizationCodeRedirect(url: String, code: String, state: String?, separator: Separator): String {
+
+    val params = LinkedMultiValueMap<String, String>()
+    append(params, URI_PARAM_STATE, state)
+    append(params, URI_PARAM_CODE, code)
+
+    val builder = if (separator == Separator.FRAGMENT) {
+        val queryParams = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build().query
+        UriComponentsBuilder.fromHttpUrl(url).fragment(queryParams)
+    } else {
+        UriComponentsBuilder.fromHttpUrl(url).queryParams(params)
+    }
+
+    val uriComponents = builder.build()
+    return uriComponents.toUri().toString()
+}
+
 object UriBuilder {
 
-    val REDIRECTION_ERROR_KEY = "error"
-    val REDIRECTION_DESC_KEY = "error_description"
-
-    val PARAM_PROMPT = "prompt"
-    val PARAM_STATE = "state"
-    val PARAM_CLIENT_ID = "client_id"
-    val PARAM_REDIRECTION_URL = "redirect_uri"
-    val PARAM_RESPONSE_TYPE = "response_type"
-    val PARAM_NONCE = "nonce"
-    val PARAM_SCOPE = "scope"
-    val PARAM_DISPLAY = "display"
-    val PARAM_IDTOKENHINT = "id_token_hint"
-    val PARAM_ID_TOKEN = "id_token"
-    val PARAM_ACCESS_TOKEN = "access_token"
-    val PARAM_REFRESH_TOKEN = "refresh_token"
-    val PARAM_TOKEN_TYPE = "token_type"
-    val PARAM_EXPIRES_IN = "expires_in"
-    val PARAM_CODE = "code"
 
 //    fun build(pUrl: String, pTokenResponse: TokenResponse, pState: String, pAsFragment: Boolean): String {
 //        val params = LinkedMultiValueMap<String, String>()
@@ -96,17 +128,7 @@ object UriBuilder {
 //        return model
 //    }
 
-    private fun append(pParams: MultiValueMap<String, String>, pKey: String, pValue: String) {
-        if (!pKey.isNullOrBlank() && !pValue.isNullOrBlank()) {
-            pParams.add(pKey, pValue)
-        }
-    }
 
-    private fun append(pParams: MultiValueMap<String, String>, pKey: String, pValue: Long?) {
-        if (!pKey.isNullOrBlank() && pValue != null) {
-            pParams.add(pKey, pValue.toString())
-        }
-    }
 
 
 }

@@ -77,10 +77,28 @@ class ClientService(private val clientRepository: ClientRepository) {
     @Transactional(readOnly = true)
     fun hasRedirectionUri(pClientId: Long, pRedirectionUri: String?): Boolean {
 
-        if (pRedirectionUri.isNullOrBlank()) {
+        if (!pRedirectionUri.isNullOrBlank()) {
             val clientRedirections = clientRepository.getClientRedirectionByClientId(pClientId)
             return isOneTrue(clientRedirections, { r -> r.url.equals(pRedirectionUri) })
         }
+        return false
+    }
+
+    @Transactional(readOnly = true)
+    fun hasFlow(pClientId: Long, flow: Flow): Boolean {
+        val clientFlows = clientRepository.getClientFlowByClientId(pClientId)
+        return clientFlows.any { clientFlow -> clientFlow.flow == flow }
+    }
+
+    @Transactional(readOnly = true)
+    fun isClientInfoValid(pClientPublicId: String?, pRedirectionUrl: String?): Boolean {
+
+        if (!pClientPublicId.isNullOrBlank() && !pRedirectionUrl.isNullOrBlank()) {
+            // Get client by public id and check if exists
+            val client = getByPublicId(pClientPublicId)
+            return client?.id?.let { id -> hasRedirectionUri(id, pRedirectionUrl) } ?: false
+        }
+
         return false
     }
 

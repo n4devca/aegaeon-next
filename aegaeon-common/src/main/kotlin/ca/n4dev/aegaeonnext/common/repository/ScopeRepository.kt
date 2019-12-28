@@ -38,4 +38,7 @@ interface ScopeRepository {
     fun getAll() : List<Scope>
 
     fun getByName(name: String) : Scope?
+
+    fun getByNames(names: Set<String>) : List<Scope>
+
 }
