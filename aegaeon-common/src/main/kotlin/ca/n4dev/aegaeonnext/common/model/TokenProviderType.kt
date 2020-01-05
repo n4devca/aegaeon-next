@@ -17,13 +17,32 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.core.token
+package ca.n4dev.aegaeonnext.common.model
 
-enum class TokenType {
-    ID_TOKEN,
-    ACCESS_TOKEN,
-    REFRESH_TOKEN
+/**
+ *
+ * TokenProviderType.java
+ * TODO(rguillemette) Add description.
+ *
+ * @author rguillemette
+ * @since 2.0.0 - Nov 04 - 2019
+ *
+ */
+enum class TokenProviderType {
+    HS256,
+    HS512,
+    RS256,
+    RS512,
+    UUID;
+}
+
+fun fromTokenProviderTypeString(name: String, defaultType: TokenProviderType = TokenProviderType.RS256): TokenProviderType {
+    for (t in TokenProviderType.values()) {
+        if (t.toString() == name) {
+            return t
+        }
+    }
+    return defaultType
 }

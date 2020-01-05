@@ -21,7 +21,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -42,7 +42,9 @@ data class User(
     val locale: String? = null,
     val enabled: Boolean = true,
     val locked: Boolean = false,
-    val lastLoginDate: LocalDateTime? = null,
+    val lastLoginDate: Instant? = null,
+    val createdAt: Instant,
+    val updatedAt: Instant? = null,
     val version: Int = 0
 ) {
     override fun toString(): String {

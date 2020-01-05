@@ -22,13 +22,14 @@
 
 package ca.n4dev.aegaeonnext.core.token
 
-import java.time.ZonedDateTime
+import ca.n4dev.aegaeonnext.core.service.TokenType
+import java.time.Instant
 
 data class Token(
 
     val value: String,
 
-    val validUntil: ZonedDateTime,
+    val validUntil: Instant,
 
     val type: TokenType
 )

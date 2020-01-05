@@ -22,8 +22,13 @@
 
 package ca.n4dev.aegaeonnext.core.token.provider
 
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
 import ca.n4dev.aegaeonnext.core.config.AegaeonServerInfo
-import ca.n4dev.aegaeonnext.core.token.*
+import ca.n4dev.aegaeonnext.core.service.TokenType
+import ca.n4dev.aegaeonnext.core.token.OAuthClient
+import ca.n4dev.aegaeonnext.core.token.OAuthUser
+import ca.n4dev.aegaeonnext.core.token.Provider
+import ca.n4dev.aegaeonnext.core.token.Token
 import ca.n4dev.aegaeonnext.core.token.key.KeysProvider
 import com.nimbusds.jose.JWSAlgorithm
 import com.nimbusds.jose.JWSHeader
@@ -33,8 +38,7 @@ import com.nimbusds.jose.jwk.RSAKey
 import com.nimbusds.jwt.JWTClaimsSet
 import com.nimbusds.jwt.SignedJWT
 import org.springframework.stereotype.Component
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
+import java.time.Instant
 import java.time.temporal.TemporalUnit
 import java.util.*
 
@@ -50,13 +54,13 @@ import java.util.*
 @Component
 class RSA256JwtTokenProvider(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo) : BaseRSAProvider(keysProvider, serverInfo) {
     override fun getJWSAlgorithm(): JWSAlgorithm = JWSAlgorithm.RS256
-    override fun getType() = TokenProviderType.RSA_RS256
+    override fun getType() = TokenProviderType.RS256
 }
 
 @Component
 class RSA512JwtTokenProvider(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo) : BaseRSAProvider(keysProvider, serverInfo) {
     override fun getJWSAlgorithm(): JWSAlgorithm = JWSAlgorithm.RS512
-    override fun getType() = TokenProviderType.RSA_RS512
+    override fun getType() = TokenProviderType.RS512
 }
 
 sealed class BaseRSAProvider(keysProvider: KeysProvider, private val serverInfo: AegaeonServerInfo) : Provider {
@@ -128,13 +132,10 @@ sealed class BaseRSAProvider(keysProvider: KeysProvider, private val serverInfo:
                              pPayloads: Map<String, Any>,
                              tokenType: TokenType): Token {
 
-        val expiredIn = ZonedDateTime.now(ZoneOffset.UTC).plus(pTimeValue, pTemporalUnit)
-        val instant = expiredIn.toInstant()
-        val date = Date.from(instant)
-
+        val expiredIn = Instant.now().plus(pTimeValue, pTemporalUnit)
         val builder = JWTClaimsSet.Builder()
 
-        builder.expirationTime(date)
+        builder.expirationTime(Date.from(expiredIn))
         builder.issuer(serverInfo.issuer)
         builder.subject(pOAuthUser.uniqueIdentifier)
         builder.audience(pOAuthClient.clientId)

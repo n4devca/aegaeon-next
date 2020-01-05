@@ -22,8 +22,8 @@
 
 package ca.n4dev.aegaeonnext.core.token.verifier
 
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
 import ca.n4dev.aegaeonnext.core.config.AegaeonServerInfo
-import ca.n4dev.aegaeonnext.core.token.TokenProviderType
 import ca.n4dev.aegaeonnext.core.token.key.KeysProvider
 import com.nimbusds.jose.JWSVerifier
 import com.nimbusds.jose.crypto.MACVerifier
@@ -72,11 +72,11 @@ sealed class BaseHMACJwtTokenVerifier(keysProvider: KeysProvider, serverInfo: Ae
 @Component
 class HMAC256JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
     : BaseHMACJwtTokenVerifier(keysProvider, serverInfo) {
-    override fun getType(): TokenProviderType = TokenProviderType.HMAC_HS256
+    override fun getType(): TokenProviderType = TokenProviderType.HS256
 }
 
 @Component
 class HMAC512JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
     : BaseHMACJwtTokenVerifier(keysProvider, serverInfo) {
-    override fun getType(): TokenProviderType = TokenProviderType.HMAC_HS512
+    override fun getType(): TokenProviderType = TokenProviderType.HS512
 }

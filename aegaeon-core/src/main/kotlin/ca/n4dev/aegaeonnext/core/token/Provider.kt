@@ -22,6 +22,8 @@
 
 package ca.n4dev.aegaeonnext.core.token
 
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
+import ca.n4dev.aegaeonnext.core.service.TokenType
 import com.nimbusds.jose.JWSAlgorithm
 import java.time.temporal.TemporalUnit
 

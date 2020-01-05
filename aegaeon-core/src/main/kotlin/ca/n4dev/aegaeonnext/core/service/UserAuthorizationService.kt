@@ -25,9 +25,9 @@ import ca.n4dev.aegaeonnext.common.model.UserAuthorization
 import ca.n4dev.aegaeonnext.common.repository.UserAuthorizationRepository
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 /**
  *
@@ -46,28 +46,25 @@ class UserAuthorizationService(private val userAuthorizationRepository: UserAuth
 
 
     @Transactional(readOnly = true)
-    fun isAuthorized(authentication: Authentication?,
+    fun isAuthorized(aegaeonUserDetails: AegaeonUserDetails?,
                      clientPublicId: String?,
                      clientRedirectionUrl: String?,
                      rawScopeParam: String): Boolean {
 
-        return isAuthorized(authentication,
+        return isAuthorized(aegaeonUserDetails,
                             clientPublicId,
                             clientRedirectionUrl,
                             scopeService.validate(rawScopeParam).validScopes)
     }
 
     @Transactional(readOnly = true)
-    fun isAuthorized(authentication: Authentication?,
+    fun isAuthorized(aegaeonUserDetails: AegaeonUserDetails?,
                      clientPublicId: String?,
                      clientRedirectionUrl: String?,
                      requestedScopes: Set<ScopeDto>): Boolean {
 
-        if (!clientPublicId.isNullOrBlank() && !clientRedirectionUrl.isNullOrBlank()
-            && authentication != null
-            && authentication.principal is AegaeonUserDetails) {
+        if (!clientPublicId.isNullOrBlank() && !clientRedirectionUrl.isNullOrBlank() && aegaeonUserDetails != null) {
 
-            val userDetails = authentication.principal as AegaeonUserDetails
             val client = this.clientService.getByPublicId(clientPublicId) ?: return false
 
             // It's load from the persistence layer, id is never null
@@ -79,28 +76,35 @@ class UserAuthorizationService(private val userAuthorizationRepository: UserAuth
             }
 
             // finally, Validate scopes
-            val userAuthorization = getUserAuthorization(userDetails, client) ?: return false
+            val userAuthorization = getUserAuthorization(aegaeonUserDetails, client) ?: return false
             return scopeService.isPartOf(userAuthorization.scopes, requestedScopes)
         }
 
         return false
-
     }
 
     @Transactional
     @PreAuthorize("#userDetails.id == principal.id")
-    fun createOneUserAuthorization(userDetails: AegaeonUserDetails, clientPublicId: String, scopes: String): Long? {
+    fun createOrUpdateOneUserAuthorization(userDetails: AegaeonUserDetails, clientPublicId: String, requestedScopes: String): Long? {
 
         val client = clientService.getByPublicId(clientPublicId)
         val user = userService.getUserById(userDetails.id)
-        val scopeSet = scopeService.validate(scopes, emptySet())
+        val scopeSet = scopeService.validate(requestedScopes, emptySet())
 
         if (client != null && user != null) {
             // Load from persistence, cannot be null
             val userId = requireNotNull(user.id)
             val clientId = requireNotNull(client.id)
-            val scopes = addOpenIdScope(scopeSet.validScopes.joinToString(" ") { scopeDto -> scopeDto.name })
-            val userAuthorization = UserAuthorization(null, userId, clientId, scopes)
+            val scopes = addOpenIdScope(scopeSet.validScopes.joinToString(" ") { scopeDto -> scopeDto.code })
+            val userAuthorization = UserAuthorization(null, userId, clientId, scopes, Instant.now())
+
+            // Check if this is an update
+            val existingAuthorization = getUserAuthorization(userDetails, client)
+
+            if (existingAuthorization != null) {
+                userAuthorizationRepository.delete(requireNotNull(existingAuthorization.id))
+            }
+
             return userAuthorizationRepository.create(userAuthorization)
         }
 

@@ -21,12 +21,14 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
+import ca.n4dev.aegaeonnext.common.model.ROLE_USER
 import ca.n4dev.aegaeonnext.common.model.User
-import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
+import ca.n4dev.aegaeonnext.common.model.UserInfo
 import ca.n4dev.aegaeonnext.common.repository.UserRepository
+import ca.n4dev.aegaeonnext.core.token.OAuthUser
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
 
 
 private fun userToUserDto(user: User): UserDto =
@@ -50,43 +52,52 @@ private fun userToUserDto(user: User): UserDto =
  */
 @Service
 class UserService(private val userRepository: UserRepository,
-                  private val scopeRepository: ScopeRepository) {
+                  private val scopeService: ScopeService) {
 
     @Transactional(readOnly = true)
     fun getUserById(id: Long): UserDto? {
-        return userRepository.getUserById(id)?.let {user ->  userToUserDto(user) }
+        return userRepository.getUserById(id)?.let { user -> userToUserDto(user) }
     }
+
+    /*
+    *
+    profile: name, family_name, given_name, middle_name, nickname, preferred_username, profile, picture,
+            website, gender, birthdate, zoneinfo, locale, and updated_at.
+    email: email and email_verified Claims.
+    address: address Claim.
+    phone: phone_number and phone_number_verified Claims.
+    * */
 
     @Transactional(readOnly = true)
-    fun createPayload(userDto: UserDto, scopes: Set<ScopeDto>): Map<ScopeDto, List<ClaimDto>> {
+    fun createPayload(userDto: UserDto, scopes: Set<ScopeDto>): Map<String, String> {
 
-        val userId = requireNotNull(userDto.id)
+        return if (scopes.isNotEmpty()) {
 
-        val payload =
-            scopes.associateBy ({ scopeDto -> scopeDto }, { mutableListOf<ClaimDto>() })
+            val userId = requireNotNull(userDto.id)
+            val claims = scopeService.getDistinctClaimsByScopes(scopes)
+            val userInfos: List<UserInfo> = userRepository.getUserInfoByUserId(userId)
 
-        val requestedScopeIds =
-            scopeRepository.getByNames(scopes.map { scopeDto -> scopeDto.name }.toSet())
-                .map { scope -> scope.id!! }.toSet()
+            val filterInfos: List<UserInfo> = userInfos.filter { userInfo ->
+                claims.any { claimDto -> claimDto.id == userInfo.claimId }
+            }
+
+            val payloadFromInfos = filterInfos.filter { userInfo ->
+                userInfo.claimCode != null || userInfo.customName != null
+            }.map { userInfo: UserInfo ->
+                val name = userInfo.claimCode ?: userInfo.customName
+                name!! to userInfo.claimValue
+            }.toMap().toMutableMap()
+
+            // TODO(RG) Add some values from user directly?
 
 
-        val userInfos = userRepository.getUserInfoByUserIdAndScopeIds(userId, requestedScopeIds)
-
-        payload.forEach { scopeAndClaims ->
-            val claims = userInfos.filter { userInfo -> userInfo.scopeId == scopeAndClaims.key.id }
-                .map { userInfo -> ClaimDto(userInfo.claimName, userInfo.claimValue) }
-
-            scopeAndClaims.value.addAll(claims)
+            payloadFromInfos
+        } else {
+            emptyMap()
         }
 
-//        return userInfos.groupBy( { userInfo -> requireNotNull(userInfo.scopeName) },
-//                                  {userInfo -> userInfo.claimName to userInfo.claimValue} )
-
-        return payload
     }
 }
-
-data class ClaimDto(val name: String, val value: String)
 
 data class UserDto(val id: Long?,
                    val userName: String,
@@ -96,6 +107,9 @@ data class UserDto(val id: Long?,
                    val locale: String? = null,
                    val enabled: Boolean = true,
                    val locked: Boolean = false,
-                   val lastLoginDate: LocalDateTime? = null,
+                   val lastLoginDate: Instant? = null,
                    val version: Int = 0)
 
+fun asOAuthUser(userDto: UserDto): OAuthUser {
+    return OAuthUser(userDto.id, userDto.uniqueIdentifier, userDto.name, ROLE_USER)
+}

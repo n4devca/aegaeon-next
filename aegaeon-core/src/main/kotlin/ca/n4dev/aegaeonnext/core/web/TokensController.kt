@@ -22,17 +22,23 @@
 
 package ca.n4dev.aegaeonnext.core.web
 
-import ca.n4dev.aegaeonnext.core.web.view.TokenRequest
+import ca.n4dev.aegaeonnext.common.model.Flow
+import ca.n4dev.aegaeonnext.common.model.flowFromName
+import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
+import ca.n4dev.aegaeonnext.core.service.*
 import ca.n4dev.aegaeonnext.core.web.view.TokenResponse
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.Authentication
+import org.springframework.util.LinkedMultiValueMap
 import org.springframework.web.bind.annotation.*
 
 /**
  *
- * TokensController.java
- * TODO(rguillemette) Add description.
+ * TokensController
+ *
+ * Controller returning jwt token.
  *
  * @author rguillemette
  * @since 2.0.0 - Oct 28 - 2019
@@ -40,33 +46,60 @@ import org.springframework.web.bind.annotation.*
  */
 const val TokensControllerURL = "/token"
 
+private const val HEADER_CACHE_CONTROL_KEY = "Cache-Control"
+private const val HEADER_CACHE_CONTROL_VALUE = "no-store"
+private const val HEADER_PRAGMA_KEY = "Pragma"
+private const val HEADER_PRAGMA_VALUE = "no-cache"
+
+
 @RestController
 @RequestMapping(TokensControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["oauth"], havingValue = "true", matchIfMissing = true)
-class TokensController {
+class TokensController(private val authorizationCodeService: AuthorizationCodeService,
+                       private val userService: UserService,
+                       private val clientService: ClientService,
+                       private val scopeService: ScopeService,
+                       private val tokenServicesFacade: TokenServicesFacade) {
 
-
-    @RequestMapping(value = [""])
+    // TODO(Rg): Validate requestMethod and return error code
+    @RequestMapping(value = [""], method = [RequestMethod.POST])
     @ResponseBody
-    fun token(@RequestParam(value = "grant_type", required = false) pGrantType: String,
-              @RequestParam(value = "code", required = false) pCode: String,
-              @RequestParam(value = "redirect_uri", required = false) pRedirectUri: String,
-              @RequestParam(value = "client_id", required = false) pClientPublicId: String,
-              @RequestParam(value = "scope", required = false) pScope: String,
-              @RequestParam(value = "refresh_token", required = false) pRefreshToken: String,
-              pAuthentication: Authentication ,
-              pRequestMethod: RequestMethod) : ResponseEntity<TokenResponse> {
+    fun token(@RequestParam(value = "grant_type", required = false) grantTypeParam: String?,
+              @RequestParam(value = "code", required = false) codeParam: String?,
+              @RequestParam(value = "client_id", required = false) clientIdParam: String?,
+              @RequestParam(value = "redirect_uri", required = false) clientRedirectParam: String?,
+              @RequestParam(value = "scope", required = false) scopeParam: String?,
+              @RequestParam(value = "refresh_token", required = false) refreshTokenParam: String?,
+              authentication: Authentication,
+              requestMethod: RequestMethod): ResponseEntity<TokenResponse> {
 
+        val flow = flowFromName(grantTypeParam) ?: return ResponseEntity(TokenResponse.InvalidRequest(), HttpStatus.BAD_REQUEST);
+        val userDetails = authentication.principal as AegaeonUserDetails
 
-        val response: TokenResponse? = null
+        // Either auth code or refresh token
+        val tokenResponse: TokenResponse = when (flow) {
+            Flow.AUTHORIZATION_CODE ->
+                tokenServicesFacade.handleTokenRequestWithAuthCode(codeParam, clientRedirectParam, scopeParam, userDetails)
+            Flow.REFRESH_TOKEN ->
+                tokenServicesFacade.handleRefreshTokenRequest(refreshTokenParam, clientRedirectParam, scopeParam, userDetails)
+            //Flow.CLIENT_CREDENTIALS -> tokenServicesFacade.handleClientCredTokenRequest(clientRedirectParam, scopeParam, userDetails)
+            else -> TokenResponse.InvalidGrant()
+        }
 
-        val clientPublicId: String = pClientPublicId ?: pAuthentication.name
-
-        val tokenRequest = TokenRequest(pGrantType, pCode, pRefreshToken, clientPublicId, pRedirectUri, pScope, pRequestMethod)
-
-
-        return ResponseEntity.noContent().build()
+        return createResponseEntity(tokenResponse, getHttpStatus(tokenResponse))
     }
 
+    private fun <R> createResponseEntity(response: R, httpStatus: HttpStatus): ResponseEntity<R> {
+        val headers = LinkedMultiValueMap<String, String>()
+        headers[HEADER_CACHE_CONTROL_KEY] = HEADER_CACHE_CONTROL_VALUE
+        headers[HEADER_PRAGMA_KEY] = HEADER_PRAGMA_VALUE
 
+        return ResponseEntity(response, headers, httpStatus)
+    }
+
+    private fun getHttpStatus(tokenResponse: TokenResponse): HttpStatus = when (tokenResponse) {
+        is TokenResponse.Token -> HttpStatus.OK
+        is TokenResponse.ServerError -> HttpStatus.INTERNAL_SERVER_ERROR
+        else -> HttpStatus.BAD_REQUEST
+    }
 }

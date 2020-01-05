@@ -24,7 +24,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -47,5 +47,7 @@ data class AccessToken(
 
     val scopes: String,
 
-    val validUntil: LocalDateTime
+    val validUntil: Instant?,
+
+    val createdAt: Instant
 )

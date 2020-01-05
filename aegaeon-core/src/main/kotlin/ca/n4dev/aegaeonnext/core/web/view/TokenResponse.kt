@@ -33,9 +33,9 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 private const val BEARER = "Bearer"
 
-sealed class TokenResponse {
+sealed class TokenResponse() {
 
-    data class Success(
+    data class Token(
 
         @JsonProperty("id_token")
         val idToken: String? = null,
@@ -43,29 +43,45 @@ sealed class TokenResponse {
         @JsonProperty("access_token")
         val accessToken: String? = null,
 
-        @JsonProperty("token_type")
-        val tokenType: String? = null,
-
         @JsonProperty("expires_in")
-        val expiresIn: Long? = null,
+        val expiresIn: Long,
 
         val scope: String? = null,
 
         @JsonProperty("refresh_token")
-        val refreshToken: String? = null
+        val refreshToken: String? = null,
+
+        @JsonProperty("token_type")
+        val tokenType: String = "Bearer"
+
     ) : TokenResponse();
 
-    data class Error(
 
-        val error: String,
+    class InvalidClient() : TokenResponse() {
+        val error = "invalid_client"
+    }
 
-        @JsonProperty("error_description")
-        val description: String?,
+    class InvalidRequest() : TokenResponse() {
+        val error = "invalid_request"
+    }
 
-        @JsonProperty("error_uri")
-        val uri: String?,
+    class InvalidGrant() : TokenResponse() {
+        val error = "invalid_grant"
+    }
 
-        val state: String?
+    class UnauthorizedClient() : TokenResponse() {
+        val error = "unauthorized_client"
+    }
 
-    ) : TokenResponse()
+    class UnsupportedGrantType() : TokenResponse() {
+        val error = "unsupported_grant_type"
+    }
+
+    class InvalidScope() : TokenResponse() {
+        val error = "invalid_scope"
+    }
+
+    class ServerError() : TokenResponse() {
+        val error = "server_error"
+    }
 }

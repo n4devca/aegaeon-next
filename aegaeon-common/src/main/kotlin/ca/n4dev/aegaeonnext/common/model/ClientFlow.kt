@@ -22,8 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import ca.n4dev.aegaeonnext.common.model.Flow
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -34,7 +33,7 @@ import java.time.LocalDateTime
  * @since 2.0.0 - Sep 26 - 2019
  *
  */
-data class ClientFlow (
+data class ClientFlow(
 
     val id: Long?,
 
@@ -42,7 +41,7 @@ data class ClientFlow (
 
     val flow: Flow,
 
-    val createdAt: LocalDateTime? = LocalDateTime.now(),
+    val createdAt: Instant,
 
     val version: Int = 0
 )

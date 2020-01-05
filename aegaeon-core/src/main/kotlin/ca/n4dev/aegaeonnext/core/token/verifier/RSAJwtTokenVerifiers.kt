@@ -22,8 +22,8 @@
 
 package ca.n4dev.aegaeonnext.core.token.verifier
 
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
 import ca.n4dev.aegaeonnext.core.config.AegaeonServerInfo
-import ca.n4dev.aegaeonnext.core.token.TokenProviderType
 import ca.n4dev.aegaeonnext.core.token.key.KeysProvider
 import com.nimbusds.jose.JWSVerifier
 import com.nimbusds.jose.crypto.RSASSAVerifier
@@ -72,12 +72,12 @@ sealed class BaseRSAJwtTokenVerifier(keysProvider: KeysProvider, serverInfo: Aeg
 @Component
 class RSA256JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
     : BaseRSAJwtTokenVerifier(keysProvider, serverInfo) {
-    override fun getType(): TokenProviderType = TokenProviderType.RSA_RS256
+    override fun getType(): TokenProviderType = TokenProviderType.RS256
 }
 
 
 @Component
 class RSA512JwtTokenVerifier(keysProvider: KeysProvider, serverInfo: AegaeonServerInfo)
     : BaseRSAJwtTokenVerifier(keysProvider, serverInfo) {
-    override fun getType(): TokenProviderType = TokenProviderType.RSA_RS512
+    override fun getType(): TokenProviderType = TokenProviderType.RS512
 }

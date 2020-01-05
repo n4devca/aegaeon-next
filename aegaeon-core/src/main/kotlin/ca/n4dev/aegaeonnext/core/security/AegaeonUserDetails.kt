@@ -65,4 +65,5 @@ class AegaeonUserDetails(val id: Long,
     override fun toString(): String {
         return "$id,$username,$enable,$nonLocked,$allowIntrospection"
     }
+
 }

@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -33,7 +33,7 @@ import java.time.LocalDateTime
  * @since 2.0.0 - Sep 26 - 2019
  *
  */
-data class ClientScope (
+data class ClientScope(
 
     val id: Long?,
 
@@ -43,7 +43,7 @@ data class ClientScope (
 
     val scopeCode: String,
 
-    val createdAt: LocalDateTime? = LocalDateTime.now(),
+    val createdAt: Instant,
 
     val version: Int = 0
 )

@@ -23,12 +23,28 @@ package ca.n4dev.aegaeonnext.core.service
 
 import ca.n4dev.aegaeonnext.common.model.AccessToken
 import ca.n4dev.aegaeonnext.common.repository.AccessTokenRepository
+import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
+import ca.n4dev.aegaeonnext.core.token.OAuthClient
+import ca.n4dev.aegaeonnext.core.token.Token
+import ca.n4dev.aegaeonnext.core.token.TokenFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
+import java.time.temporal.ChronoUnit
 
+/**
+ * AccessTokenService
+ *
+ * Handle access token access and creation.
+ *
+ * @author rguillemette
+ * @since Dec 29 - 2019
+ *
+ */
 @Service
-class AccessTokenService(private val accessTokenRepository: AccessTokenRepository) : BaseTokenService() {
-
+class AccessTokenService(private val accessTokenRepository: AccessTokenRepository,
+                         private val clientService: ClientService,
+                         private val tokenFactory: TokenFactory) : BaseTokenService() {
 
     private fun accessTokenToTokenDto(accessToken: AccessToken) =
         TokenDto(
@@ -41,7 +57,29 @@ class AccessTokenService(private val accessTokenRepository: AccessTokenRepositor
 
     @Transactional(readOnly = true)
     fun findByToken(pTokenValue: String): TokenDto? =
-        accessTokenRepository.getByToken(pTokenValue)?.let { accessToken ->  accessTokenToTokenDto(accessToken) }
+        accessTokenRepository.getByToken(pTokenValue)?.let { accessToken -> accessTokenToTokenDto(accessToken) }
+
+    fun createToken(userDto: UserDto,
+                    scopes: Set<ScopeDto>,
+                    payload: Map<String, String>,
+                    userDetails: AegaeonUserDetails): TokenDto? {
+
+        val userId = requireNotNull(userDto.id)
+        val clientId = requireNotNull(userDetails.id)
+        val scopeString = scopes.joinToString(" ") { scopeDto -> scopeDto.code }
+        val clientDto = requireNotNull(clientService.getById(clientId))
+
+        val token: Token = tokenFactory.createToken(asOAuthUser(userDto),
+                                                    OAuthClient(clientDto.publicId, clientDto.tokenEndpointAuthSigningAlg),
+                                                    TokenType.ACCESS_TOKEN,
+                                                    clientDto.accessTokenSeconds,
+                                                    ChronoUnit.SECONDS,
+                                                    payload)
+
+        val accessToken = AccessToken(null, token.value, userId, clientId, scopeString, token.validUntil, Instant.now())
+        val accessTokenId = accessTokenRepository.create(accessToken)
+        return TokenDto(accessTokenId, token.value, TokenType.ACCESS_TOKEN, scopeString, token.validUntil)
+    }
 
     override fun getManagedTokenType() = TokenType.ACCESS_TOKEN
 }

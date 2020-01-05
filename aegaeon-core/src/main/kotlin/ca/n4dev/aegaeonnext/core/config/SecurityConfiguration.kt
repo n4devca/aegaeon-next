@@ -22,6 +22,8 @@
 
 package ca.n4dev.aegaeonnext.core.config
 
+import ca.n4dev.aegaeonnext.common.model.ROLE_CLIENT
+import ca.n4dev.aegaeonnext.common.model.ROLE_USER
 import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationFilter
 import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationProvider
 import ca.n4dev.aegaeonnext.core.security.PromptAwareAuthenticationFilter
@@ -34,7 +36,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.core.annotation.Order
-import org.springframework.security.authentication.AuthenticationManager
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
@@ -63,8 +64,6 @@ import javax.servlet.http.HttpServletResponse
  */
 private const val BCRYPT_PASSWD_ENCODER_PREFIX = "bcrypt"
 private const val NOOP_PASSWD_ENCODER_PREFIX = "noop"
-private const val ROLE_CLIENT = "ROLE_CLIENT"
-private const val ROLE_USER = "ROLE_USER"
 
 @EnableWebSecurity
 @EnableGlobalMethodSecurity(prePostEnabled = true)
@@ -143,11 +142,6 @@ class UserInfoWebSecurityConfigurerAdapter(val serverInfo: AegaeonServerInfo,
         return AccessTokenAuthenticationProvider(authenticationService)
     }
 
-    @Bean
-    override fun authenticationManager(): AuthenticationManager {
-        return super.authenticationManagerBean()
-    }
-
     override fun configure(pHttp: HttpSecurity) {
         pHttp
             .antMatcher(UserInfoControllerURL)
@@ -177,13 +171,14 @@ class FormLoginWebSecurityConfigurerAdapter(private val userDetailsService: User
         pHttp
             .authorizeRequests()
             .antMatchers("/resources/**",
-                ServerInfoControllerURL /*,
+                         ServerInfoControllerURL,
+                         ErrorControllerURL
+                /*
                 PublicJwkController.URL,
                 SimpleHomeController.URL,
                 SimpleCreateAccountController.URL,
                 SimpleCreateAccountController.URL_ACCEPT
                 */).permitAll()
-
             .anyRequest()
             .hasAnyAuthority(ROLE_USER)
             .and()

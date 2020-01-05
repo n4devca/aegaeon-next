@@ -26,27 +26,31 @@ import ca.n4dev.aegaeonnext.common.model.*
 import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import ca.n4dev.aegaeonnext.common.utils.requireNonNull
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
+private const val CLIENT_COLUMNS = """
+    id, public_id, secret, name, description, logo_url,
+    id_token_seconds, access_token_seconds, refresh_token_seconds, allow_introspect,
+    id_token_signed_response_alg, token_endpoint_auth_signing_alg,
+    created_at, updated_at, version, created_by
+"""
+
 private const val GET_CLIENT_BY_ID = """
-   select id, public_id, secret, name, description, logo_url, provider_name,
-          id_token_seconds, access_token_seconds, refresh_token_seconds, allow_introspect,
-          created_at, updated_at, version, created_by  
+   select $CLIENT_COLUMNS  
    from client 
    where id = :id 
 """
 
 private const val GET_CLIENT_BY_PUBLICID = """
-   select id, public_id, secret, name, description, logo_url, provider_name,
-          id_token_seconds, access_token_seconds, refresh_token_seconds, allow_introspect,
-          created_at, updated_at, version, created_by  
+   select $CLIENT_COLUMNS   
    from client 
    where public_id = :public_id 
 """
 
 private const val GET_CLIENT_SCOPES_BY_CLIENTID = """
-    select cs.id, cs.client_id, cs.scope_id, s.name as scope_name, cs.created_at, cs.version
+    select cs.id, cs.client_id, cs.scope_id, s.code as scope_code, cs.created_at, cs.version
     from client_scope cs join scope s on (cs.scope_id = s.id)
     where client_id = :client_id
 """
@@ -96,7 +100,7 @@ private const val HAS_CLIENT_REDIRECT = "select count(*) from client_redirection
 
 
 @Repository
-class ClientRepositoryImpl : BaseRepository(), ClientRepository {
+class ClientRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseRepository(jdbcTemplate), ClientRepository {
 
     private val resultSetToClient = RowMapper { rs, _ ->
         Client(
@@ -106,13 +110,16 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             name = rs.getString("name"),
             description = rs.getString("description"),
             logoUrl = rs.getString("logo_url"),
-            providerName = rs.getString("provider_name"),
             idTokenSeconds = rs.getLong("id_token_seconds"),
             accessTokenSeconds = rs.getLong("access_token_seconds"),
             refreshTokenSeconds = rs.getLong("refresh_token_seconds"),
             allowIntrospect = rs.getBoolean("allow_introspect"),
-            createdAt = toLocalDateTime(rs.getTimestamp("created_at"))!!,
-            updatedAt = toLocalDateTime(rs.getTimestamp("updated_at")),
+            idTokenSignedResponseAlg =
+            fromTokenProviderTypeString(rs.getString("id_token_signed_response_alg"), TokenProviderType.RS256),
+            tokenEndpointAuthSigningAlg =
+            fromTokenProviderTypeString(rs.getString("token_endpoint_auth_signing_alg"), TokenProviderType.RS256),
+            createdAt = requireNotNull(toInstant(rs.getTimestamp("created_at"))),
+            updatedAt = toInstant(rs.getTimestamp("updated_at")),
             version = rs.getInt("version"),
             createdBy = rs.getString("created_by")
         )
@@ -123,8 +130,8 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             rs.getLong("id"),
             rs.getLong("client_id"),
             rs.getLong("scope_id"),
-            rs.getString("scope_name"),
-            toLocalDateTime(rs.getTimestamp("created_at")),
+            rs.getString("scope_code"),
+            toNonNullInstant(rs.getTimestamp("created_at")),
             rs.getInt("version")
         )
     }
@@ -134,7 +141,7 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             rs.getLong("id"),
             rs.getLong("client_id"),
             Flow.valueOf(rs.getString("flow")),
-            toLocalDateTime(rs.getTimestamp("created_at")),
+            toNonNullInstant(rs.getTimestamp("created_at")),
             rs.getInt("version")
         )
     }
@@ -144,7 +151,7 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             rs.getLong("id"),
             rs.getLong("client_id"),
             rs.getString("url"),
-            toLocalDateTime(rs.getTimestamp("created_at")),
+            toNonNullInstant(rs.getTimestamp("created_at")),
             rs.getInt("version")
         )
     }
@@ -173,11 +180,12 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
                 "name" to client.name,
                 "description" to client.description,
                 "logo_url" to client.logoUrl,
-                "provider_name" to client.providerName,
                 "id_token_seconds" to client.idTokenSeconds,
                 "access_token_seconds" to client.accessTokenSeconds,
                 "refresh_token_seconds" to client.refreshTokenSeconds,
                 "allow_introspect" to client.allowIntrospect,
+                "id_token_signed_response_alg" to client.idTokenSignedResponseAlg.toString(),
+                "token_endpoint_auth_signing_alg" to client.tokenEndpointAuthSigningAlg.toString(),
                 "created_at" to LocalDateTime.now(),
                 "updated_at" to LocalDateTime.now(),
                 "version" to 0,
@@ -198,11 +206,12 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
             "name" to updatedClient.name,
             "description" to updatedClient.description,
             "logo_url" to updatedClient.logoUrl,
-            "provider_name" to updatedClient.providerName,
             "id_token_seconds" to updatedClient.idTokenSeconds,
             "access_token_seconds" to updatedClient.accessTokenSeconds,
             "refresh_token_seconds" to updatedClient.refreshTokenSeconds,
             "allow_introspect" to updatedClient.allowIntrospect,
+            "id_token_signed_response_alg" to client.idTokenSignedResponseAlg.toString(),
+            "token_endpoint_auth_signing_alg" to client.tokenEndpointAuthSigningAlg.toString(),
             "updated_at" to LocalDateTime.now(),
             "version" to client.version))
 
@@ -263,8 +272,6 @@ class ClientRepositoryImpl : BaseRepository(), ClientRepository {
         } else {
             0
         }
-
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
     override fun deleteRedirectionFromClient(clientRedirectionId: Long): Int = delete("client_redirection", clientRedirectionId)

@@ -50,6 +50,7 @@ const val URI_PARAM_REFRESH_TOKEN = "refresh_token"
 const val URI_PARAM_TOKEN_TYPE = "token_type"
 const val URI_PARAM_EXPIRES_IN = "expires_in"
 const val URI_PARAM_CODE = "code"
+const val URI_PARAM_ERROR = "error"
 
 private fun append(pParams: MultiValueMap<String, String>, pKey: String, pValue: String?) {
     if (!pKey.isNullOrBlank() && !pValue.isNullOrBlank()) {

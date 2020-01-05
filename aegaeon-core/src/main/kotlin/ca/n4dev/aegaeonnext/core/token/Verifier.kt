@@ -22,6 +22,7 @@
 
 package ca.n4dev.aegaeonnext.core.token
 
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
 import com.nimbusds.jose.JWSVerifier
 
 /**

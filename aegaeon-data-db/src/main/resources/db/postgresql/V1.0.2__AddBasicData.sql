@@ -24,27 +24,72 @@
 insert into authority(code) values('ROLE_USER');
 insert into authority(code) values('ROLE_ADMIN');
 
--- Grant Type
-insert into grant_type(code, implementation) values('authorization_code', 'openid');
-insert into grant_type(code, implementation) values('implicit', 'openid');
-insert into grant_type(code, implementation) values('refresh_token', 'openid');
-insert into grant_type(code, implementation) values('client_credentials', 'oauth');
-
 -- Scopes
-insert into scope(name, description, issystem) values('openid', 'To request an id_token.', TRUE);
-insert into scope(name, description, issystem) values('profile', 'To request user''s information.', TRUE);
-insert into scope(name, description, issystem) values('offline_access', 'To request a refresh token', TRUE);
-insert into scope(name, description, issystem) values('email', 'To request user''s email information.', TRUE);
-insert into scope(name, description, issystem) values('address', 'To request user''s address information.', TRUE);
-insert into scope(name, description, issystem) values('phone', 'To request user''s phone information.', TRUE);
-insert into scope(name, description, issystem) values('socialmedia', 'To request user''s social media information.', TRUE);
+insert into scope(code, description, is_system) values('openid', 'To request an id_token.', 1);
+insert into scope(code, description, is_system) values('profile', 'To request user''s information.', 0);
+insert into scope(code, description, is_system) values('offline_access', 'To request a refresh token', 1);
+insert into scope(code, description, is_system) values('email', 'To request user''s email information.', 0);
+insert into scope(code, description, is_system) values('address', 'To request user''s address information.', 0);
+insert into scope(code, description, is_system) values('phone', 'To request user''s phone information.', 0);
+insert into scope(code, description, is_system) values('social_media', 'To request user''s social media information.', 0);
 
--- User Info Type
-insert into user_info_type(code) values('PERSONAL');
-insert into user_info_type(code) values('ADDRESS');
-insert into user_info_type(code) values('EMAIL');
-insert into user_info_type(code) values('PHONE');
-insert into user_info_type(code) values('SOCIALMEDIA');
+-- Claims
+insert into claim(code) values('name');
+insert into claim(code) values('nickname');
+insert into claim(code) values('profile');
+insert into claim(code) values('picture');
+insert into claim(code) values('website');
+insert into claim(code) values('gender');
+insert into claim(code) values('birthdate');
+insert into claim(code) values('zoneinfo');
+insert into claim(code) values('locale');
+insert into claim(code) values('email');
+insert into claim(code) values('email_verified');
+insert into claim(code) values('phone_number');
+insert into claim(code) values('phone_number_verified');
+insert into claim(code) values('address');
+insert into claim(code) values('facebook');
+insert into claim(code) values('instagram');
+insert into claim(code) values('linkedin');
+insert into claim(code) values('youtube');
+insert into claim(code) values('twitter');
+insert into claim(code) values('whatsapp');
+insert into claim(code) values('qq');
+insert into claim(code) values('wechat');
+insert into claim(code) values('telegram');
+insert into claim(code) values('mastodon');
+
+-- Default Scope - Claim linking
+insert into scope_claim(scope_id, claim_id)
+select s.id, c.id
+from scope s, claim c
+where s.code = 'profile'
+  and c.code in ('name', 'nickname', 'profile', 'picture', 'website', 'gender', 'birthdate', 'zoneinfo', 'locale');
+
+insert into scope_claim(scope_id, claim_id)
+select s.id, c.id
+from scope s, claim c
+where s.code = 'email'
+  and c.code in ('email', 'email_verified');
+
+insert into scope_claim(scope_id, claim_id)
+select s.id, c.id
+from scope s, claim c
+where s.code = 'phone'
+  and c.code in ('phone_number', 'phone_number_verified');
+
+insert into scope_claim(scope_id, claim_id)
+select s.id, c.id
+from scope s, claim c
+where s.code = 'address'
+  and c.code in ('address');
+
+insert into scope_claim(scope_id, claim_id)
+select s.id, c.id
+from scope s, claim c
+where s.code = 'social_media'
+  and c.code in ('facebook', 'instagram', 'linkedin', 'youtube', 'twitter', 'whatsapp', 'qq', 'wechat', 'telegram', 'mastodon');
+
 
 
 

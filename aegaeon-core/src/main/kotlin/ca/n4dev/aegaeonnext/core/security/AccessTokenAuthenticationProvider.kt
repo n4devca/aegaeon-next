@@ -21,12 +21,14 @@
 
 package ca.n4dev.aegaeonnext.core.security
 
+import ca.n4dev.aegaeonnext.core.loggerFor
 import ca.n4dev.aegaeonnext.core.service.AuthenticationService
-import org.slf4j.LoggerFactory
 import org.springframework.security.authentication.AuthenticationProvider
 import org.springframework.security.core.Authentication
 
 class AccessTokenAuthenticationProvider(private val authenticationService: AuthenticationService) : AuthenticationProvider {
+
+    val LOGGER = loggerFor(javaClass)
 
     /* (non-Javadoc)
      * @see org.springframework.security.authentication.AuthenticationProvider#authenticate(org.springframework.security.core.Authentication)
@@ -43,10 +45,4 @@ class AccessTokenAuthenticationProvider(private val authenticationService: Authe
     override fun supports(pAuthentication: Class<*>): Boolean {
         return AccessTokenAuthentication::class.java == pAuthentication
     }
-
-    companion object {
-
-        private val LOGGER = LoggerFactory.getLogger(AccessTokenAuthenticationProvider::class.java)
-    }
-
 }

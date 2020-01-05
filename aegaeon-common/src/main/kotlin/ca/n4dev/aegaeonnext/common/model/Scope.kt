@@ -34,7 +34,7 @@ package ca.n4dev.aegaeonnext.common.model
 
 data class Scope (
 
-    val id: Long?,
+    val id: Long,
 
     val code: String,
 

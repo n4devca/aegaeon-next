@@ -22,21 +22,23 @@
 package ca.n4dev.aegaeonnext.core.service
 
 import ca.n4dev.aegaeonnext.common.model.AuthorizationCode
+import ca.n4dev.aegaeonnext.common.model.Client
+import ca.n4dev.aegaeonnext.common.model.User
 import ca.n4dev.aegaeonnext.common.repository.AuthorizationCodeRepository
 import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import ca.n4dev.aegaeonnext.common.repository.UserRepository
 import ca.n4dev.aegaeonnext.core.token.TokenFactory
-import ca.n4dev.aegaeonnext.core.web.view.AuthRequest
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
+import java.time.Instant
 import java.time.temporal.ChronoUnit
 
 /**
  *
- * AuthorizationCodeService.java
- * TODO(rguillemette) Add description.
+ * AuthorizationCodeService
+ *
+ * Handle Authorization Code access and creation.
  *
  * @author rguillemette
  * @since 2.0.0 - Dec 21 - 2019
@@ -55,12 +57,17 @@ class AuthorizationCodeService(private val authorizationCodeRepository: Authoriz
     fun create(userId: Long,
                clientId: Long, redirectUrl: String,
                scopes: String, responseType: String,
-               nonce: String): AuthorizationCodeDto {
+               nonce: String): AuthorizationCodeDto? {
 
         val validScopes = scopeService.getValidScopes(scopes)
-        val authCodeId = create(userId, clientId, redirectUrl, validScopes, responseType, nonce)
-        val authorizationCode = authorizationCodeRepository.getById(authCodeId)
-        return authorizationCodeToDto(authorizationCode!!)
+        val user = userRepository.getUserById(userId)
+        val client = clientRepository.getClientById(clientId)
+        if (user != null && client != null) {
+            val authCodeId = create(user, client, redirectUrl, validScopes, responseType, nonce)
+            val authorizationCode = authorizationCodeRepository.getById(authCodeId)
+            return authorizationCodeToDto(authorizationCode!!)
+        }
+        return null;
     }
 
     @Transactional
@@ -68,10 +75,16 @@ class AuthorizationCodeService(private val authorizationCodeRepository: Authoriz
     fun delete(authCodeId: Long) = authorizationCodeRepository.delete(authCodeId)
 
     @Transactional(readOnly = true)
-    internal fun getByCode(code: String)= authorizationCodeRepository.getByCode(code)
+    fun getByCode(code: String): AuthorizationCodeDto? {
+        val authorizationCode = authorizationCodeRepository.getByCode(code)
+        if (authorizationCode != null) {
+            return authorizationCodeToDto(authorizationCode)
+        }
+        return null;
+    }
 
     @Transactional(readOnly = true)
-    internal fun isCodeOfClient(clientId: Long?, authCodeId: Long?) : Boolean {
+    fun isCodeOfClient(clientId: Long?, authCodeId: Long?): Boolean {
 
         if (authCodeId != null && clientId != null) {
             val code: AuthorizationCode? = authorizationCodeRepository.getById(authCodeId)
@@ -83,33 +96,53 @@ class AuthorizationCodeService(private val authorizationCodeRepository: Authoriz
         return false
     }
 
-    private fun create(userId: Long,
-                       clientId: Long,
+    private fun create(user: User,
+                       client: Client,
                        redirectUrl: String,
                        scopes: Set<ScopeDto>,
                        responseType: String,
                        nonce: String): Long {
 
-        val validUntil = LocalDateTime.now().plus(3L, ChronoUnit.MINUTES)
-        val scopesAsString = scopes.joinToString(separator = " ") { scopeDto -> scopeDto.name }
+        val validUntil = Instant.now().plus(3L, ChronoUnit.MINUTES)
+        val scopesAsString = scopes.joinToString(separator = " ") { scopeDto -> scopeDto.code }
+        val clientId = requireNotNull(client.id)
+        val userId = requireNotNull(user.id)
+
         val authorizationCode = AuthorizationCode(null,
-                                                    tokenFactory.uniqueCode(),
-                                                    clientId,
-                                                    userId,
-                                                    validUntil,
-                                                    scopesAsString,
-                                                    redirectUrl,
-                                                    responseType,
-                                                    nonce)
+                                                  tokenFactory.uniqueCode(),
+                                                  clientId,
+                                                  userId,
+                                                  validUntil,
+                                                  scopesAsString,
+                                                  redirectUrl,
+                                                  responseType,
+                                                  nonce,
+                                                  Instant.now())
 
         return authorizationCodeRepository.create(authorizationCode)
     }
+
+
+    private val authorizationCodeToDto = { authorizationCode: AuthorizationCode ->
+
+        AuthorizationCodeDto(authorizationCode.id!!,
+                             authorizationCode.code,
+                             authorizationCode.validUntil,
+                             authorizationCode.clientId,
+                             authorizationCode.userId,
+                             authorizationCode.nonce,
+                             authorizationCode.redirectUrl,
+                             scopeService.getValidScopes(authorizationCode.scopes))
+    }
 }
 
-data class AuthorizationCodeDto (val id: Long, val code: String, val validUntil: LocalDateTime)
 
-private val authorizationCodeToDto = { authorizationCode: AuthorizationCode ->
-    AuthorizationCodeDto(authorizationCode.id!!,
-                         authorizationCode.code,
-                         authorizationCode.validUntil)
-}
+data class AuthorizationCodeDto(
+    val id: Long,
+    val code: String,
+    val validUntil: Instant,
+    val clientId: Long,
+    val userId: Long,
+    val nonce: String,
+    val redirectUrl: String,
+    val scopes: Set<ScopeDto>)

@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -45,7 +45,7 @@ data class IdToken(
 
     val scopes: String,
 
-    val validUntil: LocalDateTime?,
+    val validUntil: Instant?,
 
-    val createdAt: LocalDateTime? = LocalDateTime.now()
+    val createdAt: Instant
 )

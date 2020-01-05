@@ -21,14 +21,14 @@
 
 package ca.n4dev.aegaeonnext.core.security
 
-import ca.n4dev.aegaeonnext.core.loggerFor
-import ca.n4dev.aegaeonnext.core.service.UserAuthorizationService
+import ca.n4dev.aegaeonnext.common.model.Prompt
 import ca.n4dev.aegaeonnext.common.utils.areOneEmpty
+import ca.n4dev.aegaeonnext.core.loggerFor
+import ca.n4dev.aegaeonnext.core.service.ClientService
+import ca.n4dev.aegaeonnext.core.service.UserAuthorizationService
+import ca.n4dev.aegaeonnext.core.utils.*
 import ca.n4dev.aegaeonnext.core.web.AuthorizationControllerURL
 import ca.n4dev.aegaeonnext.core.web.ErrorInterceptorController
-import ca.n4dev.aegaeonnext.common.model.Prompt
-import ca.n4dev.aegaeonnext.core.service.ClientService
-import ca.n4dev.aegaeonnext.core.utils.*
 import ca.n4dev.aegaeonnext.core.web.view.AuthRequest
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.filter.GenericFilterBean
@@ -117,6 +117,7 @@ class PromptAwareAuthenticationFilter(private val controllerErrorInterceptor: Er
 
         try {
 
+            LOGGER.error("PromptAwareAuthenticationFilter#handleError")
 //            val grantType = flowOfResponseType(pAuthRequest.responseType)
 //
 //            val response = this.controllerErrorInterceptor

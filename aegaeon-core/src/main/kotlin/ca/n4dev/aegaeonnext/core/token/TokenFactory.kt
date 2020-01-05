@@ -22,8 +22,11 @@
 
 package ca.n4dev.aegaeonnext.core.token
 
-import ca.n4dev.aegaeonnext.core.token.key.KeysProvider
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
+import ca.n4dev.aegaeonnext.common.model.fromTokenProviderTypeString
 import ca.n4dev.aegaeonnext.common.utils.requireNonNull
+import ca.n4dev.aegaeonnext.core.service.TokenType
+import ca.n4dev.aegaeonnext.core.token.key.KeysProvider
 import org.springframework.stereotype.Component
 import java.time.temporal.TemporalUnit
 import java.util.*
@@ -49,20 +52,6 @@ class TokenFactory(private val keysProvider: KeysProvider, providers: List<Provi
      */
     fun uniqueCode(): String {
         return UUID.randomUUID().toString()
-    }
-
-    /**
-     * Validate and extract a token.
-     * @param pToken The token.
-     * @return A OAuthUser or null.
-     */
-    fun validate(pOAuthClient: OAuthClient, pTokenValue: String): Boolean {
-
-        val type = fromTokenProviderTypeString(pOAuthClient.providerName)
-        val verifier = this.tokenVerifierHolder[type]
-
-        return verifier?.validate(pTokenValue) ?: false
-
     }
 
     /**
@@ -118,7 +107,8 @@ class TokenFactory(private val keysProvider: KeysProvider, providers: List<Provi
     fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, tokenType: TokenType, pTokenProviderName: String,
                     pTimeValue: Long, pTemporalUnit: TemporalUnit, pPayloads: Map<String, Any>): Token {
 
-        val tokenProviderType = requireNonNull(fromTokenProviderTypeString(pTokenProviderName)) {
+        val tokenProviderType = requireNonNull(
+            fromTokenProviderTypeString(pTokenProviderName)) {
             Exception("$pTokenProviderName cannot be found.")
         }
 
@@ -134,12 +124,7 @@ class TokenFactory(private val keysProvider: KeysProvider, providers: List<Provi
      */
     fun createToken(pOAuthUser: OAuthUser, pOAuthClient: OAuthClient, tokenType: TokenType,
                     pTimeValue: Long, pTemporalUnit: TemporalUnit, pPayloads: Map<String, Any>): Token {
-
-        val tokenProviderType = requireNonNull(fromTokenProviderTypeString(pOAuthClient.providerName)) {
-            Exception("${pOAuthClient.providerName} cannot be found.")
-        }
-
-        return createToken(pOAuthUser, pOAuthClient, tokenType, tokenProviderType, pTimeValue, pTemporalUnit, pPayloads);
+        return createToken(pOAuthUser, pOAuthClient, tokenType, pOAuthClient.signingAlg, pTimeValue, pTemporalUnit, pPayloads);
     }
 
     fun getSupportedAlgorithm(): List<String> {

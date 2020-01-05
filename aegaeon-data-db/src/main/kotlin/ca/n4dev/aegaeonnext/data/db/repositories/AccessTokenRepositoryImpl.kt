@@ -28,8 +28,10 @@ import ca.n4dev.aegaeonnext.common.utils.Page
 import ca.n4dev.aegaeonnext.common.utils.QueryResult
 import ca.n4dev.aegaeonnext.common.utils.resultOf
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
+import java.sql.Timestamp
 
 private const val GET_BY_TOKEN =
     "select id, token, user_id, client_id, scopes, valid_until from access_token where token = :token"
@@ -41,16 +43,17 @@ private const val COUNT_BY_USER_ID =
     "select count(*) from access_token where user_id = :user_id"
 
 @Repository
-class AccessTokenRepositoryImpl : BaseRepository(), AccessTokenRepository {
+class AccessTokenRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseRepository(jdbcTemplate), AccessTokenRepository {
 
     private val resultSetToAccessToken = RowMapper { rs: ResultSet, _: Int ->
         AccessToken(
-            rs.getLong("id"),
-            rs.getString("token"),
-            rs.getLong("user_id"),
-            rs.getLong("client_id"),
-            rs.getString("scopes"),
-            toLocalDateTime(rs.getTimestamp("valid_until"))!!
+            id = rs.getLong("id"),
+            token = rs.getString("token"),
+            userId = rs.getLong("user_id"),
+            clientId = rs.getLong("client_id"),
+            scopes = rs.getString("scopes"),
+            validUntil = toInstant(rs.getTimestamp("valid_until")),
+            createdAt = toNonNullInstant(rs.getTimestamp("created_at"))
         )
     }
 
@@ -69,12 +72,16 @@ class AccessTokenRepositoryImpl : BaseRepository(), AccessTokenRepository {
                   "user_id" to accessToken.userId,
                   "client_id" to accessToken.clientId,
                   "scopes" to accessToken.scopes,
-                  "valid_until" to accessToken.validUntil)
+                  "valid_until" to Timestamp.from(accessToken.validUntil))
 
         val insertTemplate = getInsertTemplate(params.keys)
 
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()
+    }
+
+    override fun delete(id: Long): Int {
+        return super.delete(getTableName(), id)
     }
 
     override fun getTableName(): String = "access_token"

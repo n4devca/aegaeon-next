@@ -40,7 +40,7 @@ enum class Flow {
     HYBRID // Not implemented
 }
 
-
+fun flowFromName(name: String?): Flow? = Flow.values().find { flow -> flow.toString().equals(name, ignoreCase = true) }
 
 fun responseTypesToFlow(responseTypes: Set<ResponseType>): Flow {
 

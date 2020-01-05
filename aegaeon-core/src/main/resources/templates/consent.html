@@ -18,37 +18,37 @@
 
                         <p th:text="#{page.consent.scope(${scope})}"></p>
 
+                        <h3 th:each="s : ${validScopes}">
+                            <input type="checkbox"
+                                   checked="checked"
+                                   name="accept_scopes"
+                                   th:value="${s.code}"/>
+
+                            <span th:text="${s.code}"></span>
+                        </h3>
+
+
                         <p th:text="#{page.consent.claims.help}"></p>
 
                         <div class="panel">
                             <div class="panel-body">
-                                <div th:each="claim : ${claims}">
-                                    <h3>
-                                        <input type="checkbox"
-                                               checked="checked"
-                                               name="accept_scopes"
-                                               th:value="${claim.key.name}" />
 
-                                        <span th:text="${claim.key.name}"></span>
-                                    </h3>
+                                <div th:unless="${#maps.isEmpty(claims)}" th:each="claim : ${claims}">
+                                    <span th:text="${claim.key}"></span>:<span th:text="${claim.value}"></span>
+                                </div>
 
-                                    <p th:each="claimValue : ${claim.value}">
-                                        <span th:text="${claimValue.name}"></span>:<span th:text="${claimValue.value}"></span>
-                                    </p>
-
-                                    <p th:if="${#lists.isEmpty(claim.value)}">
-                                        None
-                                    </p>
+                                <div th:if="${#maps.isEmpty(claims)}">
+                                    None
                                 </div>
                             </div>
                         </div>
 
-                        <input type="hidden" name="client_id" th:value="${client_id}" />
+                        <input type="hidden" name="client_id" th:value="${client_id}"/>
                         <input type="hidden" name="redirect_uri" th:value="${redirect_uri}"/>
-                        <input type="hidden" name="state" th:value="${state}" />
+                        <input type="hidden" name="state" th:value="${state}"/>
                         <input type="hidden" name="scope" th:value="${scope}"/>
-                        <input type="hidden" name="response_type" th:value="${response_type}" />
-                        <input type="hidden" name="prompt" th:value="${prompt}" />
+                        <input type="hidden" name="response_type" th:value="${response_type}"/>
+                        <input type="hidden" name="prompt" th:value="${prompt}"/>
                         <input type="hidden" name="display" th:value="${display}" />
                         <input type="hidden" name="nonce" th:value="${nonce}" />
 

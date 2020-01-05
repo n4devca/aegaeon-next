@@ -25,8 +25,11 @@ import ca.n4dev.aegaeonnext.core.config.AegaeonServerInfo
 import ca.n4dev.aegaeonnext.core.loggerFor
 import ca.n4dev.aegaeonnext.core.service.ClientService
 import ca.n4dev.aegaeonnext.core.utils.LabelUtils
+import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 
 /**
@@ -39,32 +42,61 @@ import org.springframework.web.servlet.ModelAndView
  * @since 2.0.0 - Nov 06 - 2019
  *
  */
+
+const val ErrorControllerURL = "/server/error";
+const val ERROR_PAGE = "error"
+const val ERROR_CODE_PARAM = "code"
+const val ERROR_MESSAGE_PARAM = "msg"
+
 @ControllerAdvice
 class ErrorInterceptorController(labelUtils: LabelUtils, serverInfo: AegaeonServerInfo, clientService: ClientService) {
 
     private val LOGGER = loggerFor(javaClass)
-    private val ERROR_PAGE = "error"
 
     @ExceptionHandler(Throwable::class)
     fun handleAll(throwable: Throwable): ModelAndView {
-        return internalErrorPage(Severity.ERROR, "", throwable);
+        return internalErrorPage("", Severity.DANGER, throwable);
     }
 
-
-    private fun internalErrorPage(severity: Severity, errorCode: String, throwable: Throwable?): ModelAndView {
-        val mv: ModelAndView = ModelAndView(ERROR_PAGE);
-
-        mv.addObject("severity", severity)
-        mv.addObject("errorCode", errorCode)
-        mv.addObject("throwable", throwable)
-
+    private fun internalErrorPage(errorCode: String, severity: Severity, throwable: Throwable?): ModelAndView {
+        val mv = errorPage(errorCode, null, severity, throwable)
         LOGGER.error("Error {$severity, $errorCode}", throwable)
-
         return mv;
     }
 }
 
-enum class Severity {
-    INFO, WARNING, DANGER, ERROR
+@Controller
+class ErrorController {
+
+    private val LOGGER = loggerFor(javaClass)
+
+    @GetMapping(ErrorControllerURL)
+    fun errorPage(@RequestParam(ERROR_CODE_PARAM, required = false) code: String,
+                  @RequestParam(ERROR_MESSAGE_PARAM, required = false) message: String): ModelAndView {
+
+        val mv = errorPage(code, message)
+        LOGGER.error("Error {$code}: $message")
+        return mv;
+    }
 }
+
+private fun errorPage(errorCode: String,
+                      errorMessage: String?,
+                      severity: Severity = Severity.WARNING,
+                      throwable: Throwable? = null): ModelAndView {
+    val mv = ModelAndView(ERROR_PAGE);
+
+    mv.addObject("errorCode", errorCode)
+    mv.addObject("errorMessage", errorMessage)
+    mv.addObject("severity", severity)
+    mv.addObject("throwable", throwable)
+
+    return mv;
+}
+
+enum class Severity {
+    INFO, WARNING, DANGER
+}
+
+
 

@@ -24,8 +24,10 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 import ca.n4dev.aegaeonnext.common.model.UserAuthorization
 import ca.n4dev.aegaeonnext.common.repository.UserAuthorizationRepository
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import java.time.LocalDateTime
+import java.sql.Timestamp
+import java.time.Instant
 
 private const val GET_BY_USERID_AND_CLIENTID = """
    select id, user_id, client_id, scopes, created_at, version 
@@ -48,16 +50,17 @@ private const val GET_BY_USERNAME_AND_CLIENTID = """
 """
 
 @Repository
-class UserAuthorizationRepositoryImpl : BaseRepository(), UserAuthorizationRepository {
+class UserAuthorizationRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseRepository(jdbcTemplate),
+    UserAuthorizationRepository {
 
     private val resultSetToUserAuth = RowMapper { rs, _ ->
         UserAuthorization(
-            rs.getLong("id"),
-            rs.getLong("user_id"),
-            rs.getLong("client_id"),
-            rs.getString("scopes"),
-            toLocalDateTime(rs.getTimestamp("created_at")),
-            rs.getInt("version")
+            id = rs.getLong("id"),
+            userId = rs.getLong("user_id"),
+            clientId = rs.getLong("client_id"),
+            scopes = rs.getString("scopes"),
+            createdAt = toNonNullInstant(rs.getTimestamp("created_at")),
+            version = rs.getInt("version")
         )
     }
 
@@ -77,10 +80,14 @@ class UserAuthorizationRepositoryImpl : BaseRepository(), UserAuthorizationRepos
             "user_id" to userAuthorization.userId,
             "client_id" to userAuthorization.clientId,
             "scopes" to userAuthorization.scopes,
-            "created_at" to LocalDateTime.now(),
+            "created_at" to Timestamp.from(Instant.now()),
             "version" to 0)
 
         return super.create(params)
+    }
+
+    override fun delete(id: Long): Int {
+        return super.delete(getTableName(), id)
     }
 
     override fun getTableName(): String = "user_authorization"

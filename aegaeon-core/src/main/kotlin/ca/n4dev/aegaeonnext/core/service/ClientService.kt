@@ -40,37 +40,50 @@ import org.springframework.transaction.annotation.Transactional
 
 
 private fun clientToClientDto(client: Client,
-                      clientScopes: List<ClientScope> = emptyList(),
-                      clientFlows: List<ClientFlow> = emptyList(),
-                      clientRedirections: List<ClientRedirection> = emptyList()): ClientDto {
+                              clientScopes: List<ClientScope> = emptyList(),
+                              clientFlows: List<ClientFlow> = emptyList(),
+                              clientRedirections: List<ClientRedirection> = emptyList()): ClientDto {
 
     val scopeMap = clientScopes.associate { it.scopeCode to it.id }
     val flowMap = clientFlows.associate { it.flow to it.id }
     val redirectionMap = clientRedirections.associate { it.url to it.id }
 
-    return ClientDto(client.id, client.publicId, client.secret, client.name, client.logoUrl, scopeMap, flowMap, redirectionMap)
+    return ClientDto(client.id,
+                     client.publicId,
+                     client.secret,
+                     client.name,
+                     client.logoUrl,
+                     client.idTokenSeconds,
+                     client.accessTokenSeconds,
+                     client.refreshTokenSeconds,
+                     client.allowIntrospect,
+                     client.idTokenSignedResponseAlg,
+                     client.tokenEndpointAuthSigningAlg,
+                     scopeMap,
+                     flowMap,
+                     redirectionMap)
 }
 
 @Service
 class ClientService(private val clientRepository: ClientRepository) {
 
     @Transactional(readOnly = true)
-    fun getById(id: Long) : ClientDto? {
+    fun getById(id: Long): ClientDto? {
         return clientRepository.getClientById(id)?.let { loadClientInfo(it) }
     }
 
     @Transactional(readOnly = true)
-    fun getByPublicId(publicId: String) : ClientDto? {
+    fun getByPublicId(publicId: String): ClientDto? {
         return clientRepository.getClientByPublicId(publicId)?.let { loadClientInfo(it) }
     }
 
     @Transactional
-    fun create(clientDto: ClientDto) : ClientDto {
+    fun create(clientDto: ClientDto): ClientDto {
         throw UnsupportedOperationException("Not implemented yet")
     }
 
     @Transactional
-    fun update(id: Long, clientDto: ClientDto) : ClientDto {
+    fun update(id: Long, clientDto: ClientDto): ClientDto {
         throw UnsupportedOperationException("Not implemented yet")
     }
 
@@ -102,9 +115,9 @@ class ClientService(private val clientRepository: ClientRepository) {
         return false
     }
 
-    private fun loadClientInfo(client: Client) : ClientDto {
+    private fun loadClientInfo(client: Client): ClientDto {
 
-        return client.id?.let {id ->
+        return client.id?.let { id ->
 
             val clientScopes = clientRepository.getClientScopesByClientId(id)
             val clientFlows = clientRepository.getClientFlowByClientId(id)
@@ -126,6 +139,12 @@ data class ClientDto(
     val secret: String,
     val name: String,
     val logoUrl: String?,
+    val idTokenSeconds: Long,
+    val accessTokenSeconds: Long,
+    val refreshTokenSeconds: Long,
+    val allowIntrospect: Boolean,
+    val idTokenSignedResponseAlg: TokenProviderType,
+    val tokenEndpointAuthSigningAlg: TokenProviderType,
     val scopes: Map<String, Long?> = emptyMap(),
     val flows: Map<Flow, Long?> = emptyMap(),
     val redirections: Map<String, Long?> = emptyMap()

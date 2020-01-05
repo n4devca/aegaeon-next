@@ -19,21 +19,26 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.core.web
+package ca.n4dev.aegaeonnext.core.service.interceptor
+
+import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
+import ca.n4dev.aegaeonnext.core.service.ClientDto
+import org.springframework.stereotype.Component
 
 /**
  *
- * Response.java
+ * AuthorizationInterceptor
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 18 - 2019
+ * @since Dec 30 - 2019
  *
  */
-sealed class Response(val errorCode: String, val errorDescription: String?) {
-
-    class RedirectResponse(val url: String, errorCode: String, errorDescription: String?) : Response(errorCode, errorDescription)
-    class JsonResponse(errorCode: String, errorDescription: String?) : Response(errorCode, errorDescription)
-
+interface AuthorizationValidator {
+    fun validate(userDetails: AegaeonUserDetails, clientDto: ClientDto): Boolean
 }
 
+@Component
+class AuthorizationValidatorImpl : AuthorizationValidator {
+    override fun validate(userDetails: AegaeonUserDetails, clientDto: ClientDto): Boolean = true
+}

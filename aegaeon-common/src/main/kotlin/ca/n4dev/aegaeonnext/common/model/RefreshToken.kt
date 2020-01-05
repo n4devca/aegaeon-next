@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -33,7 +33,7 @@ import java.time.LocalDateTime
  * @since 2.0.0 - Sep 25 - 2019
  *
  */
-data class RefreshToken (
+data class RefreshToken(
 
     val id: Long?,
 
@@ -45,7 +45,7 @@ data class RefreshToken (
 
     val scopes: String,
 
-    val validUntil: LocalDateTime?,
+    val validUntil: Instant?,
 
-    val createdAt: LocalDateTime? = LocalDateTime.now()
+    val createdAt: Instant
 )

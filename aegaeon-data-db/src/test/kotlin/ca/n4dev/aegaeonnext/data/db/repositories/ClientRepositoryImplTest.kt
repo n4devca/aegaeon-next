@@ -23,6 +23,7 @@
 package ca.n4dev.aegaeonnext.data.db.repositories
 
 import ca.n4dev.aegaeonnext.common.model.Client
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
 import ca.n4dev.aegaeonnext.common.repository.ClientRepository
 import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
 import org.junit.jupiter.api.Assertions
@@ -32,6 +33,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import org.springframework.transaction.annotation.Transactional
+import java.time.Instant
 
 /**
  * ClientRepositoryImplTest.java
@@ -51,8 +53,11 @@ internal open class ClientRepositoryImplTest {
     lateinit var scopeRepository: ScopeRepository
 
     private fun newClient() : Client =  Client(null,
-            "c-test-001", "secret", "a-client", null, null,
-            "RSA256", 60, 300, 600, false, createdBy = "junit")
+                                               "c-test-001", "secret", "a-client", null, null,
+                                               60, 300, 600, false,
+                                               TokenProviderType.RS256,
+                                               TokenProviderType.RS256,
+                                               Instant.now(), null, 0, "junit")
 
     @Test
     @Transactional
@@ -95,6 +100,7 @@ internal open class ClientRepositoryImplTest {
         val redirection = clientRepository.getClientRedirectionByClientId(clientId)
         val scopes = clientRepository.getClientScopesByClientId(clientId)
 
+        Assertions.assertNotNull(client)
         Assertions.assertTrue(flows.isNotEmpty())
         Assertions.assertTrue(redirection.isNotEmpty())
         Assertions.assertTrue(scopes.isNotEmpty())
@@ -104,7 +110,7 @@ internal open class ClientRepositoryImplTest {
     @Transactional
     open fun testSuccessfulAddScopeToClient() {
         val clientId = createClient()
-        val openidScope = requireNotNull(scopeRepository.getByName("openid"))
+        val openidScope = requireNotNull(scopeRepository.getScopeByCode("openid"))
 
         clientRepository.addScopeToClient(clientId, openidScope)
 

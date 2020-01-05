@@ -22,9 +22,11 @@
 
 package ca.n4dev.aegaeonnext.core.token
 
+import ca.n4dev.aegaeonnext.common.model.TokenProviderType
+
 data class OAuthClient(
 
     val clientId: String,
 
-    val providerName: String
+    val signingAlg: TokenProviderType
 )

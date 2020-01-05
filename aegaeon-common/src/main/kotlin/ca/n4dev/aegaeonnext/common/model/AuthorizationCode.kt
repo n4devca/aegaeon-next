@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -43,7 +43,7 @@ data class AuthorizationCode(
 
     val userId: Long,
 
-    val validUntil: LocalDateTime,
+    val validUntil: Instant,
 
     val scopes: String,
 
@@ -51,5 +51,7 @@ data class AuthorizationCode(
 
     val responseType: String,
 
-    val nonce: String
+    val nonce: String,
+
+    val createdAt: Instant
 )

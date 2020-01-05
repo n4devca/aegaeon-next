@@ -22,6 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.repository
 
+import ca.n4dev.aegaeonnext.common.model.Claim
 import ca.n4dev.aegaeonnext.common.model.Scope
 
 /**
@@ -35,10 +36,15 @@ import ca.n4dev.aegaeonnext.common.model.Scope
  */
 interface ScopeRepository {
 
-    fun getAll() : List<Scope>
+    fun getAllScopes(): List<Scope>
 
-    fun getByName(name: String) : Scope?
+    fun getScopeByCode(code: String): Scope?
 
-    fun getByNames(names: Set<String>) : List<Scope>
+    fun getScopesByCodes(codes: Set<String>): List<Scope>
 
+    fun getAllClaims(): List<Claim>
+
+    fun getAllScopesAndClaims(): Map<Scope, List<Claim>>
+
+    fun getDistinctClaimsByScopes(scopeIds: Set<Long>): List<Claim>
 }

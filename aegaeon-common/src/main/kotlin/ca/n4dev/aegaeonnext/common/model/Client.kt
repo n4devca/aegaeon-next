@@ -24,7 +24,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -36,33 +36,35 @@ import java.time.LocalDateTime
  */
 data class Client(
 
-        val id: Long?,
+    val id: Long?,
 
-        val publicId: String,
+    val publicId: String,
 
-        val secret: String,
+    val secret: String,
 
-        val name: String,
+    val name: String,
 
-        val description: String?,
+    val description: String?,
 
-        val logoUrl: String?,
+    val logoUrl: String?,
 
-        val providerName: String?,
+    val idTokenSeconds: Long = 60 * 10, // 10 minutes
 
-        val idTokenSeconds: Long = 60*10, // 10 minutes
+    val accessTokenSeconds: Long = 60 * 60, // 1 hour
 
-        val accessTokenSeconds: Long = 60*60, // 1 hour
+    val refreshTokenSeconds: Long = 60 * 60 * 24, // 24 hours
 
-        val refreshTokenSeconds: Long = 60*60*24, // 24 hours
+    val allowIntrospect: Boolean = false,
 
-        val allowIntrospect: Boolean = false,
+    val idTokenSignedResponseAlg: TokenProviderType = TokenProviderType.RS256,
 
-        val createdAt: LocalDateTime? = LocalDateTime.now(),
+    val tokenEndpointAuthSigningAlg: TokenProviderType = TokenProviderType.RS256,
 
-        val updatedAt: LocalDateTime? = LocalDateTime.now(),
+    val createdAt: Instant,
 
-        val version: Int = 0,
+    val updatedAt: Instant? = null,
 
-        val createdBy: String
+    val version: Int = 0,
+
+    val createdBy: String
 )

@@ -22,10 +22,11 @@
 
 package ca.n4dev.aegaeonnext.core.web
 
+import ca.n4dev.aegaeonnext.core.loggerFor
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.stereotype.Controller
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.servlet.ModelAndView
 
 
@@ -48,6 +49,14 @@ const val LoginControllerURL = "/login"
 @RequestMapping(LoginControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["login"], havingValue = "true", matchIfMissing = true)
 class LoginController {
-    @GetMapping("")
-    fun login(): ModelAndView = ModelAndView("signin")
+
+    val LOGGER = loggerFor(javaClass)
+
+    @RequestMapping("")
+    fun login(@RequestParam("error", required = true, defaultValue = "false") error: Boolean): ModelAndView {
+
+        LOGGER.info("/login error=$error")
+
+        return ModelAndView("signin")
+    }
 }

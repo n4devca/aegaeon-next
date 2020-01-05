@@ -21,11 +21,7 @@
 
 package ca.n4dev.aegaeonnext.common.utils
 
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.time.ZoneOffset
-import java.time.ZonedDateTime
-import java.util.*
+import java.time.Instant
 
 /**
  *
@@ -92,26 +88,15 @@ fun splitStringOn(str: String?, separator: String = " "): List<String> {
     return str?.split(separator) ?: listOf()
 }
 
-fun isAfterNow(pValidUntil: LocalDateTime?): Boolean {
+fun isAfterNow(pValidUntil: Instant?): Boolean {
     if (pValidUntil != null) {
-        return pValidUntil.isAfter(LocalDateTime.now())
-    }
-
-    return true
-}
-
-fun isAfterNow(pValidUntil: ZonedDateTime?): Boolean {
-    if (pValidUntil != null) {
-        return pValidUntil.isAfter(ZonedDateTime.now(ZoneOffset.UTC))
+        return pValidUntil.isAfter(Instant.now())
     }
 
     return true
 }
 
 fun join(vararg pStrings: String) = pStrings.joinToString(" ")
-
-fun toLocalDateTime(date: Date) = LocalDateTime.ofInstant(date.toInstant(), ZoneId.systemDefault())
-
 
 fun trim(string: String?): String? {
     return if (!string.isNullOrBlank()) {

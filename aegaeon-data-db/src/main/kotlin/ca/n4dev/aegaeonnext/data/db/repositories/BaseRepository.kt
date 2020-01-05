@@ -22,29 +22,19 @@
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
-import java.lang.StringBuilder
 import java.sql.Timestamp
-import java.time.LocalDateTime
-import java.time.ZoneId
-import java.util.*
-import java.util.function.BiConsumer
+import java.time.Instant
 
-abstract class BaseRepository {
-
-    @Autowired
-    protected lateinit var jdbcTemplate: NamedParameterJdbcTemplate;
+abstract class BaseRepository(protected val jdbcTemplate: NamedParameterJdbcTemplate) {
 
     protected abstract fun getTableName(): String
 
     protected fun defaultSort() = "id"
 
-    fun delete(id: Long) : Int = delete(getTableName(), id)
-
-    protected fun create(params: Map<String, Any?>) : Long {
+    protected fun create(params: Map<String, Any?>): Long {
         val insertTemplate = getInsertTemplate(params.keys)
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()
@@ -84,7 +74,7 @@ abstract class BaseRepository {
     }
 
     protected fun delete(tableName: String, id: Long): Int {
-        return jdbcTemplate.update("delete $tableName where id = :id", mapOf("id" to id))
+        return jdbcTemplate.update("delete from $tableName where id = :id", mapOf("id" to id))
     }
 
     protected fun getInsertTemplate(columns: Set<String> = emptySet()): SimpleJdbcInsert {
@@ -108,7 +98,9 @@ abstract class BaseRepository {
     }
 }
 
-fun toLocalDateTime(timestamp: Timestamp?): LocalDateTime? = timestamp?.toLocalDateTime()
+fun toInstant(timestamp: Timestamp?): Instant? = timestamp?.toInstant()
+
+fun toNonNullInstant(timestamp: Timestamp): Instant = timestamp.toInstant()
 
 // Zero based
 fun computeOffSet(page: Int, size: Int) = (page - 1).coerceAtLeast(0) * size

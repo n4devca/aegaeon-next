@@ -25,8 +25,10 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 import ca.n4dev.aegaeonnext.common.model.IdToken
 import ca.n4dev.aegaeonnext.common.repository.IdTokenRepository
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 import java.sql.ResultSet
+import java.sql.Timestamp
 
 private const val GET_BY_TOKEN =
     "select id, token, user_id, client_id, scopes, valid_until, created_at, version from id_token where token = :token"
@@ -39,17 +41,17 @@ private const val GET_BY_USER_ID = """
 """
 
 @Repository
-class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
+class IdTokenRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseRepository(jdbcTemplate), IdTokenRepository {
 
     private val resultSetToIdToken = RowMapper { rs: ResultSet, _: Int ->
         IdToken(
-            rs.getLong("id"),
-            rs.getString("token"),
-            rs.getLong("user_id"),
-            rs.getLong("client_id"),
-            rs.getString("scopes"),
-            toLocalDateTime(rs.getTimestamp("valid_until")),
-            toLocalDateTime(rs.getTimestamp("created_at"))
+            id = rs.getLong("id"),
+            token = rs.getString("token"),
+            userId = rs.getLong("user_id"),
+            clientId = rs.getLong("client_id"),
+            scopes = rs.getString("scopes"),
+            validUntil = toInstant(rs.getTimestamp("valid_until")),
+            createdAt = toNonNullInstant(rs.getTimestamp("created_at"))
         )
     }
 
@@ -63,15 +65,19 @@ class IdTokenRepositoryImpl : BaseRepository(), IdTokenRepository {
 
         val params =
             mapOf("token" to idToken.token,
-                "user_id" to idToken.userId,
-                "client_id" to idToken.clientId,
-                "scopes" to idToken.scopes,
-                "valid_until" to idToken.validUntil)
+                  "user_id" to idToken.userId,
+                  "client_id" to idToken.clientId,
+                  "scopes" to idToken.scopes,
+                  "valid_until" to Timestamp.from(idToken.validUntil))
 
         val insertTemplate = getInsertTemplate(params.keys)
 
         val key = insertTemplate.executeAndReturnKey(params)
         return key.toLong()
+    }
+
+    override fun delete(id: Long): Int {
+        return super.delete(getTableName(), id)
     }
 
     override fun getTableName(): String = "id_token"

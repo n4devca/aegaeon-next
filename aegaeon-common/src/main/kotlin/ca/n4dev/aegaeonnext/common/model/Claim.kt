@@ -17,34 +17,21 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
- *
  */
 
-package ca.n4dev.aegaeonnext.core.token
+package ca.n4dev.aegaeonnext.common.model
 
 /**
  *
- * TokenProviderType.java
+ * Claim
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 04 - 2019
+ * @since Jan 04 - 2020
  *
  */
-enum class TokenProviderType {
+data class Claim(
+    val id: Long,
 
-    HMAC_HS256,
-    HMAC_HS512,
-    RSA_RS256,
-    RSA_RS512,
-    UUID;
-}
-
-fun fromTokenProviderTypeString(name: String): TokenProviderType? {
-    for (t in TokenProviderType.values()) {
-        if (t.toString() == name) {
-            return t
-        }
-    }
-    return null
-}
+    val code: String
+)

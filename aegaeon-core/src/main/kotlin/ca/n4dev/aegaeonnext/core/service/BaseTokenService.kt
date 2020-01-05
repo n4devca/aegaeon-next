@@ -21,9 +21,7 @@
 
 package ca.n4dev.aegaeonnext.core.service
 
-import ca.n4dev.aegaeonnext.common.model.AccessToken
-import java.time.LocalDateTime
-import java.time.ZonedDateTime
+import java.time.Instant
 
 /**
  *
@@ -36,6 +34,9 @@ import java.time.ZonedDateTime
  */
 abstract class BaseTokenService {
 
+    /**
+     * @return The type of token handle by the service.
+     */
     abstract fun getManagedTokenType(): TokenType
 
 
@@ -52,5 +53,5 @@ data class TokenDto(
     val token: String,
     val tokenType: TokenType,
     val scopes: String,
-    val validUntil: LocalDateTime
+    val validUntil: Instant?
 )

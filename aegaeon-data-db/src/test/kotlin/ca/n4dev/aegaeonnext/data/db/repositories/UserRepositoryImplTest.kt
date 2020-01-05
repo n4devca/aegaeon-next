@@ -23,13 +23,13 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 
 import ca.n4dev.aegaeonnext.common.model.User
 import ca.n4dev.aegaeonnext.common.repository.UserRepository
+import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
-
-import org.junit.jupiter.api.Assertions.*
 import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
+import java.time.Instant
 import java.util.*
 
 /**
@@ -57,11 +57,12 @@ internal class UserRepositoryImplTest {
 
     @Test
     fun createUser() {
-        val user = User(null,
-            "test_user@junit",
-            "{bcrypt}password",
-            UUID.randomUUID().toString(),
-            "test")
+        val user = User(id = null,
+                        userName = "test_user@junit",
+                        password = "{bcrypt}password",
+                        uniqueIdentifier = UUID.randomUUID().toString(),
+                        name = "test",
+                        createdAt = Instant.now())
 
         val userId = userRepository.create(user)
         assertNotNull(userId, "New user id")

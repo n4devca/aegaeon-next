@@ -33,14 +33,14 @@ CREATE TABLE `authority` (
 
 CREATE TABLE `scope` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
+  `code` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `is_system` tinyint(1) NOT NULL DEFAULT 0,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `version` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  UNIQUE KEY `scope_name_uq` (`name`)
+  UNIQUE KEY `scope_code_uq` (`code`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ;
 
@@ -51,7 +51,6 @@ CREATE TABLE `client` (
   `name` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `description` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `logo_url` varchar(300) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `provider_name` varchar(40) COLLATE utf8mb4_unicode_ci NOT NULL,
   `id_token_seconds` int(11) NOT NULL DEFAULT 600,
   `access_token_seconds` int(11) NOT NULL DEFAULT 3600,
   `refresh_token_seconds` int(11) NOT NULL DEFAULT 604800,
@@ -104,21 +103,38 @@ CREATE TABLE `users` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ;
 
+CREATE TABLE `claim` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `code` varchar(100) NOT NULL,
+    `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `claim_code_uq` (`code`)
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE `scope_claim` (
+    `scope_id` int(11) not null,
+    `claim_id` int(11) not null,
+    PRIMARY KEY (`scope_id`, `claim_id`),
+    KEY `scope_claim_scope_id_idx` (`scope_id`),
+    KEY `scope_claim_claim_id_idx` (`claim_id`),
+    CONSTRAINT `scope_claim_scope_id_fk` FOREIGN KEY (`scope_id`) REFERENCES `scope` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+    CONSTRAINT `scope_claim_claim_id_fk` FOREIGN KEY (`claim_id`) REFERENCES `claim` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION
+)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE TABLE `user_info` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
-  `scope_id` int(11),
-  `name` varchar(100) NOT NULL,
+  `claim_id` int(11),
+  `custom_name` varchar(100),
   `value` varchar(4000) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `version` int(11) NOT NULL DEFAULT 0,
   PRIMARY KEY (`id`),
-  KEY `usr_if_userid_idx` (`user_id`),
-  KEY `usr_if_scopeid_idx` (`scope_id`),
-  CONSTRAINT `usr_if_userid_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
-  CONSTRAINT `usr_if_scopeid_fk` FOREIGN KEY (`scope_id`) REFERENCES `scope` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
+  KEY `usr_if_user_id_idx` (`user_id`),
+  KEY `usr_if_claim_id_idx` (`claim_id`),
+  CONSTRAINT `usr_if_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE NO ACTION,
+  CONSTRAINT `usr_if_claim_id_fk` FOREIGN KEY (`claim_id`) REFERENCES `claim` (`id`) ON DELETE SET NULL ON UPDATE NO ACTION
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
 ;
 
@@ -153,7 +169,7 @@ CREATE TABLE `user_authority` (
 CREATE TABLE `authorization_code` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `code` varchar(100) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
-  `valid_until` datetime NOT NULL,
+  `valid_until` timestamp NOT NULL,
   `user_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   `scopes` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
@@ -175,7 +191,7 @@ CREATE TABLE `authorization_code` (
 CREATE TABLE `client_flow` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `client_id` int(11) NOT NULL,
-  `flow` varchar(45) CHARACTER SET latin1 COLLATE latin1_bin DEFAULT NULL,
+  `flow` varchar(45) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
   `version` int(11) NOT NULL DEFAULT 0,
@@ -246,7 +262,7 @@ CREATE TABLE `client_scope` (
 CREATE TABLE `access_token` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `token` varchar(4000) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
-  `valid_until` datetime NOT NULL,
+  `valid_until` timestamp NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -264,7 +280,7 @@ CREATE TABLE `access_token` (
 CREATE TABLE `id_token` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `token` varchar(4000) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
-  `valid_until` datetime NOT NULL,
+  `valid_until` timestamp NOT NULL,
   `user_id` int(11) DEFAULT NULL,
   `client_id` int(11) NOT NULL,
   `scopes` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_bin DEFAULT NULL,
@@ -282,7 +298,7 @@ CREATE TABLE `id_token` (
 CREATE TABLE `refresh_token` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `token` varchar(255) CHARACTER SET latin1 COLLATE latin1_bin NOT NULL,
-  `valid_until` datetime NOT NULL,
+  `valid_until` timestamp NOT NULL,
   `user_id` int(11) NOT NULL,
   `client_id` int(11) NOT NULL,
   `scopes` varchar(200) COLLATE utf8mb4_unicode_ci DEFAULT NULL,

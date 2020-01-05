@@ -30,35 +30,35 @@ import ca.n4dev.aegaeonnext.common.utils.Page
 import ca.n4dev.aegaeonnext.common.utils.QueryResult
 import ca.n4dev.aegaeonnext.common.utils.resultOf
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
-import java.util.Locale
+import java.util.*
 
+private const val USER_COLUMNS = """
+id, username, name, unique_identifier, passwd, enabled, picture_url, last_login_date, created_at, updated_at, version
+"""
 
 private const val COUNT_ALL_USERS = "select count(*) from users"
 
 private const val GET_ALL_USERS = """
-select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version
+select $USER_COLUMNS
 from users 
 order by userName 
 limit :offset, :limit
 """
 
-private const val GET_USER_INFO_BY_USERID =
-    "select id, user_id, scope_id, name, value, version from user_info where user_id = :user_id"
-
-
-private const val GET_USER_INFO_BY_USERID_AND_SCOPEIDS = """
-select user_info.id, user_info.user_id, scope.id as scope_id, scope.name as scope_name, user_info.name, user_info.value, user_info.version 
-from user_info join scope on (user_info.scope_id = scope.id)
-where user_id = :user_id
-  and scope_id in (:scope_ids)
+private const val GET_USER_INFO_BY_USERID = """
+select user_info.id, user_info.user_id, user_info.claim_id, claim.code as claim_code,
+       user_info.custom_name, user_info.value, user_info.created_at, user_info.version 
+from user_info 
+    left outer join claim on (user_info.claim_id = claim.id)
+where user_id = :user_id    
 """
 
-private const val GET_USER_BY_USERNAME =
-    "select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version from users where userName = :userName"
 
-private const val GET_USER_BY_ID =
-    "select id, userName, passwd, unique_identifier, name, picture_url, enabled, last_login_date, version from users where id = :id"
+private const val GET_USER_BY_USERNAME = "select $USER_COLUMNS from users where userName = :userName"
+
+private const val GET_USER_BY_ID = "select $USER_COLUMNS from users where id = :id"
 
 private const val GET_USER_INFO_BY_USERIDS =
     "select id, user_id, scope_id, name, value from user_info where user_id in (:user_id) order by user_id"
@@ -70,7 +70,7 @@ where ua.user_id = :user_id
 """
 
 @Repository
-class UserRepositoryImpl : BaseRepository(), UserRepository {
+class UserRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseRepository(jdbcTemplate), UserRepository {
 
     private val resultSetToUser = RowMapper { rs, _ ->
         User(
@@ -83,7 +83,9 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
             locale = Locale.ENGLISH.toString(),
             enabled = rs.getBoolean("enabled"),
             locked = false,
-            lastLoginDate = toLocalDateTime(rs.getTimestamp("last_login_date")),
+            lastLoginDate = toInstant(rs.getTimestamp("last_login_date")),
+            createdAt = toNonNullInstant(rs.getTimestamp("created_at")),
+            updatedAt = toInstant(rs.getTimestamp("updated_at")),
             version = rs.getInt("version")
         )
     }
@@ -92,10 +94,11 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
         UserInfo(
             id = rs.getLong("id"),
             userId = rs.getLong("user_id"),
-            scopeId = rs.getLong("scope_id"),
-            scopeName = rs.getString("scope_name"),
-            claimName = rs.getString("name"),
+            claimId = rs.getLong("claim_id"),
+            claimCode = rs.getString("claim_code"),
+            customName = rs.getString("custom_name"),
             claimValue = rs.getString("value"),
+            createdAt = toNonNullInstant(rs.getTimestamp("created_at")),
             version = rs.getInt("version")
         )
     }
@@ -120,14 +123,6 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
 
     override fun getUserInfoByUserId(userId: Long): List<UserInfo> =
         jdbcTemplate.query(GET_USER_INFO_BY_USERID, mapOf("user_id" to userId), resultSetToUserInfo)
-
-    override fun getUserInfoByUserIdAndScopeIds(userId: Long, scopeIds: Set<Long>): List<UserInfo> {
-
-        return jdbcTemplate.query(GET_USER_INFO_BY_USERID_AND_SCOPEIDS,
-            mapOf("user_id" to userId,
-                  "scope_ids" to scopeIds),
-            resultSetToUserInfo)
-    }
 
     override fun getUserById(id: Long): User? =
         single(jdbcTemplate.query(GET_USER_BY_ID, mapOf("id" to id), resultSetToUser))
@@ -157,6 +152,9 @@ class UserRepositoryImpl : BaseRepository(), UserRepository {
         TODO("not implemented yet")
     }
 
+    override fun delete(id: Long): Int {
+        return super.delete(getTableName(), id)
+    }
 
     override fun getTableName(): String = "users"
 }

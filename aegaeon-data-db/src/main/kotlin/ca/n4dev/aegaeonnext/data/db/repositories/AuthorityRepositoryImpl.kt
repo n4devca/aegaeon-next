@@ -24,12 +24,13 @@ package ca.n4dev.aegaeonnext.data.db.repositories
 import ca.n4dev.aegaeonnext.common.model.Authority
 import ca.n4dev.aegaeonnext.common.repository.AuthorityRepository
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.stereotype.Repository
 
 private const val GET_ALL = "select id, code from authority"
 
 @Repository
-class AuthorityRepositoryImpl : BaseRepository(), AuthorityRepository {
+class AuthorityRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseRepository(jdbcTemplate), AuthorityRepository {
 
     private val resultSetToAuthority = RowMapper { rs, _ ->
         Authority(rs.getLong("id"), rs.getString("code"))

@@ -21,6 +21,7 @@
  */
 package ca.n4dev.aegaeonnext.core.service
 
+import ca.n4dev.aegaeonnext.common.model.Claim
 import ca.n4dev.aegaeonnext.common.model.Flow
 import ca.n4dev.aegaeonnext.common.model.Scope
 import ca.n4dev.aegaeonnext.common.repository.ScopeRepository
@@ -28,22 +29,51 @@ import ca.n4dev.aegaeonnext.common.utils.splitStringOn
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
+const val OPENID_SCOPE = "openid"
 const val OFFLINE_SCOPE = "offline_access"
 
-private val scopeToDto = { scope: Scope ->
-    ScopeDto(
-        scope.id!!,
-        scope.code
-    )
-}
 
 @Service
 class ScopeService(private val scopeRepository: ScopeRepository) {
 
-    @Transactional(readOnly = true)
-    fun getAll() = scopeRepository.getAll().map { scopeToDto }.toSet()
+    private val scopeToScopeDto = { scope: Scope ->
+        ScopeDto(
+            scope.id,
+            scope.code
+        )
+    }
 
-    fun getByName(name: String) = scopeRepository.getByName(name)?.let(scopeToDto)
+    private val claimToClaimDto = { claim: Claim ->
+        ClaimDto(
+            claim.id,
+            claim.code
+        )
+    }
+
+    @Transactional(readOnly = true)
+    fun getAllScopes() = scopeRepository.getAllScopes().map { s -> scopeToScopeDto(s) }.toSet()
+
+    @Transactional(readOnly = true)
+    fun getScopeByCode(code: String) = scopeRepository.getScopeByCode(code)?.let(scopeToScopeDto)
+
+    @Transactional(readOnly = true)
+    fun getByNames(codes: Set<String>): List<ScopeDto> = scopeRepository.getScopesByCodes(codes).map { s -> scopeToScopeDto(s) }
+
+    @Transactional(readOnly = true)
+    fun getAllScopesAndClaims(): List<ScopeAndClaimDto> {
+        val allScopesAndClaims: Map<Scope, List<Claim>> = scopeRepository.getAllScopesAndClaims()
+
+        return allScopesAndClaims.map { entry ->
+            val claimDtos: List<ClaimDto> = entry.value.map { claim -> claimToClaimDto(claim) }
+            ScopeAndClaimDto(entry.key.id, entry.key.code, claimDtos)
+        }
+    }
+
+    @Transactional(readOnly = true)
+    fun getDistinctClaimsByScopes(scopes: Set<ScopeDto>): List<ClaimDto> {
+        val ids: Set<Long> = scopes.map { it.id }.toSet()
+        return scopeRepository.getDistinctClaimsByScopes(ids).map { claim -> claimToClaimDto(claim) }
+    }
 
     @Transactional(readOnly = true)
     fun isPartOf(pAuthorizedScopes: String, pRequestedScopes: String): Boolean {
@@ -72,10 +102,10 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
                 if (s.isNotBlank()) {
 
                     val name = s.trim()
-                    val scopeByName = scopeRepository.getByName(s.trim())
+                    val scopeByCode = scopeRepository.getScopeByCode(s.trim())
 
-                    if (scopeByName != null && !exclusions.contains(name)) {
-                        validScopes.add(ScopeDto(scopeByName.id!!, scopeByName.code))
+                    if (scopeByCode != null && !exclusions.contains(name)) {
+                        validScopes.add(ScopeDto(scopeByCode.id, scopeByCode.code))
                     } else {
                         invalidScopes.add(s)
                     }
@@ -110,7 +140,9 @@ class ScopeService(private val scopeRepository: ScopeRepository) {
 
 }
 
-data class ScopeDto(val id: Long, val name: String)
+data class ScopeDto(val id: Long, val code: String)
+data class ClaimDto(val id: Long, val code: String)
+data class ScopeAndClaimDto(val id: Long, val name: String, val claims: List<ClaimDto>)
 
 data class ScopeSet(
     val validScopes: Set<ScopeDto>,

@@ -22,7 +22,7 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+import java.time.Instant
 
 /**
  *
@@ -41,7 +41,7 @@ data class ClientRedirection(
 
     val url: String,
 
-    val createdAt: LocalDateTime? = LocalDateTime.now(),
+    val createdAt: Instant,
 
     val version: Int = 0
 )

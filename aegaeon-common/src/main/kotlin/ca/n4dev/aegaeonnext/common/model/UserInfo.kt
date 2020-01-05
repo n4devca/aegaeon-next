@@ -21,6 +21,8 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
+import java.time.Instant
+
 /**
  *
  * UserInfoDto.java
@@ -33,13 +35,15 @@ package ca.n4dev.aegaeonnext.common.model
 data class UserInfo(
     val id: Long,
     val userId: Long,
-    val scopeId: Long?,
-    val scopeName: String?,
-    val claimName: String,
+    val claimId: Long?,
+    val claimCode: String?,
+    val customName: String?,
     val claimValue: String,
+    val createdAt: Instant,
+    val updatedAt: Instant? = null,
     val version: Int = 0
 ) {
     override fun toString(): String {
-        return "UserInfoDto(id=$id, scopeId='$scopeId', claimName='$claimName', claimValue='$claimValue')"
+        return "UserInfoDto(id=$id, claimId='$claimId', name='$claimCode|$customName', claimValue='$claimValue')"
     }
 }

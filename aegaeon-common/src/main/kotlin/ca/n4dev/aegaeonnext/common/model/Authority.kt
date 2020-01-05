@@ -22,25 +22,23 @@
 
 package ca.n4dev.aegaeonnext.common.model
 
-import java.time.LocalDateTime
+/**
+ * Standard roles
+ */
+const val ROLE_CLIENT = "ROLE_CLIENT"
+const val ROLE_USER = "ROLE_USER"
 
 /**
  *
  * Authority.java
- * TODO(rguillemette) Add description.
  *
  * @author rguillemette
  * @since 2.0.0 - Nov 21 - 2019
  *
  */
-data class Authority (
+data class Authority(
     val id: Long,
 
     // ROLE_USER, ROLE_ADMIN
     val code: String
-
-) {
-    override fun toString(): String {
-        return "Authority(id=$id, code='$code')"
-    }
-}
+)
