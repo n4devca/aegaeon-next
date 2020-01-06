@@ -28,7 +28,6 @@ import ca.n4dev.aegaeonnext.core.loggerFor
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import ca.n4dev.aegaeonnext.core.service.interceptor.AuthorizationValidator
 import ca.n4dev.aegaeonnext.core.token.TokenFactory
-import ca.n4dev.aegaeonnext.core.web.view.TokenResponse
 import com.fasterxml.jackson.annotation.JsonProperty
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
@@ -72,7 +71,7 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
 
         try {
 
-            val t: TokenResponse? = transactionTemplate.execute(fun(status: TransactionStatus): TokenResponse {
+            val t: TokenResponse? = transactionTemplate.execute(fun(_: TransactionStatus): TokenResponse {
                 val code = trim(authCode) ?: return TokenResponse.InvalidGrant()
                 val clientDto = clientService.getById(userDetails.id) ?: return TokenResponse.InvalidClient()
                 val redirectUri = trim(clientRedirection) ?: return TokenResponse.InvalidClient()
@@ -132,8 +131,16 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
                                   scopes: String?,
                                   userDetails: AegaeonUserDetails): TokenResponse {
 
+        try {
 
-        TODO()
+
+            TODO()
+
+        } catch (exception: Exception) {
+            LOGGER.error("TokenServicesFacade#handleRefreshTokenRequest error: ", exception)
+            return TokenResponse.ServerError()
+        }
+
     }
 
     @Transactional
@@ -141,8 +148,42 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
     fun handleClientCredTokenRequest(clientRedirection: String?,
                                      scopes: String?,
                                      userDetails: AegaeonUserDetails): TokenResponse {
-        TODO()
+        try {
+            TODO()
+        } catch (exception: Exception) {
+            LOGGER.error("TokenServicesFacade#handleRefreshTokenRequest error: ", exception)
+            return TokenResponse.ServerError()
+        }
     }
+
+    @Transactional
+    @PreAuthorize("isAuthenticated() and #userDetails.id == principal.id")
+    fun handleImplicitTokenRequest(clientRedirection: String?,
+                                   scopes: String?,
+                                   userDetails: AegaeonUserDetails): TokenResponse {
+        try {
+
+
+
+            TODO()
+        } catch (exception: Exception) {
+            LOGGER.error("TokenServicesFacade#handleRefreshTokenRequest error: ", exception)
+            return TokenResponse.ServerError()
+        }
+    }
+
+//    @Transactional
+//    @PreAuthorize("isAuthenticated() and #userDetails.id == principal.id")
+//    fun handleHybridTokenRequest(clientRedirection: String?,
+//                                     scopes: String?,
+//                                     userDetails: AegaeonUserDetails): TokenResponse {
+//        try {
+//            TODO()
+//        } catch (exception: Exception) {
+//            LOGGER.error("TokenServicesFacade#handleRefreshTokenRequest error: ", exception)
+//            return TokenResponse.ServerError()
+//        }
+//    }
 
     /**
      * Handle "authorize" type of request
@@ -164,67 +205,68 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
                                displayParam: String?,
                                promptParam: String?,
                                idTokenHintParam: String?,
-                               aegaeonUserDetails: AegaeonUserDetails): Response {
+                               userDetails: AegaeonUserDetails): AuthorizeResponse {
 
-        val clientPublicId = trim(clientIdParam) ?: return Response.InvalidClientId(clientIdParam)
-        val redirection = trim(clientRedirectParam) ?: return Response.InvalidClientRedirection(clientPublicId, clientRedirectParam)
+        val clientPublicId = trim(clientIdParam) ?: return AuthorizeResponse.InvalidClientId(clientIdParam)
+        val redirection = trim(clientRedirectParam) ?: return AuthorizeResponse.InvalidClientRedirection(clientPublicId, clientRedirectParam)
 
         // Get client
-        val client = clientService.getByPublicId(clientPublicId) ?: return Response.InvalidClientId(clientIdParam)
+        val client = clientService.getByPublicId(clientPublicId) ?: return AuthorizeResponse.InvalidClientId(clientIdParam)
         val clientId = requireNotNull(client.id) // Coming from persistence, OK
 
         if (!clientService.hasRedirectionUri(clientId, redirection)) {
-            return Response.InvalidClientRedirection(clientPublicId, redirection)
+            return AuthorizeResponse.InvalidClientRedirection(clientPublicId, redirection)
         }
 
         // Parse requested response type and validate
-        val responseType = trim(responseTypeParam) ?: return Response.ClientError(ClientErrorType.unsupported_response_type,
+        val responseType = trim(responseTypeParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.unsupported_response_type,
                                                                                   redirection, stateParam,
                                                                                   Separator.QUESTION_MARK)
         val responseTypes = responseTypesFromParams(responseType);
         if (responseTypes.isEmpty()) {
-            return Response.ClientError(ClientErrorType.unsupported_response_type, redirection, stateParam, Separator.QUESTION_MARK)
+            return AuthorizeResponse.ClientError(ClientErrorType.unsupported_response_type, redirection, stateParam, Separator.QUESTION_MARK)
         }
         val separator = getSeparatorForResponseType(responseTypes)
 
         // Nonce is mandatory
-        val nonce = trim(nonceParam) ?: return Response.ClientError(ClientErrorType.invalid_request,
+        val nonce = trim(nonceParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.invalid_request,
                                                                     redirection, stateParam, separator)
 
         // Check scope
         val flow = responseTypesToFlow(responseTypes)
-        val requestScopes = trim(scopeParam) ?: return Response.ClientError(ClientErrorType.invalid_scope,
+        val requestScopes = trim(scopeParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.invalid_scope,
                                                                             redirection, stateParam, separator)
         val scopeSet = scopeService.validate(requestScopes, flow)
 
         if (scopeSet.invalidScopes.isNotEmpty()) {
-            return Response.ClientError(ClientErrorType.invalid_scope, redirection, stateParam, separator)
+            return AuthorizeResponse.ClientError(ClientErrorType.invalid_scope, redirection, stateParam, separator)
         }
 
         // Check if this client is allowed to use this flow
         if (!clientService.hasFlow(clientId, flow)) {
-            return Response.ClientError(ClientErrorType.unauthorized_client, redirection, stateParam, separator)
+            return AuthorizeResponse.ClientError(ClientErrorType.unauthorized_client, redirection, stateParam, separator)
         }
 
         val authorizedByUser =
-            userAuthorizationService.isAuthorized(aegaeonUserDetails, clientPublicId, redirection, scopeSet.validScopes)
+            userAuthorizationService.isAuthorized(userDetails, clientPublicId, redirection, scopeSet.validScopes)
         val prompt = promptFromString(promptParam)
         if (prompt == Prompt.none && !authorizedByUser) {
-            return Response.ClientError(ClientErrorType.consent_required, redirection, stateParam, separator)
+            return AuthorizeResponse.ClientError(ClientErrorType.consent_required, redirection, stateParam, separator)
         } else if (!authorizedByUser || prompt == Prompt.login || prompt == Prompt.login) {
-            return Response.UserConsentRequired()
+            return AuthorizeResponse.UserConsentRequired()
         }
 
         // Last chance, if the server has any validator defined
-        if (!authorizationInterceptor.validate(aegaeonUserDetails, client)) {
-            return Response.ValidationError(client.publicId)
+        if (!authorizationInterceptor.validate(userDetails, client)) {
+            return AuthorizeResponse.ValidationError(client.publicId)
         }
 
         // OK, good to go.
+        val scopeString = scopeSet.validScopes.joinToString(" ") { scopeDto -> scopeDto.code }
+
         return when (flow) {
             Flow.AUTHORIZATION_CODE -> {
-                val scopeString = scopeSet.validScopes.joinToString(" ") { scopeDto -> scopeDto.code }
-                val codeDto = authorizationCodeService.create(aegaeonUserDetails.id,
+                val codeDto = authorizationCodeService.create(userDetails.id,
                                                               clientId,
                                                               redirection,
                                                               scopeString,
@@ -232,14 +274,25 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
                                                               nonce)
 
                 return if (codeDto != null) {
-                    Response.AuthCode(redirection, codeDto.code, separator, stateParam)
+                    AuthorizeResponse.AuthCode(redirection, codeDto.code, separator, stateParam)
                 } else {
-                    Response.InternalServerError("Unable to create authorization code.")
+                    AuthorizeResponse.InternalServerError("Unable to create authorization code.")
                 }
             }
 
             Flow.IMPLICIT -> {
-                TODO()
+
+                val userDto = requireNotNull(userService.getUserById(userDetails.id))
+                val requestedScopes = scopeSet.validScopes
+                val payload = userService.createPayload(userDto, requestedScopes)
+
+                val idTokenDto = idTokenService.createToken(userDto, requestedScopes, nonce, payload, userDetails)
+                val accessTokenDto = accessTokenService.createToken(userDto, requestedScopes, payload, userDetails)
+
+                return AuthorizeResponse.ImplicitToken(idTokenDto?.token,
+                                                       accessTokenDto?.token,
+                                                       accessTokenDto?.validUntil?.epochSecond ?: 0L,
+                                                       scopeString)
             }
 
             Flow.HYBRID -> {
@@ -250,7 +303,7 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
                 TODO()
             }
 
-            else -> return Response.InternalServerError("Cannot handle flow $flow")
+            else -> return AuthorizeResponse.InternalServerError("Cannot handle flow $flow")
         }
     }
 
@@ -259,7 +312,17 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
     }
 }
 
-sealed class Response() {
+private const val BEARER = "Bearer"
+
+/**
+ * AuthorizeResponse.java
+ *
+ * An authorize response following a call to /authorize endpoint.
+ *
+ * @author by rguillemette
+ * @since Jan 6, 2020
+ */
+sealed class AuthorizeResponse() {
 
     class AuthCode(
 
@@ -271,7 +334,7 @@ sealed class Response() {
 
         val state: String?
 
-    ) : Response()
+    ) : AuthorizeResponse()
 
     class ImplicitToken(
 
@@ -281,24 +344,24 @@ sealed class Response() {
         @JsonProperty("access_token")
         val accessToken: String? = null,
 
-        @JsonProperty("token_type")
-        val tokenType: String = "Bearer",
-
         @JsonProperty("expires_in")
         val expiresIn: Long,
 
-        val scope: String? = null
+        val scope: String? = null,
 
-    ) : Response()
+        @JsonProperty("token_type")
+        val tokenType: String = BEARER
 
-    class HybridToken() : Response()
+    ) : AuthorizeResponse()
 
-    class ClientError(val error: ClientErrorType, val url: String, val state: String?, val separator: Separator) : Response()
-    class UserConsentRequired() : Response()
-    class InvalidClientId(val clientId: String?) : Response()
-    class InvalidClientRedirection(val clientId: String?, val clientRedirection: String?) : Response()
-    class InternalServerError(val cause: String) : Response()
-    class ValidationError(val clientPublicId: String) : Response()
+    class HybridToken() : AuthorizeResponse()
+
+    class ClientError(val error: ClientErrorType, val url: String, val state: String?, val separator: Separator) : AuthorizeResponse()
+    class UserConsentRequired() : AuthorizeResponse()
+    class InvalidClientId(val clientId: String?) : AuthorizeResponse()
+    class InvalidClientRedirection(val clientId: String?, val clientRedirection: String?) : AuthorizeResponse()
+    class InternalServerError(val cause: String) : AuthorizeResponse()
+    class ValidationError(val clientPublicId: String) : AuthorizeResponse()
 }
 
 enum class ClientErrorType {
@@ -312,4 +375,67 @@ enum class ClientErrorType {
     invalid_scope,
     server_error,
     temporarily_unavailable
+}
+
+
+
+/**
+ * TokenResponse.java
+ *
+ * A token response following a call to /token endpoint.
+ *
+ * @author by rguillemette
+ * @since May 9, 2017
+ */
+sealed class TokenResponse() {
+
+    data class Token(
+
+        @JsonProperty("id_token")
+        val idToken: String? = null,
+
+        @JsonProperty("access_token")
+        val accessToken: String? = null,
+
+        @JsonProperty("expires_in")
+        val expiresIn: Long,
+
+        val scope: String? = null,
+
+        @JsonProperty("refresh_token")
+        val refreshToken: String? = null,
+
+        @JsonProperty("token_type")
+        val tokenType: String = BEARER
+
+    ) : TokenResponse();
+
+
+    class InvalidClient() : TokenResponse() {
+        val error = "invalid_client"
+    }
+
+    class InvalidRequest() : TokenResponse() {
+        val error = "invalid_request"
+    }
+
+    class InvalidGrant() : TokenResponse() {
+        val error = "invalid_grant"
+    }
+
+    class UnauthorizedClient() : TokenResponse() {
+        val error = "unauthorized_client"
+    }
+
+    class UnsupportedGrantType() : TokenResponse() {
+        val error = "unsupported_grant_type"
+    }
+
+    class InvalidScope() : TokenResponse() {
+        val error = "invalid_scope"
+    }
+
+    class ServerError() : TokenResponse() {
+        val error = "server_error"
+    }
 }

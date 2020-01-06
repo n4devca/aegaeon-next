@@ -26,7 +26,7 @@ import ca.n4dev.aegaeonnext.common.model.Flow
 import ca.n4dev.aegaeonnext.common.model.flowFromName
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import ca.n4dev.aegaeonnext.core.service.*
-import ca.n4dev.aegaeonnext.core.web.view.TokenResponse
+import ca.n4dev.aegaeonnext.core.service.TokenResponse
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -51,7 +51,6 @@ private const val HEADER_CACHE_CONTROL_VALUE = "no-store"
 private const val HEADER_PRAGMA_KEY = "Pragma"
 private const val HEADER_PRAGMA_VALUE = "no-cache"
 
-
 @RestController
 @RequestMapping(TokensControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["oauth"], havingValue = "true", matchIfMissing = true)
@@ -62,7 +61,7 @@ class TokensController(private val authorizationCodeService: AuthorizationCodeSe
                        private val tokenServicesFacade: TokenServicesFacade) {
 
     // TODO(Rg): Validate requestMethod and return error code
-    @RequestMapping(value = [""], method = [RequestMethod.POST])
+    @RequestMapping("")
     @ResponseBody
     fun token(@RequestParam(value = "grant_type", required = false) grantTypeParam: String?,
               @RequestParam(value = "code", required = false) codeParam: String?,
@@ -76,13 +75,23 @@ class TokensController(private val authorizationCodeService: AuthorizationCodeSe
         val flow = flowFromName(grantTypeParam) ?: return ResponseEntity(TokenResponse.InvalidRequest(), HttpStatus.BAD_REQUEST);
         val userDetails = authentication.principal as AegaeonUserDetails
 
+        if (requestMethod != RequestMethod.POST) {
+            return createResponseEntity(TokenResponse.InvalidRequest(), HttpStatus.BAD_REQUEST)
+        }
+
         // Either auth code or refresh token
         val tokenResponse: TokenResponse = when (flow) {
+
             Flow.AUTHORIZATION_CODE ->
                 tokenServicesFacade.handleTokenRequestWithAuthCode(codeParam, clientRedirectParam, scopeParam, userDetails)
+
             Flow.REFRESH_TOKEN ->
                 tokenServicesFacade.handleRefreshTokenRequest(refreshTokenParam, clientRedirectParam, scopeParam, userDetails)
-            //Flow.CLIENT_CREDENTIALS -> tokenServicesFacade.handleClientCredTokenRequest(clientRedirectParam, scopeParam, userDetails)
+
+            Flow.CLIENT_CREDENTIALS -> tokenServicesFacade.handleClientCredTokenRequest(clientRedirectParam, scopeParam, userDetails)
+
+            //Flow.HYBRID -> tokenServicesFacade.handleHybridTokenRequest(clientRedirectParam, scopeParam, userDetails)
+
             else -> TokenResponse.InvalidGrant()
         }
 

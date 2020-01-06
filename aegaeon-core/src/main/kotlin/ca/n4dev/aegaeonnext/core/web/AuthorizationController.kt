@@ -95,18 +95,18 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
 
         // Errors
         return when (response) {
-            is Response.InternalServerError,
-            is Response.InvalidClientId,
-            is Response.InvalidClientRedirection,
-            is Response.ValidationError -> redirectToErrorPage(response)
+            is AuthorizeResponse.InternalServerError,
+            is AuthorizeResponse.InvalidClientId,
+            is AuthorizeResponse.InvalidClientRedirection,
+            is AuthorizeResponse.ValidationError -> redirectToErrorPage(response)
 
-            is Response.ClientError -> redirectErrorToClient(response)
+            is AuthorizeResponse.ClientError -> redirectErrorToClient(response)
 
-            is Response.AuthCode -> redirectAuthCodeToClient(response)
-            is Response.ImplicitToken -> TODO()
-            is Response.HybridToken -> TODO()
+            is AuthorizeResponse.AuthCode -> redirectAuthCodeToClient(response)
+            is AuthorizeResponse.ImplicitToken -> TODO()
+            is AuthorizeResponse.HybridToken -> TODO()
 
-            is Response.UserConsentRequired ->
+            is AuthorizeResponse.UserConsentRequired ->
                 consentPage(responseTypeParam,
                             scopeParam,
                             clientIdParam,
@@ -272,7 +272,7 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
         return authPage;
     }
 
-    private fun redirectAuthCodeToClient(authCode: Response.AuthCode): ModelAndView {
+    private fun redirectAuthCodeToClient(authCode: AuthorizeResponse.AuthCode): ModelAndView {
 
         val params = LinkedMultiValueMap<String, String>()
 
@@ -292,7 +292,7 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
         return ModelAndView(RedirectView(uriComponents.toUri().toString()))
     }
 
-    private fun redirectErrorToClient(clientError: Response.ClientError): ModelAndView {
+    private fun redirectErrorToClient(clientError: AuthorizeResponse.ClientError): ModelAndView {
 
         val params = LinkedMultiValueMap<String, String>()
 
@@ -312,7 +312,7 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
         return ModelAndView(RedirectView(uriComponents.toUri().toString()))
     }
 
-    private fun redirectToErrorPage(response: Response): ModelAndView {
+    private fun redirectToErrorPage(response: AuthorizeResponse): ModelAndView {
         val params = LinkedMultiValueMap<String, String>()
         params.add(ERROR_CODE_PARAM, response.javaClass.simpleName)
         val uriComponents = UriComponentsBuilder.fromPath(ErrorControllerURL).queryParams(params).build()
