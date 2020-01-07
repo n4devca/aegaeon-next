@@ -289,10 +289,12 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
                 val idTokenDto = idTokenService.createToken(userDto, requestedScopes, nonce, payload, userDetails)
                 val accessTokenDto = accessTokenService.createToken(userDto, requestedScopes, payload, userDetails)
 
-                return AuthorizeResponse.ImplicitToken(idTokenDto?.token,
+                return AuthorizeResponse.ImplicitToken(redirection,
+                                                       idTokenDto?.token,
                                                        accessTokenDto?.token,
                                                        accessTokenDto?.validUntil?.epochSecond ?: 0L,
-                                                       scopeString)
+                                                       scopeString,
+                                                       stateParam)
             }
 
             Flow.HYBRID -> {
@@ -305,10 +307,6 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
 
             else -> return AuthorizeResponse.InternalServerError("Cannot handle flow $flow")
         }
-    }
-
-    private fun isOneOfFlows(flow: Flow?, vararg acceptableFlows: Flow): Boolean {
-        return acceptableFlows.any { acceptableFlow -> acceptableFlow == flow }
     }
 }
 
@@ -338,18 +336,18 @@ sealed class AuthorizeResponse() {
 
     class ImplicitToken(
 
-        @JsonProperty("id_token")
+        val url: String,
+
         val idToken: String? = null,
 
-        @JsonProperty("access_token")
         val accessToken: String? = null,
 
-        @JsonProperty("expires_in")
         val expiresIn: Long,
 
         val scope: String? = null,
 
-        @JsonProperty("token_type")
+        val state: String? = null,
+
         val tokenType: String = BEARER
 
     ) : AuthorizeResponse()

@@ -26,9 +26,7 @@ import ca.n4dev.aegaeonnext.common.model.Separator
 import ca.n4dev.aegaeonnext.common.utils.trim
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import ca.n4dev.aegaeonnext.core.service.*
-import ca.n4dev.aegaeonnext.core.utils.URI_PARAM_CODE
-import ca.n4dev.aegaeonnext.core.utils.URI_PARAM_ERROR
-import ca.n4dev.aegaeonnext.core.utils.URI_PARAM_STATE
+import ca.n4dev.aegaeonnext.core.utils.*
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.security.core.Authentication
 import org.springframework.util.LinkedMultiValueMap
@@ -103,7 +101,7 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
             is AuthorizeResponse.ClientError -> redirectErrorToClient(response)
 
             is AuthorizeResponse.AuthCode -> redirectAuthCodeToClient(response)
-            is AuthorizeResponse.ImplicitToken -> TODO()
+            is AuthorizeResponse.ImplicitToken -> redirectImplicitToClient(response)
             is AuthorizeResponse.HybridToken -> TODO()
 
             is AuthorizeResponse.UserConsentRequired ->
@@ -118,84 +116,6 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
                             userDetails)
         }
 
-//        // Check not empty client info
-//        val clientPublicId = trim(clientIdParam) ?: return InternalError.InvalidClientId(clientIdParam)
-//        val clientRedirection = trim(clientRedirectParam) ?: return InternalError.InvalidClientRedirection(clientPublicId, clientRedirectParam)
-//
-//        // Get client
-//        val client = clientService.getByPublicId(clientPublicId) ?: return InternalError.InvalidClientId(clientIdParam)
-//        val clientId = requireNotNull(client.id) // Coming from persistence, OK
-//
-//        if (!clientService.hasRedirectionUri(clientId, clientRedirection)) {
-//            return InternalError.InvalidClientRedirection(clientPublicId, clientRedirection)
-//        }
-//
-//        // Parse requested response type and validate
-//        val responseType = trim(responseTypeParam) ?:
-//            return ClientError.UnsupportedResponseType(clientRedirection, stateParam, Separator.QUESTION_MARK)
-//        val responseTypes = responseTypesFromParams(responseType);
-//        if (responseTypes.isEmpty()) {
-//            return ClientError.UnsupportedResponseType(clientRedirection, stateParam, Separator.QUESTION_MARK)
-//        }
-//        val separator = getSeparatorForResponseType(responseTypes)
-//
-//        // Method used
-//        if (requestMethod != RequestMethod.GET && requestMethod != RequestMethod.POST) {
-//            return ClientError.InvalidRequest(clientRedirection, stateParam, separator)
-//        }
-//
-//        // Nonce is mandatory
-//        val nonce = trim(nonceParam) ?: return ClientError.InvalidRequest(clientRedirection, stateParam, separator)
-//
-//        // Check scope
-//        val flow = responseTypesToFlow(responseTypes)
-//        val requestScopes = trim(scopeParam) ?: return ClientError.InvalidScope(clientRedirection, stateParam, separator)
-//        val scopeSet = scopeService.validate(requestScopes, flow)
-//
-//        if (scopeSet.invalidScopes.isNotEmpty()) {
-//            return ClientError.InvalidScope(clientRedirection, stateParam, separator)
-//        }
-//
-//        // Check if this client is allowed to use this flow
-//        if(!clientService.hasFlow(clientId, flow)) {
-//            return ClientError.UnauthorizedClient(clientRedirection, stateParam, separator)
-//        }
-//
-//        val userDetails = authentication.principal as AegaeonUserDetails
-//
-//        val alreadyAuthorizedByUser =
-//            userAuthorizationService.isAuthorized(userDetails, clientPublicId, clientRedirection, scopeSet.validScopes)
-//        val prompt = promptFromString(promptParam)
-//        if (prompt == Prompt.none && !alreadyAuthorizedByUser) {
-//            // return directly to client
-//            return ClientError.InteractionRequired(clientRedirection, stateParam, separator)
-//
-//        } else if (!alreadyAuthorizedByUser || prompt == Prompt.login || prompt == Prompt.login) {
-//            // need to get consent
-//            return consentPage(responseType,
-//                scopeSet.validScopes,
-//                clientPublicId,
-//                clientRedirection,
-//                stateParam,
-//                nonce,
-//                displayParam,
-//                promptParam,
-//                authentication)
-//        }
-//
-//
-//
-//        // Good to go!!!
-//        return when(flow) {
-//            Flow.IMPLICIT -> ModelAndView(implicitResponse())
-//            Flow.AUTHORIZATION_CODE -> ModelAndView(authorizationCodeResponse(userDetails,
-//                clientId,
-//                clientRedirection,
-//                scopeSet.validScopes,
-//                responseType, nonce, stateParam, separator))
-//            Flow.HYBRID -> ModelAndView(hybridResponse())
-//            else -> InternalError.ServerError("Cannot handle flow $flow")
-//        }
     }
 
     @PostMapping("/consent")
@@ -292,6 +212,22 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
         return ModelAndView(RedirectView(uriComponents.toUri().toString()))
     }
 
+    private fun redirectImplicitToClient(implicitToken: AuthorizeResponse.ImplicitToken): ModelAndView {
+        val params = LinkedMultiValueMap<String, String>()
+
+        implicitToken.idToken.apply { params.add(URI_PARAM_ID_TOKEN, this) }
+        implicitToken.accessToken.apply { params.add(URI_PARAM_ACCESS_TOKEN, this) }
+        implicitToken.state?.apply { params.add(URI_PARAM_STATE, this) }
+
+        val url = implicitToken.url
+        val queryParams = UriComponentsBuilder.fromHttpUrl(url).queryParams(params).build().query
+        val builder = UriComponentsBuilder.fromHttpUrl(url).fragment(queryParams)
+
+        val uriComponents = builder.build()
+        return ModelAndView(RedirectView(uriComponents.toUri().toString()))
+    }
+
+
     private fun redirectErrorToClient(clientError: AuthorizeResponse.ClientError): ModelAndView {
 
         val params = LinkedMultiValueMap<String, String>()
@@ -317,13 +253,6 @@ class AuthorizationController(private val userAuthorizationService: UserAuthoriz
         params.add(ERROR_CODE_PARAM, response.javaClass.simpleName)
         val uriComponents = UriComponentsBuilder.fromPath(ErrorControllerURL).queryParams(params).build()
         return ModelAndView(RedirectView(uriComponents.toUri().toString()))
-    }
-
-
-    private fun append(pParams: MultiValueMap<String, String>, pKey: String, pValue: String?) {
-        if (!pKey.isNullOrBlank() && !pValue.isNullOrBlank()) {
-            pParams.add(pKey, pValue)
-        }
     }
 }
 
