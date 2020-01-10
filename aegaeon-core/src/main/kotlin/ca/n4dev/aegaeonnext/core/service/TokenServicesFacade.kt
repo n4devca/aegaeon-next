@@ -71,7 +71,7 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
 
         try {
 
-            val t: TokenResponse? = transactionTemplate.execute(fun(_: TransactionStatus): TokenResponse {
+            val t: TokenResponse? = transactionTemplate.execute(fun(_): TokenResponse {
                 val code = trim(authCode) ?: return TokenResponse.InvalidGrant()
                 val clientDto = clientService.getById(userDetails.id) ?: return TokenResponse.InvalidClient()
                 val redirectUri = trim(clientRedirection) ?: return TokenResponse.InvalidClient()
@@ -156,21 +156,6 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
         }
     }
 
-    @Transactional
-    @PreAuthorize("isAuthenticated() and #userDetails.id == principal.id")
-    fun handleImplicitTokenRequest(clientRedirection: String?,
-                                   scopes: String?,
-                                   userDetails: AegaeonUserDetails): TokenResponse {
-        try {
-
-
-
-            TODO()
-        } catch (exception: Exception) {
-            LOGGER.error("TokenServicesFacade#handleRefreshTokenRequest error: ", exception)
-            return TokenResponse.ServerError()
-        }
-    }
 
 //    @Transactional
 //    @PreAuthorize("isAuthenticated() and #userDetails.id == principal.id")
@@ -207,105 +192,114 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
                                idTokenHintParam: String?,
                                userDetails: AegaeonUserDetails): AuthorizeResponse {
 
-        val clientPublicId = trim(clientIdParam) ?: return AuthorizeResponse.InvalidClientId(clientIdParam)
-        val redirection = trim(clientRedirectParam) ?: return AuthorizeResponse.InvalidClientRedirection(clientPublicId, clientRedirectParam)
 
-        // Get client
-        val client = clientService.getByPublicId(clientPublicId) ?: return AuthorizeResponse.InvalidClientId(clientIdParam)
-        val clientId = requireNotNull(client.id) // Coming from persistence, OK
+        try {
 
-        if (!clientService.hasRedirectionUri(clientId, redirection)) {
-            return AuthorizeResponse.InvalidClientRedirection(clientPublicId, redirection)
-        }
+            val authorizeResponse = transactionTemplate.execute(fun(_): AuthorizeResponse {
 
-        // Parse requested response type and validate
-        val responseType = trim(responseTypeParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.unsupported_response_type,
-                                                                                  redirection, stateParam,
-                                                                                  Separator.QUESTION_MARK)
-        val responseTypes = responseTypesFromParams(responseType);
-        if (responseTypes.isEmpty()) {
-            return AuthorizeResponse.ClientError(ClientErrorType.unsupported_response_type, redirection, stateParam, Separator.QUESTION_MARK)
-        }
-        val separator = getSeparatorForResponseType(responseTypes)
+                val clientPublicId = trim(clientIdParam) ?: return AuthorizeResponse.InvalidClientId(clientIdParam)
+                val redirection = trim(clientRedirectParam) ?: return AuthorizeResponse.InvalidClientRedirection(clientPublicId, clientRedirectParam)
 
-        // Nonce is mandatory
-        val nonce = trim(nonceParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.invalid_request,
-                                                                    redirection, stateParam, separator)
+                // Get client
+                val client = clientService.getByPublicId(clientPublicId) ?: return AuthorizeResponse.InvalidClientId(clientIdParam)
+                val clientId = requireNotNull(client.id) // Coming from persistence, OK
 
-        // Check scope
-        val flow = responseTypesToFlow(responseTypes)
-        val requestScopes = trim(scopeParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.invalid_scope,
-                                                                            redirection, stateParam, separator)
-        val scopeSet = scopeService.validate(requestScopes, flow)
-
-        if (scopeSet.invalidScopes.isNotEmpty()) {
-            return AuthorizeResponse.ClientError(ClientErrorType.invalid_scope, redirection, stateParam, separator)
-        }
-
-        // Check if this client is allowed to use this flow
-        if (!clientService.hasFlow(clientId, flow)) {
-            return AuthorizeResponse.ClientError(ClientErrorType.unauthorized_client, redirection, stateParam, separator)
-        }
-
-        val authorizedByUser =
-            userAuthorizationService.isAuthorized(userDetails, clientPublicId, redirection, scopeSet.validScopes)
-        val prompt = promptFromString(promptParam)
-        if (prompt == Prompt.none && !authorizedByUser) {
-            return AuthorizeResponse.ClientError(ClientErrorType.consent_required, redirection, stateParam, separator)
-        } else if (!authorizedByUser || prompt == Prompt.login || prompt == Prompt.login) {
-            return AuthorizeResponse.UserConsentRequired()
-        }
-
-        // Last chance, if the server has any validator defined
-        if (!authorizationInterceptor.validate(userDetails, client)) {
-            return AuthorizeResponse.ValidationError(client.publicId)
-        }
-
-        // OK, good to go.
-        val scopeString = scopeSet.validScopes.joinToString(" ") { scopeDto -> scopeDto.code }
-
-        return when (flow) {
-            Flow.AUTHORIZATION_CODE -> {
-                val codeDto = authorizationCodeService.create(userDetails.id,
-                                                              clientId,
-                                                              redirection,
-                                                              scopeString,
-                                                              responseType,
-                                                              nonce)
-
-                return if (codeDto != null) {
-                    AuthorizeResponse.AuthCode(redirection, codeDto.code, separator, stateParam)
-                } else {
-                    AuthorizeResponse.InternalServerError("Unable to create authorization code.")
+                if (!clientService.hasRedirectionUri(clientId, redirection)) {
+                    return AuthorizeResponse.InvalidClientRedirection(clientPublicId, redirection)
                 }
-            }
 
-            Flow.IMPLICIT -> {
+                // Parse requested response type and validate
+                val responseType = trim(responseTypeParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.unsupported_response_type,
+                                                                                                   redirection, stateParam,
+                                                                                                   Separator.QUESTION_MARK)
+                val responseTypes = responseTypesFromParams(responseType);
+                if (responseTypes.isEmpty()) {
+                    return AuthorizeResponse.ClientError(ClientErrorType.unsupported_response_type, redirection, stateParam, Separator.QUESTION_MARK)
+                }
+                val separator = getSeparatorForResponseType(responseTypes)
 
-                val userDto = requireNotNull(userService.getUserById(userDetails.id))
-                val requestedScopes = scopeSet.validScopes
-                val payload = userService.createPayload(userDto, requestedScopes)
+                // Nonce is mandatory
+                val nonce = trim(nonceParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.invalid_request,
+                                                                                     redirection, stateParam, separator)
 
-                val idTokenDto = idTokenService.createToken(userDto, requestedScopes, nonce, payload, userDetails)
-                val accessTokenDto = accessTokenService.createToken(userDto, requestedScopes, payload, userDetails)
+                // Check scope
+                val flow = responseTypesToFlow(responseTypes)
+                val requestScopes = trim(scopeParam) ?: return AuthorizeResponse.ClientError(ClientErrorType.invalid_scope,
+                                                                                             redirection, stateParam, separator)
+                val scopeSet = scopeService.validate(requestScopes, flow)
 
-                return AuthorizeResponse.ImplicitToken(redirection,
-                                                       idTokenDto?.token,
-                                                       accessTokenDto?.token,
-                                                       accessTokenDto?.validUntil?.epochSecond ?: 0L,
-                                                       scopeString,
-                                                       stateParam)
-            }
+                if (scopeSet.invalidScopes.isNotEmpty()) {
+                    return AuthorizeResponse.ClientError(ClientErrorType.invalid_scope, redirection, stateParam, separator)
+                }
 
-            Flow.HYBRID -> {
-                TODO()
-            }
+                // Check if this client is allowed to use this flow
+                if (!clientService.hasFlow(clientId, flow)) {
+                    return AuthorizeResponse.ClientError(ClientErrorType.unauthorized_client, redirection, stateParam, separator)
+                }
 
-            Flow.CLIENT_CREDENTIALS -> {
-                TODO()
-            }
+                val authorizedByUser =
+                    userAuthorizationService.isAuthorized(userDetails, clientPublicId, redirection, scopeSet.validScopes)
+                val prompt = promptFromString(promptParam)
+                if (prompt == Prompt.none && !authorizedByUser) {
+                    return AuthorizeResponse.ClientError(ClientErrorType.consent_required, redirection, stateParam, separator)
+                } else if (!authorizedByUser || prompt == Prompt.login || prompt == Prompt.login) {
+                    return AuthorizeResponse.UserConsentRequired()
+                }
 
-            else -> return AuthorizeResponse.InternalServerError("Cannot handle flow $flow")
+                // Last chance, if the server has any validator defined
+                if (!authorizationInterceptor.validate(userDetails, client)) {
+                    return AuthorizeResponse.ValidationError(client.publicId)
+                }
+
+                // OK, good to go.
+                val scopeString = scopeSet.validScopes.joinToString(" ") { scopeDto -> scopeDto.code }
+
+                return when (flow) {
+                    Flow.AUTHORIZATION_CODE -> {
+                        val codeDto = authorizationCodeService.create(userDetails.id,
+                                                                      clientId,
+                                                                      redirection,
+                                                                      scopeString,
+                                                                      responseType,
+                                                                      nonce)
+
+                        return if (codeDto != null) {
+                            AuthorizeResponse.AuthCode(redirection, codeDto.code, separator, stateParam)
+                        } else {
+                            AuthorizeResponse.InternalServerError("Unable to create authorization code.")
+                        }
+                    }
+
+                    Flow.IMPLICIT -> {
+
+                        val userDto = requireNotNull(userService.getUserById(userDetails.id))
+                        val requestedScopes = scopeSet.validScopes
+                        val payload = userService.createPayload(userDto, requestedScopes)
+
+                        val idTokenDto = idTokenService.createToken(userDto, requestedScopes, nonce, payload, userDetails)
+                        val accessTokenDto = accessTokenService.createToken(userDto, requestedScopes, payload, userDetails)
+
+                        return AuthorizeResponse.ImplicitToken(redirection,
+                                                               idTokenDto?.token,
+                                                               accessTokenDto?.token,
+                                                               accessTokenDto?.validUntil?.epochSecond ?: 0L,
+                                                               scopeString,
+                                                               stateParam)
+                    }
+
+                    Flow.HYBRID -> {
+                        TODO()
+                    }
+
+                    else -> return AuthorizeResponse.InternalServerError("Cannot handle flow $flow")
+                }
+            })
+
+            return authorizeResponse ?: AuthorizeResponse.InternalServerError("Unhandled exception.")
+
+        } catch (exception: Exception) {
+            LOGGER.error("Unhandled exception", exception)
+            return AuthorizeResponse.InternalServerError("Unhandled exception.")
         }
     }
 }
