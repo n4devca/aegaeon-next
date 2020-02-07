@@ -156,20 +156,6 @@ class TokenServicesFacade(private val tokenFactory: TokenFactory,
         }
     }
 
-
-//    @Transactional
-//    @PreAuthorize("isAuthenticated() and #userDetails.id == principal.id")
-//    fun handleHybridTokenRequest(clientRedirection: String?,
-//                                     scopes: String?,
-//                                     userDetails: AegaeonUserDetails): TokenResponse {
-//        try {
-//            TODO()
-//        } catch (exception: Exception) {
-//            LOGGER.error("TokenServicesFacade#handleRefreshTokenRequest error: ", exception)
-//            return TokenResponse.ServerError()
-//        }
-//    }
-
     /**
      * Handle "authorize" type of request
      *

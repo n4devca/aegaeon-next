@@ -22,8 +22,13 @@
 
 package ca.n4dev.aegaeonnext.core.web
 
+import ca.n4dev.aegaeonnext.common.utils.Page
+import ca.n4dev.aegaeonnext.common.utils.QueryResult
+import ca.n4dev.aegaeonnext.common.utils.pageOf
 import ca.n4dev.aegaeonnext.core.config.AegaeonServerInfo
 import ca.n4dev.aegaeonnext.core.loggerFor
+import ca.n4dev.aegaeonnext.core.service.ScopeDto
+import ca.n4dev.aegaeonnext.core.service.ScopeService
 import ca.n4dev.aegaeonnext.core.token.TokenFactory
 import ca.n4dev.aegaeonnext.core.web.view.ServerInformation
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -32,6 +37,7 @@ import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
+import java.util.*
 import javax.servlet.http.HttpServletRequest
 
 /**
@@ -49,16 +55,38 @@ const val ServerInfoControllerURL = "/.well-known/openid-configuration"
 @RestController
 @RequestMapping(ServerInfoControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["information"], havingValue = "true", matchIfMissing = true)
-class ServerInfoController(aegaeonServerInfo: AegaeonServerInfo /*,scopeServive: ScopeServive*/, tokenFactory: TokenFactory) {
+class ServerInfoController(private val serverInfo: AegaeonServerInfo,
+                           private val scopeService: ScopeService,
+                           private val tokenFactory: TokenFactory) {
 
     private val LOGGER = loggerFor(javaClass)
 
     @GetMapping("")
     fun info(httpServletRequest: HttpServletRequest): ServerInformation? {
 
-        val contextPath = httpServletRequest.contextPath
+        val issuer = serverInfo.issuer
+        val ctx = httpServletRequest.contextPath
+        val path = issuer + ctx
+        val supportedAlgorithm = tokenFactory.getSupportedAlgorithm()
 
-        //return ServerInformation(aegaeonServerInfo.issuer, "", "")
-        return null
+        val scopes: QueryResult<ScopeDto> = scopeService.getScopes(pageOf(0, 1000))
+        val scopeCodeList = scopes.result.map { scopeDto -> scopeDto.code }
+
+        return ServerInformation(issuer = issuer,
+            authorizationEndpoint = path + AuthorizationControllerURL,
+            tokenEndpoint = path + TokensControllerURL,
+            userinfoEndpoint = path + UserInfoControllerURL,
+            jwksUri = path + JwkControllerURL,
+            tokenEndpointAuthMethodsSupported = listOf("client_secret_basic"),
+            scopesSupported = scopeCodeList,
+            responseTypesSupported = listOf("code", "code id_token", "id_token", "token id_token"),
+            subjectTypesSupported = listOf("public"),
+            userinfoSigningAlgValuesSupported = supportedAlgorithm,
+            idTokenSigningAlgValuesSupported = supportedAlgorithm,
+            displayValuesSupported = listOf("page"),
+            claimTypesSupported = listOf("normal"),
+            claimsParameterSupported = false,
+            uiLocalesSupported = listOf(Locale.ENGLISH.toString(), Locale.CANADA_FRENCH.toString()))
+
     }
 }

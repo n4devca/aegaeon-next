@@ -42,26 +42,26 @@ data class ServerInformation(
     @JsonProperty("token_endpoint")
     val tokenEndpoint: String,
 
-    @JsonProperty("token_endpoint_auth_methods_supported")
-    val tokenEndpointAuthMethodsSupported: List<String>,
-
-    @JsonProperty("token_endpoint_auth_signing_alg_values_supported")
-    val tokenEndpointAuthSigningAlgValuesSupported: List<String>,
-
     @JsonProperty("userinfo_endpoint")
     val userinfoEndpoint: String,
 
-    @JsonProperty("check_session_iframe")
-    val checkSessionIframe: String,
-
     @JsonProperty("end_session_endpoint")
-    val endSessionEndpoint: String,
+    val endSessionEndpoint: String? = null,
 
     @JsonProperty("jwks_uri")
     val jwksUri: String,
 
     @JsonProperty("registration_endpoint")
-    val registrationEndpoint: String,
+    val registrationEndpoint: String? = null,
+
+    @JsonProperty("token_endpoint_auth_methods_supported")
+    val tokenEndpointAuthMethodsSupported: List<String>,
+
+    @JsonProperty("token_endpoint_auth_signing_alg_values_supported")
+    val tokenEndpointAuthSigningAlgValuesSupported: List<String>? = null,
+
+    @JsonProperty("check_session_iframe")
+    val checkSessionIframe: String? = null,
 
     @JsonProperty("scopes_supported")
     val scopesSupported: List<String>,
@@ -70,54 +70,54 @@ data class ServerInformation(
     val responseTypesSupported: List<String>,
 
     @JsonProperty("acr_values_supported")
-    val acrValuesSupported: List<String>,
+    val acrValuesSupported: List<String>? = null,
 
     @JsonProperty("subject_types_supported")
-    val subjectTypesSupported: List<String>,
+    val subjectTypesSupported: List<String>? = null,
 
     @JsonProperty("userinfo_signing_alg_values_supported")
-    val userinfoSigningAlgValuesSupported: List<String>,
+    val userinfoSigningAlgValuesSupported: List<String>? = null,
 
     @JsonProperty("userinfo_encryption_alg_values_supported")
-    val userinfoEncryptionAlgValuesSupported: List<String>,
+    val userinfoEncryptionAlgValuesSupported: List<String>? = null,
 
     @JsonProperty("userinfo_encryption_enc_values_supported")
-    val userinfoEncryptionEncValuesSupported: List<String>,
+    val userinfoEncryptionEncValuesSupported: List<String>? = null,
 
     @JsonProperty("id_token_signing_alg_values_supported")
-    val idTokenSigningAlgValuesSupported: List<String>,
+    val idTokenSigningAlgValuesSupported: List<String>? = null,
 
     @JsonProperty("id_token_encryption_alg_values_supported")
-    val idTokenEncryptionAlgValuesSupported: List<String>,
+    val idTokenEncryptionAlgValuesSupported: List<String>? = null,
 
     @JsonProperty("id_token_encryption_enc_values_supported")
-    val idTokenEncryptionEncValuesSupported: List<String>,
+    val idTokenEncryptionEncValuesSupported: List<String>? = null,
 
     @JsonProperty("request_object_signing_alg_values_supported")
-    val requestObjectSigningAlgValuesSupported: List<String>,
+    val requestObjectSigningAlgValuesSupported: List<String>? = null,
 
     @JsonProperty("display_values_supported")
     val displayValuesSupported: List<String>,
 
     @JsonProperty("claim_types_supported")
-    val claimTypesSupported: List<String>,
+    val claimTypesSupported: List<String>? = null,
 
     @JsonProperty("claims_supported")
-    val claimsSupported: List<String>,
+    val claimsSupported: List<String>? = null,
 
     @JsonProperty("claims_parameter_supported")
     val claimsParameterSupported: Boolean,
 
     @JsonProperty("service_documentation")
-    val serviceDocumentation: String,
+    val serviceDocumentation: String? = null,
 
     @JsonProperty("ui_locales_supported")
     val uiLocalesSupported: List<String>,
 
     @JsonProperty("op_policy_uri")
-    val opPolicyUri: String,
+    val opPolicyUri: String? = null,
 
     @JsonProperty("op_tos_uri")
-    val opTosUri: String
+    val opTosUri: String? = null
 
 )

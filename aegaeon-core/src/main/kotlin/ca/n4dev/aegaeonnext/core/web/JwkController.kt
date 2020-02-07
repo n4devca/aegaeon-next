@@ -20,36 +20,33 @@
  *
  */
 
-package ca.n4dev.aegaeonnext.common.repository
+package ca.n4dev.aegaeonnext.core.web
 
-import ca.n4dev.aegaeonnext.common.model.Claim
-import ca.n4dev.aegaeonnext.common.model.Scope
-import ca.n4dev.aegaeonnext.common.utils.Page
-import ca.n4dev.aegaeonnext.common.utils.QueryResult
+import ca.n4dev.aegaeonnext.core.token.TokenFactory
+import ca.n4dev.aegaeonnext.core.web.view.ServerInformation
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RestController
+import javax.servlet.http.HttpServletRequest
 
 /**
  *
- * ScopeRepository.java
+ * JwkController.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 21 - 2019
+ * @since 2.0.0 - Feb 06 - 2020
  *
  */
-interface ScopeRepository {
 
-    fun getScopes(page: Page): QueryResult<Scope>
+const val JwkControllerURL = "/jwk"
 
-    fun getScopeByCode(code: String): Scope?
+@RestController(JwkControllerURL)
+@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["information"], havingValue = "true", matchIfMissing = true)
+class JwkController(private val tokenFactory: TokenFactory) {
 
-    fun getScopesByCodes(codes: Set<String>): List<Scope>
-
-    fun getAllClaims(): List<Claim>
-
-    fun getClaimsByScopes(scopeIds: Set<Long>): Map<Long, List<Claim>>
-
-    fun getDistinctClaimsByScopes(scopeIds: Set<Long>): List<Claim>
-
-    fun getClaimsByScopeId(scopeId: Long, page: Page): QueryResult<Claim>
-
+    @GetMapping("")
+    fun jwk(httpServletRequest: HttpServletRequest): String {
+        return tokenFactory.publicJwks()
+    }
 }

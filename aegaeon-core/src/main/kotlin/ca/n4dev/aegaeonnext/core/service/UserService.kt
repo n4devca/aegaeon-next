@@ -74,7 +74,8 @@ class UserService(private val userRepository: UserRepository,
         return if (scopes.isNotEmpty()) {
 
             val userId = requireNotNull(userDto.id)
-            val claims = scopeService.getDistinctClaimsByScopes(scopes)
+            val scopeIds = scopes.map { scopeDto -> scopeDto.id }.toSet()
+            val claims = scopeService.getDistinctClaimsByScopes(scopeIds)
             val userInfos: List<UserInfo> = userRepository.getUserInfoByUserId(userId)
 
             val filterInfos: List<UserInfo> = userInfos.filter { userInfo ->

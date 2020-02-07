@@ -114,11 +114,10 @@ class UserRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseReposit
 
         val results =
             jdbcTemplate.query(GET_ALL_USERS,
-                               mapOf("offset" to computeOffSet(page.getPageNumber(), page.getPageSize()),
-                                     "limit" to page.getPageSize()),
+                               page.toParams(),
                                resultSetToUser)
 
-        return resultOf(results, page, count(COUNT_ALL_USERS))
+        return resultOf(results, page, countAll())
     }
 
     override fun getUserInfoByUserId(userId: Long): List<UserInfo> =
