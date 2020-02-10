@@ -19,41 +19,22 @@
  * under the License.
  */
 
-package ca.n4dev.aegaeonnext.core.service
+package ca.n4dev.aegaeonnext.core.web.view
 
-import java.time.Instant
+import com.fasterxml.jackson.annotation.JsonAnyGetter
 
 /**
  *
- * BaseTokenService.java
- * TODO(rguillemette) Add description.
+ * UserInfoRequest
+ *
+ * A userInfo
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 21 - 2019
+ * @since Feb 07 - 2020
  *
  */
-abstract class BaseTokenService {
+class UserInfoResponse(val sub: String, private val userInfo: Map<String, Any>) {
 
-    /**
-     * @return The type of token handle by the service.
-     */
-    abstract fun getManagedTokenType(): TokenType
-
-
+    @JsonAnyGetter
+    fun getPayload() = userInfo
 }
-
-enum class TokenType {
-    ACCESS_TOKEN,
-    ID_TOKEN,
-    REFRESH_TOKEN
-}
-
-data class TokenDto(
-    val id: Long,
-    val token: String,
-    val tokenType: TokenType,
-    val clientId: Long,
-    val userId: Long,
-    val scopes: String,
-    val validUntil: Instant?
-)

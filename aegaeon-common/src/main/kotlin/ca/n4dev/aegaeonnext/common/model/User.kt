@@ -32,8 +32,8 @@ import java.time.Instant
  * @since 2.0.0 - Oct 29 - 2019
  *
  */
-data class User(
-    val id: Long?,
+data class User (
+    val id: Long,
     val userName: String,
     val password: String,
     val uniqueIdentifier: String,

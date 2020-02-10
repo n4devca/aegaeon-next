@@ -23,9 +23,9 @@
 package ca.n4dev.aegaeonnext.core.web
 
 import ca.n4dev.aegaeonnext.core.token.TokenFactory
-import ca.n4dev.aegaeonnext.core.web.view.ServerInformation
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import javax.servlet.http.HttpServletRequest
 
@@ -41,11 +41,12 @@ import javax.servlet.http.HttpServletRequest
 
 const val JwkControllerURL = "/jwk"
 
-@RestController(JwkControllerURL)
+@RestController
+@RequestMapping(JwkControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["information"], havingValue = "true", matchIfMissing = true)
 class JwkController(private val tokenFactory: TokenFactory) {
 
-    @GetMapping("")
+    @GetMapping("", produces = ["application/json"])
     fun jwk(httpServletRequest: HttpServletRequest): String {
         return tokenFactory.publicJwks()
     }

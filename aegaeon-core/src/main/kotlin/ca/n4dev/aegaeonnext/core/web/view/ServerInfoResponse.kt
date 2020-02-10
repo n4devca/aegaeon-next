@@ -32,7 +32,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
  * @since 2.0.0 - Oct 04 - 2019
  *
  */
-data class ServerInformation(
+data class ServerInfoResponse(
 
     val issuer: String,
 

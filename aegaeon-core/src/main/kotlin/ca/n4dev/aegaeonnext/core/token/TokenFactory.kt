@@ -25,6 +25,7 @@ package ca.n4dev.aegaeonnext.core.token
 import ca.n4dev.aegaeonnext.common.model.TokenProviderType
 import ca.n4dev.aegaeonnext.common.model.fromTokenProviderTypeString
 import ca.n4dev.aegaeonnext.common.utils.requireNonNull
+import ca.n4dev.aegaeonnext.core.service.TokenDto
 import ca.n4dev.aegaeonnext.core.service.TokenType
 import ca.n4dev.aegaeonnext.core.token.key.KeysProvider
 import org.springframework.stereotype.Component
@@ -131,9 +132,17 @@ class TokenFactory(private val keysProvider: KeysProvider, providers: List<Provi
         return tokenProviderHolder.entries.map { it.value.getAlgorithmName() }
     }
 
-    @Throws(Exception::class)
     fun publicJwks(): String {
         return keysProvider.toPublicJson()
     }
 
+    /**
+     * Validate an access Token for a client.
+     */
+    fun validate(oauthClient: OAuthClient, token: String): Boolean {
+
+        val tokenProviderType = oauthClient.signingAlg
+        val verifier = tokenVerifierHolder[tokenProviderType]
+        return verifier?.validate(oauthClient.clientId, token) ?: false;
+    }
 }

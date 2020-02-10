@@ -34,10 +34,10 @@ import java.sql.ResultSet
 import java.sql.Timestamp
 
 private const val GET_BY_TOKEN =
-    "select id, token, user_id, client_id, scopes, valid_until from access_token where token = :token"
+    "select id, token, user_id, client_id, scopes, valid_until, created_at from access_token where token = :token"
 
 private const val GET_BY_USER_ID =
-    "select id, token, user_id, client_id, scopes, valid_until from access_token where user_id = :user_id"
+    "select id, token, user_id, client_id, scopes, valid_until, created_at from access_token where user_id = :user_id"
 
 private const val COUNT_BY_USER_ID =
     "select count(*) from access_token where user_id = :user_id"

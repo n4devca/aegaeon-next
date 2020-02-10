@@ -68,7 +68,7 @@ class RefreshTokenService(private val refreshTokenRepository: RefreshTokenReposi
 
             val tokenId = refreshTokenRepository.create(refreshToken)
 
-            return TokenDto(tokenId, tokenValue, TokenType.REFRESH_TOKEN, scopeString, validUntil)
+            return TokenDto(tokenId, tokenValue, TokenType.REFRESH_TOKEN, clientId, userId, scopeString, validUntil)
         }
 
         return null

@@ -34,7 +34,7 @@ import org.springframework.stereotype.Repository
 private const val SCOPE_COLUMNS = "id, code, is_system"
 private const val CLAIM_COLUMNS = "id, code"
 
-private const val SCOPE_GET_PAGE = "select $SCOPE_COLUMNS from scope limit :offset, :size order by code"
+private const val SCOPE_GET_PAGE = "select $SCOPE_COLUMNS from scope order by code limit :offset, :limit"
 private const val SCOPE_GET_BY_CODE = "select $SCOPE_COLUMNS from scope where code = :code"
 private const val SCOPE_GET_BY_CODES = "select $SCOPE_COLUMNS from scope where code in (:codes)"
 private const val CLAIM_GET_ALL = "select $CLAIM_COLUMNS from claim"
@@ -64,7 +64,8 @@ private const val CLAIMS_DISTINCT_BY_SCOPE_ID = """
 select distinct $CLAIM_COLUMNS
 from claim
 where scope_claim.scope_id = scopeId
-limit :offset, :size order by code
+order by code
+limit :offset, :limit 
 """
 
 private const val COUNT_CLAIMS_DISTINCT_BY_SCOPE_ID = """

@@ -43,7 +43,7 @@ import org.springframework.web.servlet.ModelAndView
  *
  */
 
-const val ErrorControllerURL = "/server/error";
+const val ErrorControllerURL = "/error";
 const val ERROR_PAGE = "error"
 const val ERROR_CODE_PARAM = "code"
 const val ERROR_MESSAGE_PARAM = "msg"
@@ -59,7 +59,7 @@ class ErrorInterceptorController(labelUtils: LabelUtils, serverInfo: AegaeonServ
     }
 
     private fun internalErrorPage(errorCode: String, severity: Severity, throwable: Throwable?): ModelAndView {
-        val mv = errorPage(errorCode, null, severity, throwable)
+        val mv = createErrorPage(errorCode, null, severity, throwable)
         LOGGER.error("Error {$severity, $errorCode}", throwable)
         return mv;
     }
@@ -71,19 +71,19 @@ class ErrorController {
     private val LOGGER = loggerFor(javaClass)
 
     @GetMapping(ErrorControllerURL)
-    fun errorPage(@RequestParam(ERROR_CODE_PARAM, required = false) code: String,
-                  @RequestParam(ERROR_MESSAGE_PARAM, required = false) message: String): ModelAndView {
+    fun errorPage(@RequestParam(ERROR_CODE_PARAM, required = false) code: String?,
+                  @RequestParam(ERROR_MESSAGE_PARAM, required = false) message: String?): ModelAndView {
 
-        val mv = errorPage(code, message)
+        val mv = createErrorPage(code, message)
         LOGGER.error("Error {$code}: $message")
         return mv;
     }
 }
 
-private fun errorPage(errorCode: String,
-                      errorMessage: String?,
-                      severity: Severity = Severity.WARNING,
-                      throwable: Throwable? = null): ModelAndView {
+private fun createErrorPage(errorCode: String?,
+                            errorMessage: String?,
+                            severity: Severity = Severity.WARNING,
+                            throwable: Throwable? = null): ModelAndView {
     val mv = ModelAndView(ERROR_PAGE);
 
     mv.addObject("errorCode", errorCode)

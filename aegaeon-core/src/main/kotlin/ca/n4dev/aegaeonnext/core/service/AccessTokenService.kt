@@ -51,6 +51,8 @@ class AccessTokenService(private val accessTokenRepository: AccessTokenRepositor
             accessToken.id!!,
             accessToken.token,
             getManagedTokenType(),
+            accessToken.clientId,
+            accessToken.userId,
             accessToken.scopes,
             accessToken.validUntil
         )
@@ -78,7 +80,7 @@ class AccessTokenService(private val accessTokenRepository: AccessTokenRepositor
 
         val accessToken = AccessToken(null, token.value, userId, clientId, scopeString, token.validUntil, Instant.now())
         val accessTokenId = accessTokenRepository.create(accessToken)
-        return TokenDto(accessTokenId, token.value, TokenType.ACCESS_TOKEN, scopeString, token.validUntil)
+        return TokenDto(accessTokenId, token.value, TokenType.ACCESS_TOKEN, clientId, userId, scopeString, token.validUntil)
     }
 
     override fun getManagedTokenType() = TokenType.ACCESS_TOKEN

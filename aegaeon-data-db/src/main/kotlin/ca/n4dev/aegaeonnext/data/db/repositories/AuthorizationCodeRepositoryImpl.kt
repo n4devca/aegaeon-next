@@ -50,7 +50,7 @@ private const val GET_BY_CLIENT_ID = """
     from authorization_code
     where client_id = :clientId
     order by :sort
-    limit :offset , :size
+    limit :offset , :limit
 """
 
 private const val GET_BY_USER_ID = """
@@ -58,7 +58,7 @@ private const val GET_BY_USER_ID = """
     from authorization_code
     where user_id = :userId
     order by :sort
-    limit :offset , :size
+    limit :offset , :limit
 """
 
 @Repository

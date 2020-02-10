@@ -85,7 +85,7 @@ class IdTokenService(private val idTokenRepository: IdTokenRepository,
                                   Instant.now())
             val idTokenId: Long = idTokenRepository.create(idToken)
 
-            return TokenDto(idTokenId, token.value, TokenType.ID_TOKEN, scopeString, token.validUntil)
+            return TokenDto(idTokenId, token.value, TokenType.ID_TOKEN, clientId, userId, scopeString, token.validUntil)
         }
 
         return null;

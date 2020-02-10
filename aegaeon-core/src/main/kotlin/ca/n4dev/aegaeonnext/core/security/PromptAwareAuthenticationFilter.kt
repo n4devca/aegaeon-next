@@ -49,7 +49,7 @@ import javax.servlet.http.HttpServletResponse
  * @since 2.0.0 - Nov 06 - 2019
  *
  */
-class PromptAwareAuthenticationFilter(private val controllerErrorInterceptor: ErrorInterceptorController,
+class PromptAwareAuthenticationFilter(private val errorInterceptorController: ErrorInterceptorController,
                                       private val userAuthorizationService: UserAuthorizationService,
                                       private val clientService: ClientService) : GenericFilterBean() {
 

@@ -21,10 +21,20 @@
  */
 package ca.n4dev.aegaeonnext.core.service
 
+import ca.n4dev.aegaeonnext.common.utils.isAfterNow
 import ca.n4dev.aegaeonnext.core.loggerFor
+import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthentication
+import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationException
+import ca.n4dev.aegaeonnext.core.token.OAuthClient
 import ca.n4dev.aegaeonnext.core.token.TokenFactory
+import com.nimbusds.jwt.SignedJWT
+import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException
+import org.springframework.security.authentication.CredentialsExpiredException
 import org.springframework.security.core.Authentication
+import org.springframework.security.core.AuthenticationException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import java.text.ParseException
 
 /**
  *
@@ -38,71 +48,68 @@ import org.springframework.stereotype.Service
 
 @Service
 class AuthenticationService(private val accessTokenService: AccessTokenService,
+                            private val clientService: ClientService,
+                            private val userService: UserService,
                             private val scopeService: ScopeService,
                             private val tokenFactory: TokenFactory) {
 
     private val LOGGER = loggerFor(javaClass)
 
+    @Transactional(readOnly = true)
     fun authenticate(pAccessToken: String?): Authentication {
-        TODO("not implemented yet")
-    }
 
-//    @Transactional(readOnly = true)
-//    fun authenticate(pAccessToken: String?): Authentication {
-//
-//
-//        try {
-//            var accessToken: TokenDto?
-//            val tokenStr = pAccessToken ?: "-"
-//
-//            if (!pAccessToken.isNullOrBlank()) {
-//
-//                // Should be parseable
-//                SignedJWT.parse(pAccessToken)
-//
-//                // Now Get it
-//                accessToken = this.accessTokenService.findByToken(pAccessToken)
-//
-//                // Exists ?
-//                if (accessToken == null) {
-//                    throw AuthenticationCredentialsNotFoundException("$tokenStr is invalid or has been revoked.")
-//                }
-//
-//                // Still Valid ?
-//                if (!isAfterNow(accessToken.validUntil)) {
-//                    throw CredentialsExpiredException("$tokenStr is expired.")
-//                }
-//
-//                // Validate
-//                if (!this.tokenFactory.validate(accessToken!!.getClient(), pAccessToken)) {
-//                    throw AccessTokenAuthenticationException("The JWT is not valid")
-//                }
-//
-//                val u = accessToken!!.getUser()
-//                val roles = MutableList<String>()
-//
-//                if (u.getAuthorities() != null) {
-//                    u.getAuthorities().forEach { a -> roles.add(a.getCode()) }
-//                }
-//                val uv = this.userMapper.toDto(u)
-//
-//                return AccessTokenAuthentication(
-//                    uv,
-//                    pAccessToken,
-//                    scopeService.getValidScopes(accessToken!!.getScopes()),
-//                    roles)
-//            }
-//
-//
-//        } catch (pe: ParseException) {
-//            LOGGER.info("AccessTokenAuthenticationProvider#authenticate: unable to parse as JWT")
-//            throw AccessTokenAuthenticationException("AccessTokenAuthenticationProvider#authenticate: unable to parse as JWT")
-//        } catch (e: Exception) {
-//            LOGGER.info("AccessTokenAuthenticationProvider#authenticate: Error checking JWT token")
-//        }
-//
-//
-//        throw AccessTokenAuthenticationException("Error checking JWT token")
-//    }
+        try {
+            val tokenStr = pAccessToken ?: "-"
+
+            if (!pAccessToken.isNullOrBlank()) {
+
+                // Should be parseable
+                SignedJWT.parse(pAccessToken)
+
+                // Now Get it
+                var accessToken: TokenDto = this.accessTokenService.findByToken(pAccessToken)
+                    ?: throw AuthenticationCredentialsNotFoundException("This access token is invalid or has been revoked.")
+
+                // Still Valid ?
+                if (!isAfterNow(accessToken.validUntil)) {
+                    throw CredentialsExpiredException("This access token is expired.")
+                }
+
+                // Get client
+                val clientDto = clientService.getById(accessToken.clientId)
+                    ?: throw CredentialsExpiredException("This client is invalid.")
+
+                // Validate
+                if (!this.tokenFactory.validate(OAuthClient(clientDto.publicId, clientDto.tokenEndpointAuthSigningAlg), pAccessToken)) {
+                    throw AccessTokenAuthenticationException("The JWT is not valid")
+                }
+
+                val user: UserDto = userService.getUserById(accessToken.userId)
+                    ?: throw CredentialsExpiredException("This user is invalid.")
+
+                val roles: List<UserAuthorityDto> = userService.getUserAuthoritiesByUserId(user.id)
+
+                return AccessTokenAuthentication(
+                    pAccessToken,
+                    user.id,
+                    user.uniqueIdentifier,
+                    roles,
+                    scopeService.getValidScopes(accessToken.scopes))
+            }
+
+
+        } catch (pe: ParseException) {
+            LOGGER.warn("AccessTokenAuthenticationProvider#authenticate: unable to parse as JWT")
+            throw AccessTokenAuthenticationException("Error parsing JWT token")
+        } catch (authException : AuthenticationException) {
+            LOGGER.warn("AuthenticationException", authException)
+            throw authException;
+        } catch (e: Exception) {
+            LOGGER.info("AccessTokenAuthenticationProvider#authenticate: Error checking JWT token", e)
+        }
+
+
+        throw AccessTokenAuthenticationException("Error checking JWT token")
+    }
 
 }

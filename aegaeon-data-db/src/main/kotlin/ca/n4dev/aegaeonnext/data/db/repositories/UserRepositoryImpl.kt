@@ -132,16 +132,15 @@ class UserRepositoryImpl(jdbcTemplate: NamedParameterJdbcTemplate) : BaseReposit
     override fun getUserAuthorities(userId: Long): List<Authority> =
         jdbcTemplate.query(GET_AUTHORITY_BY_USERID, mapOf("user_id" to userId), resultSetToAuthority)
 
-    override fun create(user: User): Long {
+    override fun create(userName: String, uniqueIdentifier: String, name: String?, password: String, enabled: Boolean): Long {
 
         val params =
             mapOf(
-                "username" to user.userName,
-                "unique_identifier" to user.uniqueIdentifier,
-                "name" to user.name,
-                "passwd" to user.password,
-                "picture_url" to user.picture,
-                "enabled" to user.enabled
+                "username" to userName,
+                "unique_identifier" to uniqueIdentifier,
+                "name" to name,
+                "passwd" to password,
+                "enabled" to enabled
             )
 
         return super.create(params)

@@ -21,8 +21,11 @@
 
 package ca.n4dev.aegaeonnext.core.security
 
+import ca.n4dev.aegaeonnext.core.service.ScopeDto
+import ca.n4dev.aegaeonnext.core.service.UserAuthorityDto
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 /**
  *
@@ -33,17 +36,16 @@ import org.springframework.security.core.GrantedAuthority
  * @since 2.0.0 - Nov 05 - 2019
  *
  */
-class AccessTokenAuthentication(val accessToken: String) : Authentication {
+class AccessTokenAuthentication(val accessToken: String,
+                                val userId: Long? = null,
+                                val uniqueIdentifier: String? = null,
+                                val authorities: List<UserAuthorityDto>? = null,
+                                val scopes: Set<ScopeDto>? = null) : Authentication {
 
-    //    private val userId: Long?
-//    private val uniqueIdentifier: String
-    //private val scopes: Set<ScopeView>
     private var authenticated = false
-//    private var authorities: Collection<GrantedAuthority>? = null
-
 
     override fun getAuthorities(): MutableCollection<out GrantedAuthority>? {
-        return null
+        return authorities?.map { userAuthorityDto -> SimpleGrantedAuthority(userAuthorityDto.code) }?.toMutableList()
     }
 
     override fun setAuthenticated(auth: Boolean) {
@@ -59,7 +61,7 @@ class AccessTokenAuthentication(val accessToken: String) : Authentication {
     }
 
     override fun getPrincipal(): Any? {
-        return null
+        return accessToken
     }
 
     override fun isAuthenticated(): Boolean {

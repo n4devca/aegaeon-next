@@ -49,7 +49,7 @@ interface UserRepository {
 
     fun getUserAuthorities(userId: Long): List<Authority>
 
-    fun create(user: User): Long
+    fun create(userName: String, uniqueIdentifier: String, name: String?, password: String, enabled: Boolean): Long
 
     fun update(id: Long, user: User)
 

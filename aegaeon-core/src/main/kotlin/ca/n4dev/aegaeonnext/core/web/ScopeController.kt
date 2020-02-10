@@ -43,7 +43,8 @@ import org.springframework.web.bind.annotation.*
 
 const val ScopeControllerURL = "/scopes"
 
-@RestController(ScopeControllerURL)
+@RestController
+@RequestMapping(ScopeControllerURL)
 class ScopeController(val scopeService: ScopeService) {
 
     @GetMapping("")

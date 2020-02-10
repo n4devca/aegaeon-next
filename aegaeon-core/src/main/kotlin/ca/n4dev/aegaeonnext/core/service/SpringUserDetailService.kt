@@ -46,7 +46,9 @@ class SpringUserDetailsService(private val userRepository: UserRepository) : Use
      */
     override fun loadUserByUsername(pUsername: String): UserDetails {
 
-        userRepository.getUserByUserName(pUsername)?.let { user ->
+        val user = userRepository.getUserByUserName(pUsername)
+
+        if (user != null) {
             val userAuthorities = userRepository.getUserAuthorities(user.id!!)
             val authorities = userAuthorities.map { SimpleGrantedAuthority(it.code) }
             return AegaeonUserDetails(user.id!!, user.userName, user.password, user.enabled, !user.locked, authorities)

@@ -23,6 +23,7 @@
 package ca.n4dev.aegaeonnext.common.utils
 
 import kotlin.math.max
+import kotlin.math.min
 
 /**
  *
@@ -33,7 +34,7 @@ import kotlin.math.max
  * @since 2.0.0 - Nov 21 - 2019
  *
  */
-fun computeOffSet(page: Int, size: Int) = (page - 1).coerceAtLeast(0) * size
+fun computeOffSet(page: Int, size: Int) = page.coerceAtLeast(0) * size
 
 interface Page {
 
@@ -41,21 +42,10 @@ interface Page {
 
     val size: Int
 
-    val offset: Int
-        get() = page * size
-
     val sorts: Set<Sort>
         get() = emptySet()
 
     fun toParams() = mutableMapOf<String, Any>("offset" to computeOffSet(page, size), "limit" to size)
-
-//    fun getPageNumber(): Int = 1
-//
-//    fun getPageSize(): Int = 25
-//
-//    fun getOffset() = getPageNumber() * getPageSize()
-//
-//    fun getSorts() : Set<Sort> = emptySet()
 }
 
 enum class Direction {
@@ -86,5 +76,5 @@ interface QueryResult<R> {
 private class QueryResultImpl<R>(override val result: List<R>, override val totalResult: Long, override val page: Page) : QueryResult<R>
 private class PageImpl(override val page: Int, override val size: Int) : Page
 
-fun pageOf(pageNumber: Int = 0, pageSize: Int = 25): Page = PageImpl(max(pageNumber, 0), max(pageSize, 0))
+fun pageOf(pageNumber: Int = 0, pageSize: Int = 25): Page = PageImpl(max(pageNumber, 0), min(max(pageSize, 0), 100))
 fun <R> resultOf(results : List<R>, page: Page, total: Long): QueryResult<R> = QueryResultImpl(results, total, page)
