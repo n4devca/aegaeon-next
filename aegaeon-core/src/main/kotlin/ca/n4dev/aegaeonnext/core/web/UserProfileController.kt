@@ -21,8 +21,11 @@
 
 package ca.n4dev.aegaeonnext.core.web
 
+import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import ca.n4dev.aegaeonnext.core.service.ScopeService
 import ca.n4dev.aegaeonnext.core.service.UserService
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Controller
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.RequestMapping
@@ -44,16 +47,20 @@ const val UserProfileControllerURL = "/user-profile"
  *
  */
 @Controller
-@RequestMapping(UserInfoControllerURL)
+@RequestMapping(UserProfileControllerURL)
+@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["account"], havingValue = "true", matchIfMissing = true)
 class UserProfileController(private val userService: UserService,
                             private val scopeService: ScopeService) {
 
     private val userProfilePage = "user-profile"
 
     @GetMapping
-    fun getProfilePage(): ModelAndView {
-        val view = ModelAndView(userProfilePage)
+    fun getProfilePage(authentication: Authentication): ModelAndView {
 
+        val userDetails = authentication.principal as AegaeonUserDetails
+
+        val view = ModelAndView(userProfilePage)
+        view.addObject("user", userService.getUserById(userDetails.id))
         return view
     }
 }

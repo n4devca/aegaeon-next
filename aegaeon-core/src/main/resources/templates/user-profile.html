@@ -27,12 +27,35 @@
 <body>
 <section layout:fragment="content">
     <section class="t-user-profile">
-        <form th:action="@{/user-profile}" method="POST">
+        <form method="POST"
+              th:action="@{/user-profile}"
+              th:object="${user}">
+
             <div class="panel">
                 <div class="panel-body">
 
-                    User Profile
+                    <h1 th:text="#{page.userprofile.title}"></h1>
+                    <hr />
+                    <label for="up-name" class="form-caption" th:text="#{page.userprofile.label.name}">Name</label>
+                    <input id="up-name" type="text" class="form-input"
+                           th:placeholder="#{page.userprofile.placeholder.name}"
+                           th:field="*{name}" />
 
+
+                    <!-- /*
+                    th:field="*{name}"
+                    val id: Long,
+    val userName: String,
+    val uniqueIdentifier: String,
+    val name: String,
+    val picture: String? = null,
+    val locale: String? = null,
+    val enabled: Boolean = true,
+    val locked: Boolean = false,
+    val lastLoginDate: Instant? = null,
+    val version: Int = 0
+
+                    */ -->
                     <!-- /*
                     <div th:if="${param.error}" class="panel">
                         <div class="panel-body panel-body-warning">
@@ -50,8 +73,7 @@
                      */ -->
                 </div>
                 <div class="panel-footer is-right">
-                    <input type="submit" class="btn btn-default" name="save"
-                           value="save" th:value="#{action.save}">
+                    <input type="submit" class="btn btn-default" name="save" value="save" th:value="#{action.save}" />
                 </div>
             </div>
         </form>
