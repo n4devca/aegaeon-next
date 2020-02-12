@@ -24,6 +24,8 @@ package ca.n4dev.aegaeonnext.common.repository
 
 import ca.n4dev.aegaeonnext.common.model.Claim
 import ca.n4dev.aegaeonnext.common.model.Scope
+import ca.n4dev.aegaeonnext.common.utils.Page
+import ca.n4dev.aegaeonnext.common.utils.QueryResult
 
 /**
  *
@@ -36,7 +38,7 @@ import ca.n4dev.aegaeonnext.common.model.Scope
  */
 interface ScopeRepository {
 
-    fun getAllScopes(): List<Scope>
+    fun getScopes(page: Page): QueryResult<Scope>
 
     fun getScopeByCode(code: String): Scope?
 
@@ -44,7 +46,10 @@ interface ScopeRepository {
 
     fun getAllClaims(): List<Claim>
 
-    fun getAllScopesAndClaims(): Map<Scope, List<Claim>>
+    fun getClaimsByScopes(scopeIds: Set<Long>): Map<Long, List<Claim>>
 
     fun getDistinctClaimsByScopes(scopeIds: Set<Long>): List<Claim>
+
+    fun getClaimsByScopeId(scopeId: Long, page: Page): QueryResult<Claim>
+
 }

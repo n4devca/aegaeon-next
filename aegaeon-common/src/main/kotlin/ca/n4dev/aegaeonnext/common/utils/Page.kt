@@ -22,6 +22,9 @@
 
 package ca.n4dev.aegaeonnext.common.utils
 
+import kotlin.math.max
+import kotlin.math.min
+
 /**
  *
  * Page.java
@@ -31,13 +34,18 @@ package ca.n4dev.aegaeonnext.common.utils
  * @since 2.0.0 - Nov 21 - 2019
  *
  */
+fun computeOffSet(page: Int, size: Int) = page.coerceAtLeast(0) * size
+
 interface Page {
 
-    fun getPageNumber(): Int = 1
+    val page: Int
 
-    fun getPageSize(): Int = 25
+    val size: Int
 
-    fun getSorts() : Set<Sort> = emptySet()
+    val sorts: Set<Sort>
+        get() = emptySet()
+
+    fun toParams() = mutableMapOf<String, Any>("offset" to computeOffSet(page, size), "limit" to size)
 }
 
 enum class Direction {
@@ -45,32 +53,28 @@ enum class Direction {
 }
 
 interface Sort {
-    fun getName() : String
-
-    fun getDirection() : Direction
+    val name: String
+    val direction: Direction
 }
 
 interface QueryResult<R> {
 
-    fun getPage() : Page
+    val result: List<R>
 
-    fun getTotalResult() : Long
+    val size: Int
+        get() = result.size
 
-    fun getResult() : List<R>
-}
+    val totalResult: Long
 
-fun <R> resultOf(results : List<R>, page: Page, total: Long): QueryResult<R> {
-    return object : QueryResult<R> {
-        override fun getPage(): Page {
-            return page
-        }
+    val page: Page
 
-        override fun getTotalResult(): Long {
-            return total
-        }
-
-        override fun getResult(): List<R> {
-            return results
-        }
+    fun <D> mapTo(transform: (R) -> D): QueryResult<D> {
+        return QueryResultImpl<D>(result.map(transform), totalResult, page)
     }
 }
+
+private class QueryResultImpl<R>(override val result: List<R>, override val totalResult: Long, override val page: Page) : QueryResult<R>
+private class PageImpl(override val page: Int, override val size: Int) : Page
+
+fun pageOf(pageNumber: Int = 0, pageSize: Int = 25): Page = PageImpl(max(pageNumber, 0), min(max(pageSize, 0), 100))
+fun <R> resultOf(results : List<R>, page: Page, total: Long): QueryResult<R> = QueryResultImpl(results, total, page)

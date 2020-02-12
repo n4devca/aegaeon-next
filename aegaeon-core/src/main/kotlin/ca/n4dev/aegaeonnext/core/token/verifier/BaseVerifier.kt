@@ -45,11 +45,13 @@ abstract class BaseVerifier(private val serverInfo: AegaeonServerInfo) : Verifie
     /* (non-Javadoc)
      * @see ca.n4dev.aegaeon.api.token.verifier.TokenVerifier#validate(java.lang.String)
      */
-    override fun validate(pToken: String): Boolean {
+    override fun validate(clientPublicId: String, pToken: String): Boolean {
 
         try {
             val signedJWT = SignedJWT.parse(pToken)
-            return signedJWT.verify(getJwsVerifier()) && signedJWT.jwtClaimsSet.issuer == serverInfo.issuer
+            return signedJWT.verify(getJwsVerifier())
+                && signedJWT.jwtClaimsSet.issuer == serverInfo.issuer
+                && signedJWT.jwtClaimsSet.audience.contains(clientPublicId)
         } catch (e: Exception) {
             // ignore
         }

@@ -26,6 +26,7 @@ import ca.n4dev.aegaeonnext.common.model.ROLE_CLIENT
 import ca.n4dev.aegaeonnext.common.model.ROLE_USER
 import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationFilter
 import ca.n4dev.aegaeonnext.core.security.AccessTokenAuthenticationProvider
+import ca.n4dev.aegaeonnext.core.security.AccessTokenEntryPoint
 import ca.n4dev.aegaeonnext.core.security.PromptAwareAuthenticationFilter
 import ca.n4dev.aegaeonnext.core.service.AuthenticationService
 import ca.n4dev.aegaeonnext.core.service.ClientService
@@ -85,9 +86,7 @@ class SecurityConfiguration {
     }
 
     @Bean
-    fun authenticationEntryPoint(): AuthenticationEntryPoint {
-        return AuthenticationEntryPoint { _, pResponse, _ -> pResponse.sendError(HttpServletResponse.SC_UNAUTHORIZED) }
-    }
+    fun authenticationEntryPoint(): AuthenticationEntryPoint = AccessTokenEntryPoint()
 }
 
 @Configuration
@@ -148,6 +147,8 @@ class UserInfoWebSecurityConfigurerAdapter(val serverInfo: AegaeonServerInfo,
             .authorizeRequests()
             .anyRequest().hasAnyAuthority(ROLE_USER)
             .and()
+            .exceptionHandling()
+            .and()
             .csrf().disable()
             .addFilterBefore(accessTokenAuthenticationFilter(), UsernamePasswordAuthenticationFilter::class.java)
             .sessionManagement()
@@ -172,9 +173,9 @@ class FormLoginWebSecurityConfigurerAdapter(private val userDetailsService: User
             .authorizeRequests()
             .antMatchers("/resources/**",
                          ServerInfoControllerURL,
+                         JwkControllerURL,
                          ErrorControllerURL
                 /*
-                PublicJwkController.URL,
                 SimpleHomeController.URL,
                 SimpleCreateAccountController.URL,
                 SimpleCreateAccountController.URL_ACCEPT

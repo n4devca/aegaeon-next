@@ -26,6 +26,7 @@ import ca.n4dev.aegaeonnext.common.model.User
 import ca.n4dev.aegaeonnext.common.model.UserInfo
 import ca.n4dev.aegaeonnext.common.repository.UserRepository
 import ca.n4dev.aegaeonnext.core.token.OAuthUser
+import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import java.time.Instant
@@ -34,15 +35,15 @@ import java.time.Instant
 private fun userToUserDto(user: User): UserDto =
     // TODO(RG): It's mainly a copy, see possible transformation
     UserDto(user.id,
-        user.userName,
-        user.uniqueIdentifier,
-        user.name,
-        user.picture,
-        user.locale,
-        user.enabled,
-        user.locked,
-        user.lastLoginDate,
-        user.version)
+            user.userName,
+            user.uniqueIdentifier,
+            user.name,
+            user.picture,
+            user.locale,
+            user.enabled,
+            user.locked,
+            user.lastLoginDate,
+            user.version)
 
 
 /**
@@ -57,6 +58,11 @@ class UserService(private val userRepository: UserRepository,
     @Transactional(readOnly = true)
     fun getUserById(id: Long): UserDto? {
         return userRepository.getUserById(id)?.let { user -> userToUserDto(user) }
+    }
+
+    @Transactional(readOnly = true)
+    fun getUserAuthoritiesByUserId(userId: Long): List<UserAuthorityDto> {
+        return userRepository.getUserAuthorities(userId).map { authority -> UserAuthorityDto(authority.code) }
     }
 
     /*
@@ -74,7 +80,8 @@ class UserService(private val userRepository: UserRepository,
         return if (scopes.isNotEmpty()) {
 
             val userId = requireNotNull(userDto.id)
-            val claims = scopeService.getDistinctClaimsByScopes(scopes)
+            val scopeIds = scopes.map { scopeDto -> scopeDto.id }.toSet()
+            val claims = scopeService.getDistinctClaimsByScopes(scopeIds)
             val userInfos: List<UserInfo> = userRepository.getUserInfoByUserId(userId)
 
             val filterInfos: List<UserInfo> = userInfos.filter { userInfo ->
@@ -89,8 +96,6 @@ class UserService(private val userRepository: UserRepository,
             }.toMap().toMutableMap()
 
             // TODO(RG) Add some values from user directly?
-
-
             payloadFromInfos
         } else {
             emptyMap()
@@ -99,16 +104,22 @@ class UserService(private val userRepository: UserRepository,
     }
 }
 
-data class UserDto(val id: Long?,
-                   val userName: String,
-                   val uniqueIdentifier: String,
-                   val name: String,
-                   val picture: String? = null,
-                   val locale: String? = null,
-                   val enabled: Boolean = true,
-                   val locked: Boolean = false,
-                   val lastLoginDate: Instant? = null,
-                   val version: Int = 0)
+data class UserDto(
+    val id: Long,
+    val userName: String,
+    val uniqueIdentifier: String,
+    val name: String,
+    val picture: String? = null,
+    val locale: String? = null,
+    val enabled: Boolean = true,
+    val locked: Boolean = false,
+    val lastLoginDate: Instant? = null,
+    val version: Int = 0
+)
+
+data class UserAuthorityDto(
+    val code: String
+)
 
 fun asOAuthUser(userDto: UserDto): OAuthUser {
     return OAuthUser(userDto.id, userDto.uniqueIdentifier, userDto.name, ROLE_USER)

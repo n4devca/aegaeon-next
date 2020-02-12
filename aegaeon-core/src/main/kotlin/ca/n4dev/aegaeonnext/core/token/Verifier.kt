@@ -58,10 +58,11 @@ interface Verifier {
      * a JWT token. If the value is a jwt token, the claims must be extract and
      * date must be check.
      *
+     * @param clientPublicId The client validating the token.
      * @param pToken The token to validate.
      * @return true or false.
      */
-    fun validate(pToken: String): Boolean
+    fun validate(clientPublicId: String, pToken: String): Boolean
 
     /**
      * Extract a jwt token.

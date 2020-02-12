@@ -57,19 +57,14 @@ internal class UserRepositoryImplTest {
 
     @Test
     fun createUser() {
-        val user = User(id = null,
-                        userName = "test_user@junit",
-                        password = "{bcrypt}password",
-                        uniqueIdentifier = UUID.randomUUID().toString(),
-                        name = "test",
-                        createdAt = Instant.now())
-
-        val userId = userRepository.create(user)
+        val userId = userRepository.create("test_user@junit",
+                                           UUID.randomUUID().toString(),
+                                           "test",
+                                           "{bcrypt}password",
+                                           true)
         assertNotNull(userId, "New user id")
 
         val createdUser = userRepository.getUserById(userId)
         assertNotNull(createdUser, "Cannot load user ${userId}")
-
-
     }
 }

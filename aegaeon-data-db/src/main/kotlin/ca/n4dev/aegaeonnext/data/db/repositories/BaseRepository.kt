@@ -22,6 +22,7 @@
 
 package ca.n4dev.aegaeonnext.data.db.repositories
 
+import ca.n4dev.aegaeonnext.common.utils.Page
 import org.springframework.dao.OptimisticLockingFailureException
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert
@@ -73,6 +74,10 @@ abstract class BaseRepository(protected val jdbcTemplate: NamedParameterJdbcTemp
         return jdbcTemplate.queryForObject(query, params, Long::class.java) ?: 0
     }
 
+    protected fun countAll() : Long {
+        return jdbcTemplate.queryForObject("select count(*) from ${getTableName()}", emptyMap<String, Any>(), Long::class.java) ?: 0
+    }
+
     protected fun delete(tableName: String, id: Long): Int {
         return jdbcTemplate.update("delete from $tableName where id = :id", mapOf("id" to id))
     }
@@ -101,7 +106,3 @@ abstract class BaseRepository(protected val jdbcTemplate: NamedParameterJdbcTemp
 fun toInstant(timestamp: Timestamp?): Instant? = timestamp?.toInstant()
 
 fun toNonNullInstant(timestamp: Timestamp): Instant = timestamp.toInstant()
-
-// Zero based
-fun computeOffSet(page: Int, size: Int) = (page - 1).coerceAtLeast(0) * size
-

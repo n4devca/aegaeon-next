@@ -17,43 +17,37 @@
  * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
+ *
  */
 
-package ca.n4dev.aegaeonnext.core.service
+package ca.n4dev.aegaeonnext.core.web
 
-import java.time.Instant
+import ca.n4dev.aegaeonnext.core.token.TokenFactory
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+import javax.servlet.http.HttpServletRequest
 
 /**
  *
- * BaseTokenService.java
+ * JwkController.java
  * TODO(rguillemette) Add description.
  *
  * @author rguillemette
- * @since 2.0.0 - Nov 21 - 2019
+ * @since 2.0.0 - Feb 06 - 2020
  *
  */
-abstract class BaseTokenService {
 
-    /**
-     * @return The type of token handle by the service.
-     */
-    abstract fun getManagedTokenType(): TokenType
+const val JwkControllerURL = "/jwk"
 
+@RestController
+@RequestMapping(JwkControllerURL)
+@ConditionalOnProperty(prefix = "aegaeon.modules", name = ["information"], havingValue = "true", matchIfMissing = true)
+class JwkController(private val tokenFactory: TokenFactory) {
 
+    @GetMapping("", produces = ["application/json"])
+    fun jwk(httpServletRequest: HttpServletRequest): String {
+        return tokenFactory.publicJwks()
+    }
 }
-
-enum class TokenType {
-    ACCESS_TOKEN,
-    ID_TOKEN,
-    REFRESH_TOKEN
-}
-
-data class TokenDto(
-    val id: Long,
-    val token: String,
-    val tokenType: TokenType,
-    val clientId: Long,
-    val userId: Long,
-    val scopes: String,
-    val validUntil: Instant?
-)
