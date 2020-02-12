@@ -26,14 +26,14 @@
       layout:decorate="~{base-page}">
 <body>
 <section layout:fragment="content">
-    <section class="t-signinpage">
-        <form th:action="@{/login}" method="POST">
+    <section class="t-user-profile">
+        <form th:action="@{/user-profile}" method="POST">
             <div class="panel">
-                <div class="panel-header">
-                    <h1 th:text="#{page.signin.form.title}"></h1>
-                </div>
                 <div class="panel-body">
 
+                    User Profile
+
+                    <!-- /*
                     <div th:if="${param.error}" class="panel">
                         <div class="panel-body panel-body-warning">
                             <p th:text="#{page.signin.form.error}">Invalid username and password.</p>
@@ -47,9 +47,11 @@
                     <input type="password" class="form-input" required="required"
                            id="password" name="password"
                            th:placeholder="#{page.signin.form.input.placeholder.passwd}"/>
+                     */ -->
                 </div>
                 <div class="panel-footer is-right">
-                    <input type="submit" class="btn btn-default" value="Login" th:value="#{action.login}" name="submit">
+                    <input type="submit" class="btn btn-default" name="save"
+                           value="save" th:value="#{action.save}">
                 </div>
             </div>
         </form>
