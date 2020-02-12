@@ -28,7 +28,8 @@ import org.springframework.stereotype.Component
 /**
  *
  * AuthorizationInterceptor
- * TODO(rguillemette) Add description.
+ *
+ * An interface that can be implemented if more validation is needed before authorization.
  *
  * @author rguillemette
  * @since Dec 30 - 2019
@@ -38,6 +39,14 @@ interface AuthorizationValidator {
     fun validate(userDetails: AegaeonUserDetails, clientDto: ClientDto): Boolean
 }
 
+/**
+ * AuthorizationValidatorImpl
+ *
+ * Default implementation returning true.
+ *
+ * @author rguillemette
+ * @since Dec 30 - 2019
+ */
 @Component
 class AuthorizationValidatorImpl : AuthorizationValidator {
     override fun validate(userDetails: AegaeonUserDetails, clientDto: ClientDto): Boolean = true
