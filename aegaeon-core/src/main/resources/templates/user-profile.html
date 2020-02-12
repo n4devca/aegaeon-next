@@ -35,42 +35,28 @@
                 <div class="panel-body">
 
                     <h1 th:text="#{page.userprofile.title}"></h1>
-                    <hr />
-                    <label for="up-name" class="form-caption" th:text="#{page.userprofile.label.name}">Name</label>
+                    <hr/>
+                    <label for="up-name" class="form-caption" th:text="#{page.user-profile.label.name}">Name</label>
                     <input id="up-name" type="text" class="form-input"
-                           th:placeholder="#{page.userprofile.placeholder.name}"
-                           th:field="*{name}" />
+                           th:placeholder="#{page.user-profile.placeholder.name}"
+                           th:field="*{name}"/>
 
+                    <label for="up-picture" class="form-caption" th:text="#{page.user-profile.label.picture}">Picture</label>
+                    <input id="up-picture" type="url" class="form-input"
+                           th:placeholder="#{page.user-profile.placeholder.picture}"
+                           th:field="*{picture}"/>
 
-                    <!-- /*
-                    th:field="*{name}"
-                    val id: Long,
-    val userName: String,
-    val uniqueIdentifier: String,
-    val name: String,
-    val picture: String? = null,
-    val locale: String? = null,
-    val enabled: Boolean = true,
-    val locked: Boolean = false,
-    val lastLoginDate: Instant? = null,
-    val version: Int = 0
+                    <label for="up-language" class="form-caption" th:text="#{page.user-profile.label.language}">Language</label>
+                    <select id="up-language" th:field="*{locale}">
+                        <option th:each="locale : ${availableLocales}"
+                                th:value="${locale}" th:selected="${#strings.equalsIgnoreCase(locale, user.locale)}"></option>
+                    </select>
 
-                    */ -->
-                    <!-- /*
-                    <div th:if="${param.error}" class="panel">
-                        <div class="panel-body panel-body-warning">
-                            <p th:text="#{page.signin.form.error}">Invalid username and password.</p>
-                        </div>
-                    </div>
+                    <input type="hidden" th:field="*{id}"/>
+                    <input type="hidden" th:field="*{userName}"/>
+                    <input type="hidden" th:field="*{uniqueIdentifier}"/>
+                    <input type="hidden" th:field="*{version}"/>
 
-                    <input type="text" class="form-input"
-                           id="username" name="username" autofocus="autofocus" required="required"
-                           th:placeholder="#{page.signin.form.input.placeholder.username}"/>
-
-                    <input type="password" class="form-input" required="required"
-                           id="password" name="password"
-                           th:placeholder="#{page.signin.form.input.placeholder.passwd}"/>
-                     */ -->
                 </div>
                 <div class="panel-footer is-right">
                     <input type="submit" class="btn btn-default" name="save" value="save" th:value="#{action.save}" />

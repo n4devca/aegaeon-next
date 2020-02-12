@@ -41,7 +41,8 @@ import java.util.*
 /**
  *
  * WebConfiguration.java
- * TODO(rguillemette) Add description.
+ *
+ * Main aegaeon configuration.
  *
  * @author rguillemette
  * @since 2.0.0 - Oct 04 - 2019
@@ -68,6 +69,9 @@ class WebConfiguration : WebMvcConfigurer {
 
     @Value("\${aegaeon.info.customStyleSheet:#{null}}")
     private val customStyleSheet: String? = null
+
+    @Bean
+    fun serverLocales() = ServerLocales()
 
     @Bean
     fun localeResolver(): LocaleResolver {
@@ -102,4 +106,11 @@ class WebConfiguration : WebMvcConfigurer {
     override fun addArgumentResolvers(pArgumentResolvers: MutableList<HandlerMethodArgumentResolver>) {
         pArgumentResolvers.add(RequestMethodArgumentResolver())
     }
+}
+
+
+class ServerLocales {
+    fun availableLocales() = listOf<Locale>(Locale.CANADA, Locale.CANADA_FRENCH)
+
+    fun availableLocalesAsString() = availableLocales().map { locale -> locale.toString() }
 }

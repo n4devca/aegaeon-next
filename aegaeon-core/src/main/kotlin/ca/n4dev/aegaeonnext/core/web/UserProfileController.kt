@@ -21,6 +21,7 @@
 
 package ca.n4dev.aegaeonnext.core.web
 
+import ca.n4dev.aegaeonnext.core.config.ServerLocales
 import ca.n4dev.aegaeonnext.core.security.AegaeonUserDetails
 import ca.n4dev.aegaeonnext.core.service.ScopeService
 import ca.n4dev.aegaeonnext.core.service.UserService
@@ -50,17 +51,20 @@ const val UserProfileControllerURL = "/user-profile"
 @RequestMapping(UserProfileControllerURL)
 @ConditionalOnProperty(prefix = "aegaeon.modules", name = ["account"], havingValue = "true", matchIfMissing = true)
 class UserProfileController(private val userService: UserService,
-                            private val scopeService: ScopeService) {
+                            private val scopeService: ScopeService,
+                            private val serverLocales: ServerLocales) {
 
     private val userProfilePage = "user-profile"
 
     @GetMapping
     fun getProfilePage(authentication: Authentication): ModelAndView {
 
+        val view = ModelAndView(userProfilePage)
         val userDetails = authentication.principal as AegaeonUserDetails
 
-        val view = ModelAndView(userProfilePage)
         view.addObject("user", userService.getUserById(userDetails.id))
+        view.addObject("availableLocales", serverLocales.availableLocalesAsString());
+
         return view
     }
 }
