@@ -1,3 +1,5 @@
+**This project is temporarily on pause because of covid-19. Taking case of my family is my current priority. Stay safe!**
+
 # Aegaeon
 
 **Aegaeon Next is a rewrite of Aegaeon in Kotlin**
