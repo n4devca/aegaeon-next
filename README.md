@@ -1,7 +1,8 @@
 ```html
 Note:
  
-This project is temporarily on pause because of covid-19. Taking care of my family is my current priority.
+This project is temporarily on pause because of covid-19. 
+Taking care of my family is my current priority.
 
 Stay safe !
 ```
